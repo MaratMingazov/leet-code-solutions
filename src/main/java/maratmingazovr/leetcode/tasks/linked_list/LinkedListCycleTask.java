@@ -30,7 +30,6 @@ public class LinkedListCycleTask {
 
         Set<Node> values = new HashSet<>();
         values.add(head);
-        log.info(values);
 
         while((head = head.getNext()) != null) {
             if (values.contains(head)) {
@@ -38,7 +37,6 @@ public class LinkedListCycleTask {
             } else {
                 values.add(head);
             }
-            log.info(values);
         }
         return false;
     }
