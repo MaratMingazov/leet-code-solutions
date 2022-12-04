@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Log4j2
 @Service
-public class LinkedListCycle {
+public class LinkedListCycleTask {
 
     /**
      * O(n) memory solution

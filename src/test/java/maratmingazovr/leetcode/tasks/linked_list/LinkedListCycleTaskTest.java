@@ -17,17 +17,17 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
-@Import(LinkedListCycle.class)
-public class LinkedListCycleTest {
+@Import(LinkedListCycleTask.class)
+public class LinkedListCycleTaskTest {
 
     @Autowired
-    LinkedListCycle linkedListCycle;
+    LinkedListCycleTask linkedListCycleTask;
 
     @ParameterizedTest
     @MethodSource("provideInputsForTestHasCycle")
     void testHasCycle(@Nullable Node head, @NonNull boolean expectedOutput) {
-        val actualOutputSolution1 = linkedListCycle.hasCycleSolution1(head);
-        val actualOutputSolution2 = linkedListCycle.hasCycleSolution2(head);
+        val actualOutputSolution1 = linkedListCycleTask.hasCycleSolution1(head);
+        val actualOutputSolution2 = linkedListCycleTask.hasCycleSolution2(head);
 
         assertEquals(expectedOutput, actualOutputSolution1);
         assertEquals(expectedOutput, actualOutputSolution2);
