@@ -1,8 +1,6 @@
 package maratmingazovr.leetcode.neural_network;
 
-import lombok.Data;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.DoubleUnaryOperator;
 

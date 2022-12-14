@@ -1,18 +1,18 @@
 package maratmingazovr.leetcode.neural_network;
 
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 
 public class Layer {
 
+    @NonNull
     // first layer has no previous layer
-    @Nullable
-    public Layer previousLayer;
+    public Optional<Layer> previousLayer;
 
     @NonNull
     public List<Neuron> neurons = new ArrayList<>();
@@ -20,7 +20,7 @@ public class Layer {
 
     public double[] outputCache;
 
-    public Layer(@Nullable Layer previousLayer,
+    public Layer(@NonNull Optional<Layer> previousLayer,
                  int numNeurons, double learningRate,
                  @NonNull DoubleUnaryOperator activationFunction,
                  @NonNull DoubleUnaryOperator derivativeActivationFunction) {
@@ -28,8 +28,8 @@ public class Layer {
         Random random = new Random();
         for (int i = 0; i < numNeurons; i++) {
             double[] randomWeights = null;
-            if (previousLayer != null) {
-                randomWeights = random.doubles(previousLayer.neurons.size()).toArray();
+            if (previousLayer.isPresent()) {
+                randomWeights = random.doubles(previousLayer.get().neurons.size()).toArray();
             }
             Neuron neuron = new Neuron(randomWeights, learningRate, activationFunction, derivativeActivationFunction);
             neurons.add(neuron);
@@ -38,7 +38,7 @@ public class Layer {
     }
 
     public double[] outputs(double[] inputs) {
-        if (previousLayer != null) {
+        if (previousLayer.isPresent()) {
             outputCache = neurons.stream().mapToDouble(n -> n.output(inputs)).toArray();
         } else {
             outputCache = inputs;
