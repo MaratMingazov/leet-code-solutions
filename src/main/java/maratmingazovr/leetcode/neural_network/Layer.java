@@ -20,6 +20,8 @@ public class Layer {
 
     public double[] outputCache;
 
+    public double lastLayerTotalError = 0d;
+
     public Layer(@NonNull Optional<Layer> previousLayer,
                  int numNeurons, double learningRate,
                  @NonNull DoubleUnaryOperator activationFunction,
@@ -37,9 +39,9 @@ public class Layer {
         outputCache = new double[numNeurons];
     }
 
-    public double[] outputs(double[] inputs) {
+    public double[] calculateOutputs(double[] inputs) {
         if (previousLayer.isPresent()) {
-            outputCache = neurons.stream().mapToDouble(n -> n.output(inputs)).toArray();
+            outputCache = neurons.stream().mapToDouble(neuron -> neuron.calculateOutput(inputs)).toArray();
         } else {
             outputCache = inputs;
         }
@@ -48,10 +50,13 @@ public class Layer {
 
     // should only be called on output layer
     public void calculateDeltasForOutputLayer(double[] expected) {
+        double totalError = 0d;
         for (int n = 0; n < neurons.size(); n++) {
-            neurons.get(n).delta = neurons.get(n).derivativeActivationFunction.applyAsDouble(neurons.get(n).outputCache)
-                    * (expected[n] - outputCache[n]);
+            neurons.get(n).delta = neurons.get(n).derivativeActivationFunction.applyAsDouble(neurons.get(n).outputCache) * (expected[n] - outputCache[n]);
+            totalError += Math.pow((expected[n] - outputCache[n]),2);
         }
+        this.lastLayerTotalError = totalError;
+
     }
 
     // should not be called on output layer

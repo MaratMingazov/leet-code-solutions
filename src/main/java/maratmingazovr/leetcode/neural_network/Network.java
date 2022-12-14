@@ -31,10 +31,10 @@ public class Network<T> {
 
     // Pushes input data to the first layer, then output from the first
     // as input to the second, second to the third, etc.
-    private double[] outputs(double[] input) {
+    private double[] calculateOutputs(double[] input) {
         double[] result = input;
         for (Layer layer : layers) {
-            result = layer.outputs(result);
+            result = layer.calculateOutputs(result);
         }
         return result;
 
@@ -71,7 +71,7 @@ public class Network<T> {
         for (int i = 0; i < inputs.size(); i++) {
             double[] xs = inputs.get(i);
             double[] ys = expecteds.get(i);
-            outputs(xs);
+            calculateOutputs(xs);
             backpropagate(ys);
             updateWeights();
         }
@@ -97,7 +97,7 @@ public class Network<T> {
         for (int i = 0; i < inputs.size(); i++) {
             double[] input = inputs.get(i);
             T expected = expecteds.get(i);
-            T result = interpret.apply(outputs(input));
+            T result = interpret.apply(calculateOutputs(input));
             if (result.equals(expected)) {
                 correct++;
             }

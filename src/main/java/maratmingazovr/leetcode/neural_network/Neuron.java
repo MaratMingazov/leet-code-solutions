@@ -30,7 +30,7 @@ public class Neuron {
         this.derivativeActivationFunction = derivativeActivationFunction;
     }
 
-    public double output(double[] inputs) {
+    public double calculateOutput(double[] inputs) {
         outputCache = Util.dotProduct(inputs, weights);
         return activationFunction.applyAsDouble(outputCache);
     }
