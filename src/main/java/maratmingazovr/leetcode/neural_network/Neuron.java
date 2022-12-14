@@ -2,17 +2,22 @@ package maratmingazovr.leetcode.neural_network;
 
 import lombok.Data;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.DoubleUnaryOperator;
 
-@Data
 public class Neuron {
 
-    double[] weights;
-    final double learningRate;
-    double outputCache;
-    double delta;
+    // First layer neuron has no weights
+    public double[] weights;
+    public final double learningRate;
+    public double outputCache;
+    public double delta;
+
+    @NonNull
     final DoubleUnaryOperator activationFunction;
+
+    @NonNull
     final DoubleUnaryOperator derivativeActivationFunction;
 
     public Neuron(double[] weights,
