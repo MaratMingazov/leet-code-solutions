@@ -107,7 +107,7 @@ public class Network<T> {
                 backpropagate(ys);
                 updateWeights();
             }
-            log.info("totalError = " + layers.get(layers.size()-1).getLastLayerTotalError());
+//            log.info("totalError = " + layers.get(layers.size()-1).getLastLayerTotalError());
         }
 
     }

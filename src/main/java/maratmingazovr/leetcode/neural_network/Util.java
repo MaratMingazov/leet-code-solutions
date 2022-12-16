@@ -1,13 +1,13 @@
 package maratmingazovr.leetcode.neural_network;
 
 import lombok.NonNull;
+import lombok.val;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
@@ -53,17 +53,17 @@ public class Util {
 
     // Assume all rows are of equal length
     // and feature scale each column to be in the range 0 - 1
-    public static void normalizeByFeatureScaling(List<double[]> dataset) {
-        for (int colNum = 0; colNum < dataset.get(0).length; colNum++) {
+    public static void normalizeByFeatureScaling(List<List<Double>> dataset) {
+        for (int colNum = 0; colNum < dataset.get(0).size(); colNum++) {
             List<Double> column = new ArrayList<>();
-            for (double[] row : dataset) {
-                column.add(row[colNum]);
+            for (List<Double> row : dataset) {
+                column.add(row.get(colNum));
             }
             double maximum = Collections.max(column);
             double minimum = Collections.min(column);
             double difference = maximum - minimum;
-            for (double[] row : dataset) {
-                row[colNum] = (row[colNum] - minimum) / difference;
+            for (List<Double> row : dataset) {
+                row.set(colNum, (row.get(colNum) - minimum) / difference);
             }
         }
     }
@@ -82,10 +82,12 @@ public class Util {
     }
 
     // Find the maximum in an array of doubles
-    public static double max(double[] numbers) {
-        return Arrays.stream(numbers)
-                     .max()
-                     .orElse(Double.MIN_VALUE);
+    @NonNull
+    public static Integer getMaxValueIndex(@NonNull List<Double> numbers) {
+        val maxValue = numbers.stream()
+                              .mapToDouble(n -> n)
+                              .max().orElse(Double.MIN_VALUE);
+        return numbers.indexOf(maxValue);
     }
 
 }
