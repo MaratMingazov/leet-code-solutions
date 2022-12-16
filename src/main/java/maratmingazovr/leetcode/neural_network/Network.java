@@ -127,11 +127,11 @@ public class Network<T> {
     // for generalized results that require classification
     // this function will return the correct number of trials
     // and the percentage correct out of the total
-    public Results validate(List<List<Double>> inputs, List<T> expecteds, Function<List<Double>, T> interpret) {
+    public Results validate(List<List<Double>> inputs, List<T> expects, Function<List<Double>, T> interpret) {
         int correct = 0;
         for (int i = 0; i < inputs.size(); i++) {
             val input = inputs.get(i);
-            T expected = expecteds.get(i);
+            T expected = expects.get(i);
             T result = interpret.apply(calculateOutputs(input));
             if (result.equals(expected)) {
                 correct++;

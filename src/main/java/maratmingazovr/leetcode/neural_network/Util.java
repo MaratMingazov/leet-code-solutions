@@ -4,10 +4,10 @@ import lombok.NonNull;
 import lombok.val;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
@@ -69,15 +69,14 @@ public class Util {
     }
 
     // Load a CSV file into a List of String arrays
-    public static List<String[]> loadCSV(String filename) {
-        try (InputStream inputStream = Util.class.getResourceAsStream(filename)) {
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            return bufferedReader.lines().map(line -> line.split(","))
-                                 .collect(Collectors.toList());
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+    public static List<List<String>> loadCSV(String filename) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            return  br.lines()
+                      .map(line -> line.split(","))
+                      .map(Arrays::asList)
+                      .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
