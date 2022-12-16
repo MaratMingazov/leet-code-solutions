@@ -5,7 +5,6 @@ import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.DoubleUnaryOperator;
 
 @Data
 public class Neuron {
@@ -26,16 +25,12 @@ public class Neuron {
     Double delta;
 
     @NonNull
-    final DoubleUnaryOperator activationFunction;
-
-    @NonNull
-    final DoubleUnaryOperator derivativeActivationFunction;
+    final ActivationFunction activationFunction;
 
     public Neuron(@NonNull Integer id,
                   @NonNull List<Double> weights,
                   @Nullable Double biasWeight,
-                  @NonNull DoubleUnaryOperator activationFunction,
-                  @NonNull DoubleUnaryOperator derivativeActivationFunction) {
+                  @NonNull ActivationFunction activationFunction) {
 
         this.id = id;
         this.weights = weights;
@@ -43,7 +38,6 @@ public class Neuron {
         this.outputCache = 0.0;
         this.delta = 0.0;
         this.activationFunction = activationFunction;
-        this.derivativeActivationFunction = derivativeActivationFunction;
     }
 
 
@@ -54,6 +48,6 @@ public class Neuron {
         }
 
         outputCache = Util.dotProduct(inputs, weights) + biasWeight;
-        return activationFunction.applyAsDouble(outputCache);
+        return Util.getActivationFunction(activationFunction).applyAsDouble(outputCache);
     }
 }

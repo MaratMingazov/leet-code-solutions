@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 
 @Data
@@ -22,10 +21,10 @@ public class Layer {
     Layer previousLayer;
 
     @NonNull
-    List<Neuron> neurons;
+    List<Neuron> neurons = new ArrayList<>();
 
     @NonNull
-    List<Double> outputCache;
+    List<Double> outputCache = new ArrayList<>();
 
     @NonNull
     Double lastLayerTotalError;
@@ -38,8 +37,7 @@ public class Layer {
                  @NonNull Integer neuronsCount,
                  @NonNull List<List<Double>> layerWeights,
                  @NonNull List<Double> layerBiasWeights,
-                 @NonNull DoubleUnaryOperator activationFunction,
-                 @NonNull DoubleUnaryOperator derivativeActivationFunction) {
+                 @NonNull ActivationFunction activationFunction) {
 
         this.id = id;
         this.previousLayer = previousLayer;
@@ -51,8 +49,7 @@ public class Layer {
             Neuron neuron = new Neuron(neuronId,
                                        neuronWeights,
                                        biasWeight,
-                                       activationFunction,
-                                       derivativeActivationFunction);
+                                       activationFunction);
             neurons.add(neuron);
         }
     }
@@ -105,7 +102,7 @@ public class Layer {
         double totalError = 0d;
         for (int i = 0; i < neurons.size(); i++) {
             val neuron = neurons.get(i);
-            val derivative = neuron.derivativeActivationFunction.applyAsDouble(neuron.outputCache);
+            val derivative = Util.getDerivativeActivationFunction(neuron.getActivationFunction()).applyAsDouble(neuron.outputCache);
             neuron.delta = derivative  * (expected.get(i) - outputCache.get(i));
             totalError += Math.pow((expected.get(i) - outputCache.get(i)),2);
         }
@@ -124,7 +121,7 @@ public class Layer {
                                               .collect(Collectors.toList());
             double sumWeightsAndDeltas = Util.dotProduct(nextWeights, nextDeltas);
             val neuron = neurons.get(i);
-            val derivative = neuron.derivativeActivationFunction.applyAsDouble(neuron.outputCache);
+            val derivative = Util.getDerivativeActivationFunction(neuron.getActivationFunction()).applyAsDouble(neuron.outputCache);
             neuron.delta = derivative * sumWeightsAndDeltas;
         }
     }

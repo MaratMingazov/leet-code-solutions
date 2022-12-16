@@ -3,10 +3,11 @@ package maratmingazovr.leetcode.neural_network;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
 @Data
@@ -18,10 +19,12 @@ public class Network<T> {
     @NonNull
     Double learningRate;
 
+    @NonNull
+    Logger log = LoggerFactory.getLogger(Network.class);
+
     public Network(@NonNull List<Integer> layerStructure,
                    @NonNull Double learningRate,
-                   @NonNull DoubleUnaryOperator activationFunction,
-                   @NonNull DoubleUnaryOperator derivativeActivationFunction) {
+                   @NonNull ActivationFunction activationFunction) {
 
         if (layerStructure.size() < 3) {
             throw new IllegalArgumentException("Error: Should be at least 3 layers (1 input, 1 hidden, 1 output).");
@@ -34,8 +37,7 @@ public class Network<T> {
                                      layerStructure.get(0),
                                      List.of(),
                                      List.of(),
-                                     activationFunction,
-                                     derivativeActivationFunction);
+                                     activationFunction);
         layers.add(inputLayer);
 
         // hidden layers and output layer
@@ -45,8 +47,7 @@ public class Network<T> {
                                         layerStructure.get(layerId),
                                         List.of(),
                                         List.of(),
-                                        activationFunction,
-                                        derivativeActivationFunction);
+                                        activationFunction);
             layers.add(nextLayer);
         }
     }
@@ -95,14 +96,20 @@ public class Network<T> {
 
     // train() uses the results of outputs() run over many inputs and compared
     // against expecteds to feed backpropagate() and updateWeights()
-    public void train(List<List<Double>> inputs, List<List<Double>> expecteds) {
-        for (int i = 0; i < inputs.size(); i++) {
-            val xs = inputs.get(i);
-            val  ys = expecteds.get(i);
-            calculateOutputs(xs);
-            backpropagate(ys);
-            updateWeights();
+    public void train(@NonNull List<List<Double>> inputs,
+                      @NonNull List<List<Double>> expecteds,
+                      @NonNull Long epoh) {
+        for (int e = 0; e < epoh; e++) {
+            for (int i = 0; i < inputs.size(); i++) {
+                val xs = inputs.get(i);
+                val  ys = expecteds.get(i);
+                calculateOutputs(xs);
+                backpropagate(ys);
+                updateWeights();
+            }
+            log.info("totalError = " + layers.get(layers.size()-1).getLastLayerTotalError());
         }
+
     }
 
     public class Results {

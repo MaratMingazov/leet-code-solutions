@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 
 public class Util {
@@ -22,6 +23,22 @@ public class Util {
             sum += xs.get(i) * ys.get(i);
         }
         return sum;
+    }
+
+    @NonNull
+    public static DoubleUnaryOperator getActivationFunction(@NonNull ActivationFunction activationFunction) {
+        switch (activationFunction) {
+            case SIGMOID: return Util::sigmoid;
+            default: throw new IllegalArgumentException();
+        }
+    }
+
+    @NonNull
+    public static DoubleUnaryOperator getDerivativeActivationFunction(@NonNull ActivationFunction activationFunction) {
+        switch (activationFunction) {
+            case SIGMOID: return Util::sigmoidDerivative;
+            default: throw new IllegalArgumentException();
+        }
     }
 
     // the classic sigmoid activation function
