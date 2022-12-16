@@ -1,11 +1,14 @@
 package maratmingazovr.leetcode.neural_network;
 
 import lombok.val;
+import maratmingazovr.leetcode.neural_network.iris_classification.IrisClassificator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 import java.util.List;
 
@@ -31,5 +34,12 @@ public class NetworkTest {
         assertEquals(0, Util.getMaxValueIndex(output0));
         assertEquals(1, Util.getMaxValueIndex(output1));
         assertEquals(2, Util.getMaxValueIndex(output2));
+    }
+
+    @Test
+    void testIrisClassificator() {
+        val irisClassificator = new IrisClassificator();
+        val results = irisClassificator.classify();
+        assertThat("percentage", results.percentage, greaterThanOrEqualTo(0.8D));
     }
 }
