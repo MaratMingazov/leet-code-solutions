@@ -1,5 +1,7 @@
 package maratmingazovr.leetcode.neural_network;
 
+import lombok.NonNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,10 +14,12 @@ import java.util.stream.Collectors;
 
 public class Util {
 
-    public static double dotProduct(double[] xs, double[] ys) {
+    @NonNull
+    public static double dotProduct(@NonNull List<Double> xs,
+                                    @NonNull List<Double> ys) {
         double sum = 0.0;
-        for (int i = 0; i < xs.length; i++) {
-            sum += xs[i] * ys[i];
+        for (int i = 0; i < xs.size(); i++) {
+            sum += xs.get(i) * ys.get(i);
         }
         return sum;
     }
