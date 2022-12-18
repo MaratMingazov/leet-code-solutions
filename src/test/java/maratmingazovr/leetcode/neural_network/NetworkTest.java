@@ -2,15 +2,16 @@ package maratmingazovr.leetcode.neural_network;
 
 import lombok.val;
 import maratmingazovr.leetcode.neural_network.iris_classification.IrisClassificator;
+import maratmingazovr.leetcode.neural_network.wine_classification.WineClassificator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
 import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class NetworkTest {
@@ -41,5 +42,13 @@ public class NetworkTest {
         val irisClassificator = new IrisClassificator();
         val results = irisClassificator.classify();
         assertThat("percentage", results.percentage, greaterThanOrEqualTo(0.8D));
+    }
+
+    @Test
+    void testWineClassificator() {
+        val wineClassificator = new WineClassificator();
+        val results = wineClassificator.classify();
+        assertThat("percentage", results.percentage, greaterThanOrEqualTo(0.8D));
+        System.out.println(results.correct + " / " + results.trials + " / " + results.percentage);
     }
 }
