@@ -70,9 +70,14 @@ public class Util {
 
     // Load a CSV file into a List of String arrays
     public static List<List<String>> loadCSV(String filename) {
+        return loadCSV(filename, ",");
+    }
+
+    @NonNull
+    public static List<List<String>> loadCSV(@NonNull String filename, @NonNull String spliterator) {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             return  br.lines()
-                      .map(line -> line.split(","))
+                      .map(line -> line.split(spliterator))
                       .map(Arrays::asList)
                       .collect(Collectors.toList());
         } catch (IOException e) {
