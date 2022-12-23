@@ -132,10 +132,17 @@ public class Network<T> {
         for (int i = 0; i < inputs.size(); i++) {
             val input = inputs.get(i);
             T expected = expects.get(i);
-            T result = interpret.apply(calculateOutputs(input));
+            val output = calculateOutputs(input);
+            T result = interpret.apply(output);
             if (result.equals(expected)) {
                 correct++;
+                log.info("+");
             }
+            log.info("input = " + input);
+            log.info("expected = " + expected);
+            log.info("output = " + output);
+            log.info("outputValue = " + result);
+            log.info("");
         }
         double percentage = (double) correct / (double) inputs.size();
         return new Results(correct, inputs.size(), percentage);
