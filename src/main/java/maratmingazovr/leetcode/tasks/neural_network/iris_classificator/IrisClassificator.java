@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 public class IrisClassificator extends AbstractClassificator {
 
     public IrisClassificator() {
-        super("src/main/java/maratmingazovr/leetcode/tasks/neural_network/iris_classificator/data/iris.csv",
+        super(
+                "src/main/java/maratmingazovr/leetcode/tasks/neural_network/iris_classificator/data/iris_train.csv",
+                "src/main/java/maratmingazovr/leetcode/tasks/neural_network/iris_classificator/data/iris_test.csv",
               "src/main/java/maratmingazovr/leetcode/tasks/neural_network/iris_classificator/data/configuration.txt");
     }
 
@@ -42,12 +44,12 @@ public class IrisClassificator extends AbstractClassificator {
     }
 
     @Override
-    public void loadData() {
+    public void loadData(@NonNull String datasetFile,
+                         @NonNull List<List<Double>> inputs,
+                         @NonNull List<List<Double>> expects) {
 
         val dataset = Util.loadCSV(datasetFile);
         Collections.shuffle(dataset);
-        List<List<Double>> inputs = new ArrayList<>();
-        List<List<Double>> expects = new ArrayList<>();
 
         for (List<String> data : dataset) {
             List<Double> input = data.stream()
@@ -72,10 +74,5 @@ public class IrisClassificator extends AbstractClassificator {
             }
         }
         Util.normalizeByFeatureScaling(inputs);
-
-        inputsTrain.addAll(inputs.subList(0,140));
-        expectsTrain.addAll(expects.subList(0,140));
-        inputsValidate.addAll(inputs.subList(140,150));
-        expectsValidate.addAll(expects.subList(140,150));
     }
 }
