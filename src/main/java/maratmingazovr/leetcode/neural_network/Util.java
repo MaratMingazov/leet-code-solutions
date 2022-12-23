@@ -4,7 +4,9 @@ import lombok.NonNull;
 import lombok.val;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +31,7 @@ public class Util {
     public static DoubleUnaryOperator getActivationFunction(@NonNull ActivationFunction activationFunction) {
         switch (activationFunction) {
             case SIGMOID: return Util::sigmoid;
+            case RELU: return Util::relu;
             default: throw new IllegalArgumentException();
         }
     }
@@ -37,6 +40,7 @@ public class Util {
     public static DoubleUnaryOperator getDerivativeActivationFunction(@NonNull ActivationFunction activationFunction) {
         switch (activationFunction) {
             case SIGMOID: return Util::sigmoidDerivative;
+            case RELU: return Util::reluDerivative;
             default: throw new IllegalArgumentException();
         }
     }
@@ -49,6 +53,14 @@ public class Util {
     public static double sigmoidDerivative(double x) {
         double sig = sigmoid(x);
         return sig * (1.0 - sig);
+    }
+
+    public static double relu(double x) {
+        return Math.max(0.1, x);
+    }
+
+    public static double reluDerivative(double x) {
+        return x > 0 ? 1 : 0.1;
     }
 
     // Assume all rows are of equal length
@@ -80,6 +92,41 @@ public class Util {
                       .map(line -> line.split(spliterator))
                       .map(Arrays::asList)
                       .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> void saveNetworkConfiguration(@NonNull String filename,
+                                                    @NonNull Network<T> network) {
+        val layers = network.getLayers();
+        val neuronsCount = layers.stream()
+                            .map(layer -> layer.getNeurons().size())
+                            .map(String::valueOf)
+                            .collect(Collectors.toList());
+        String networkStructure = String.join(",", neuronsCount);
+
+        List<List<Double>> weights = new ArrayList<>();
+        for (Layer layer : layers.subList(1,layers.size())) {
+            val neurons = layer.getNeurons();
+            for (Neuron neuron : neurons) {
+                List<Double> neuronWeights = new ArrayList<>(neuron.getWeights());
+                neuronWeights.add(neuron.getBiasWeight());
+                weights.add(neuronWeights);
+            }
+        }
+
+
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            bw.write(networkStructure);
+            for (List<Double> weight : weights) {
+                bw.newLine();
+                val weightsString = weight.stream()
+                                          .map(String::valueOf)
+                                          .collect(Collectors.toList());
+                String weightsLine = String.join(",", weightsString);
+                bw.write(weightsLine);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
