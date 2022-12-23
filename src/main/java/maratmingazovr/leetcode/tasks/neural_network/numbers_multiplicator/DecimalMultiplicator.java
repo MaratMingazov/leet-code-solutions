@@ -10,9 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Multiplicator extends AbstractClassificator {
+public class DecimalMultiplicator extends AbstractClassificator {
 
-    public Multiplicator() {
+    public DecimalMultiplicator() {
         super("src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/numbers.txt",
               "src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/configuration.txt");
     }
