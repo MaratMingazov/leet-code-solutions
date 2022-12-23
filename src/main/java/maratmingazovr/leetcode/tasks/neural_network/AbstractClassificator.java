@@ -15,7 +15,10 @@ import java.util.List;
 public abstract class AbstractClassificator {
 
     @NonNull
-    protected final String datasetFile;
+    protected final String datasetFileTrain;
+
+    @NonNull
+    protected final String datasetFileValidate;
     @NonNull
     protected final String configurationFile;
     @NonNull
@@ -31,9 +34,11 @@ public abstract class AbstractClassificator {
 
     protected Network network;
 
-    protected AbstractClassificator(@NonNull String datasetFile,
+    protected AbstractClassificator(@NonNull String datasetFileTrain,
+                                    @NonNull String datasetFileValidate,
                                     @NonNull String configurationFile) {
-        this.datasetFile = datasetFile;
+        this.datasetFileTrain = datasetFileTrain;
+        this.datasetFileValidate = datasetFileValidate;
         this.configurationFile = configurationFile;
     }
 
@@ -59,5 +64,12 @@ public abstract class AbstractClassificator {
     public abstract Boolean isExpectedEqualToOutput(@NonNull List<Double> expected,
                                                     @NonNull List<Double> output);
 
-    public abstract void loadData();
+    public void loadData() {
+        loadData(datasetFileTrain, inputsTrain, expectsTrain);
+        loadData(datasetFileValidate, inputsValidate, expectsValidate);
+    };
+
+    public abstract void loadData(@NonNull String datasetFile,
+                                  @NonNull List<List<Double>> inputs,
+                                  @NonNull List<List<Double>> expects);
 }
