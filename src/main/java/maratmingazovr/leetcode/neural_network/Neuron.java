@@ -24,13 +24,13 @@ public class Neuron {
     @NonNull
     Double delta;
 
-    @NonNull
+    @Nullable
     final ActivationFunction activationFunction;
 
     public Neuron(@NonNull Integer id,
                   @NonNull List<Double> weights,
                   @Nullable Double biasWeight,
-                  @NonNull ActivationFunction activationFunction) {
+                  @Nullable ActivationFunction activationFunction) {
 
         this.id = id;
         this.weights = weights;

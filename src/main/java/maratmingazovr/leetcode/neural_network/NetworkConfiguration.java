@@ -14,14 +14,21 @@ public class NetworkConfiguration {
     @NonNull
     List<Integer> layersStructure;
 
+    @NonNull
+    List<ActivationFunction> activationFunctions;
+
     // last weight is bias weight
     @NonNull
     List<List<Double>> layersWeights;
 
-    public <T> NetworkConfiguration(@NonNull Network<T> network) {
+    public NetworkConfiguration(@NonNull Network network) {
         layersStructure = network.getLayers().stream()
                                  .map(layer -> layer.getNeurons().size())
                                  .collect(Collectors.toList());
+        activationFunctions = network.getLayers().stream()
+                                     .skip(1)
+                                     .map(Layer::getActivationFunction)
+                                     .collect(Collectors.toList());
         layersWeights = new ArrayList<>();
         val layers = network.getLayers();
         for (Layer layer : layers.subList(1,layers.size())) {
@@ -35,8 +42,10 @@ public class NetworkConfiguration {
     }
 
     public NetworkConfiguration(@NonNull List<Integer> layersStructure,
+                                @NonNull List<ActivationFunction> activationFunctions,
                                 @NonNull List<List<Double>> layersWeights) {
         this.layersStructure = layersStructure;
+        this.activationFunctions = activationFunctions;
         this.layersWeights = layersWeights;
     }
 
@@ -45,6 +54,13 @@ public class NetworkConfiguration {
         val result = layersStructure.stream()
                                  .map(String::valueOf)
                                  .collect(Collectors.toList());
+        return String.join(",", result);
+    }
+
+    public String getActivationFunctionsAsString() {
+        val result = activationFunctions.stream()
+                                    .map(Enum::name)
+                                    .collect(Collectors.toList());
         return String.join(",", result);
     }
 

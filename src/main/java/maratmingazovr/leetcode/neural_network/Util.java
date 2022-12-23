@@ -101,6 +101,8 @@ public class Util {
                                                 @NonNull NetworkConfiguration configuration) {
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
             bw.write(configuration.getLayersStructureAsString());
+            bw.newLine();
+            bw.write(configuration.getActivationFunctionsAsString());
             for (String weight : configuration.getLayersWeightsAsString()) {
                 bw.newLine();
                 bw.write(weight);
@@ -116,11 +118,15 @@ public class Util {
                                   .stream()
                                   .map(Integer::parseInt)
                                   .collect(Collectors.toList());
+        val activationFunctions = data.get(1)
+                                  .stream()
+                                  .map(ActivationFunction::valueOf)
+                                  .collect(Collectors.toList());
         List<List<Double>> layersWeights = new ArrayList<>();
-        for (List<String> weights : data.subList(1, data.size())) {
+        for (List<String> weights : data.subList(2, data.size())) {
             layersWeights.add(weights.stream().map(Double::parseDouble).collect(Collectors.toList()));
         }
-        return new NetworkConfiguration(layersStructure, layersWeights);
+        return new NetworkConfiguration(layersStructure, activationFunctions, layersWeights);
     }
 
     // Find the maximum in an array of doubles

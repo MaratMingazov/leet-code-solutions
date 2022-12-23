@@ -29,6 +29,9 @@ public class Layer {
     @NonNull
     Double lastLayerTotalError;
 
+    @Nullable
+    ActivationFunction activationFunction;
+
     @NonNull
     Random random = new Random();
 
@@ -37,11 +40,12 @@ public class Layer {
                  @NonNull Integer neuronsCount,
                  @NonNull List<List<Double>> layerWeights,
                  @NonNull List<Double> layerBiasWeights,
-                 @NonNull ActivationFunction activationFunction) {
+                 @Nullable ActivationFunction activationFunction) {
 
         this.id = id;
         this.previousLayer = previousLayer;
         this.outputCache = new ArrayList<>();
+        this.activationFunction = activationFunction;
 
         for (int neuronId = 0; neuronId < neuronsCount; neuronId++) {
             val neuronWeights = calculateNeuronWeights(layerWeights, neuronId, previousLayer);
@@ -121,7 +125,10 @@ public class Layer {
                                               .collect(Collectors.toList());
             double sumWeightsAndDeltas = Util.dotProduct(nextWeights, nextDeltas);
             val neuron = neurons.get(i);
-            val derivative = Util.getDerivativeActivationFunction(neuron.getActivationFunction()).applyAsDouble(neuron.outputCache);
+            // input layer has no activation function
+            val derivative = activationFunction == null
+                    ? 1
+                    : Util.getDerivativeActivationFunction(neuron.getActivationFunction()).applyAsDouble(neuron.outputCache);
             neuron.delta = derivative * sumWeightsAndDeltas;
         }
     }

@@ -8,11 +8,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Data
-public class Network<T> {
+public class Network {
 
     @NonNull
      List<Layer> layers = new ArrayList<>();
@@ -25,23 +27,24 @@ public class Network<T> {
 
     public Network(@NonNull List<Integer> layerStructure,
                    @NonNull Double learningRate,
-                   @NonNull ActivationFunction activationFunction) {
+                   @NonNull List<ActivationFunction> activationFunctions) {
 
-        this(layerStructure, List.of(), learningRate, activationFunction);
+        this(layerStructure, List.of(), learningRate, activationFunctions);
     }
 
     public Network(@NonNull NetworkConfiguration configuration) {
         this(
                 configuration.getLayersStructure(),
                 configuration.getLayersWeights(),
-                0.1D, ActivationFunction.SIGMOID
+                0.1D,
+                configuration.getActivationFunctions()
             );
     }
 
     public Network(@NonNull List<Integer> layerStructure,
                    @NonNull List<List<Double>> layersWeights,
                    @NonNull Double learningRate,
-                   @NonNull ActivationFunction activationFunction) {
+                   @NonNull List<ActivationFunction> activationFunctions) {
 
         if (layerStructure.size() < 3) {
             throw new IllegalArgumentException("Error: Should be at least 3 layers (1 input, 1 hidden, 1 output).");
@@ -54,7 +57,7 @@ public class Network<T> {
                                      layerStructure.get(0),
                                      List.of(),
                                      List.of(),
-                                     activationFunction);
+                                     null);
         layers.add(inputLayer);
         int skip = 0;
         // hidden layers and output layer
@@ -70,7 +73,7 @@ public class Network<T> {
                                         layerStructure.get(layerId),
                                         neuronsWeights,
                                         neuronsBiases,
-                                        activationFunction);
+                                        activationFunctions.get(layerId-1));
             layers.add(layer);
             skip += neuronsCount;
         }
@@ -151,40 +154,31 @@ public class Network<T> {
 
     }
 
-    public class Results {
-        public final int correct;
-        public final int trials;
-        public final double percentage;
-
-        public Results(int correct, int trials, double percentage) {
-            this.correct = correct;
-            this.trials = trials;
-            this.percentage = percentage;
-        }
-    }
-
     // for generalized results that require classification
     // this function will return the correct number of trials
     // and the percentage correct out of the total
-    public Results validate(List<List<Double>> inputs, List<T> expects, Function<List<Double>, T> interpret) {
+    public ValidationResult validate(@NonNull List<List<Double>> inputs,
+                                     @NonNull List<List<Double>> expects,
+                                     @NonNull BiFunction<List<Double>, List<Double>, Boolean> interpret) {
         int correct = 0;
         for (int i = 0; i < inputs.size(); i++) {
             val input = inputs.get(i);
-            T expected = expects.get(i);
             val output = calculateOutputs(input);
-            T result = interpret.apply(output);
-            if (result.equals(expected)) {
+            val expected = expects.get(i);
+            val isEqual = interpret.apply(expected, output);
+            if (isEqual) {
                 correct++;
                 log.info("+");
             }
             log.info("input = " + input);
             log.info("expected = " + expected);
             log.info("output = " + output);
-            log.info("outputValue = " + result);
             log.info("");
         }
         double percentage = (double) correct / (double) inputs.size();
-        return new Results(correct, inputs.size(), percentage);
+        log.info(correct + " correct of " + inputs.size() + " = " + percentage * 100 + "%");
+
+        return new ValidationResult(correct, inputs.size(), percentage);
     }
 
     @NonNull
