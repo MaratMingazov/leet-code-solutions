@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Data
@@ -36,7 +34,7 @@ public class Network {
         this(
                 configuration.getLayersStructure(),
                 configuration.getLayersWeights(),
-                0.1D,
+                configuration.getLearningRate(),
                 configuration.getActivationFunctions()
             );
     }
@@ -145,11 +143,12 @@ public class Network {
             for (int i = 0; i < inputs.size(); i++) {
                 val xs = inputs.get(i);
                 val  ys = expecteds.get(i);
-                calculateOutputs(xs);
+                val outputs = calculateOutputs(xs);
+                log.info("input = " + xs + " / expected = " + ys + " / output = " + outputs);
                 backpropagate(ys);
                 updateWeights();
             }
-            log.info("totalError = " + layers.get(layers.size()-1).getLastLayerTotalError());
+            log.info("epoh =" + e + " / totalError = " + layers.get(layers.size()-1).getLastLayerTotalError());
         }
 
     }

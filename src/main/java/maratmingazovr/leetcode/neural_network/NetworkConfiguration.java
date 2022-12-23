@@ -17,6 +17,9 @@ public class NetworkConfiguration {
     @NonNull
     List<ActivationFunction> activationFunctions;
 
+    @NonNull
+    Double learningRate;
+
     // last weight is bias weight
     @NonNull
     List<List<Double>> layersWeights;
@@ -29,6 +32,7 @@ public class NetworkConfiguration {
                                      .skip(1)
                                      .map(Layer::getActivationFunction)
                                      .collect(Collectors.toList());
+        this.learningRate = network.getLearningRate();
         layersWeights = new ArrayList<>();
         val layers = network.getLayers();
         for (Layer layer : layers.subList(1,layers.size())) {
@@ -42,9 +46,11 @@ public class NetworkConfiguration {
     }
 
     public NetworkConfiguration(@NonNull List<Integer> layersStructure,
+                                @NonNull Double learningRate,
                                 @NonNull List<ActivationFunction> activationFunctions,
                                 @NonNull List<List<Double>> layersWeights) {
         this.layersStructure = layersStructure;
+        this.learningRate = learningRate;
         this.activationFunctions = activationFunctions;
         this.layersWeights = layersWeights;
     }
@@ -55,6 +61,11 @@ public class NetworkConfiguration {
                                  .map(String::valueOf)
                                  .collect(Collectors.toList());
         return String.join(",", result);
+    }
+
+    @NonNull
+    public String getLearningRateAsString() {
+        return learningRate.toString();
     }
 
     public String getActivationFunctionsAsString() {
