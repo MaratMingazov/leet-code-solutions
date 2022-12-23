@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 public class Network<T> {
@@ -26,6 +27,22 @@ public class Network<T> {
                    @NonNull Double learningRate,
                    @NonNull ActivationFunction activationFunction) {
 
+        this(layerStructure, List.of(), learningRate, activationFunction);
+    }
+
+    public Network(@NonNull NetworkConfiguration configuration) {
+        this(
+                configuration.getLayersStructure(),
+                configuration.getLayersWeights(),
+                0.1D, ActivationFunction.SIGMOID
+            );
+    }
+
+    public Network(@NonNull List<Integer> layerStructure,
+                   @NonNull List<List<Double>> layersWeights,
+                   @NonNull Double learningRate,
+                   @NonNull ActivationFunction activationFunction) {
+
         if (layerStructure.size() < 3) {
             throw new IllegalArgumentException("Error: Should be at least 3 layers (1 input, 1 hidden, 1 output).");
         }
@@ -39,16 +56,38 @@ public class Network<T> {
                                      List.of(),
                                      activationFunction);
         layers.add(inputLayer);
-
+        int skip = 0;
         // hidden layers and output layer
         for (int layerId = 1; layerId < layerStructure.size(); layerId++) {
-            Layer nextLayer = new Layer(layerId,
+            val neuronsCount = layerStructure.get(layerId);
+            List<List<Double>> neuronsWeights = new ArrayList<>();
+            List<Double> neuronsBiases = new ArrayList<>();
+            if (!layersWeights.isEmpty()) {
+                calculateNeuronsWeightsAndBiases(layersWeights, neuronsWeights, neuronsBiases, skip, neuronsCount);
+            }
+            Layer layer = new Layer(layerId,
                                         layers.get(layerId - 1),
                                         layerStructure.get(layerId),
-                                        List.of(),
-                                        List.of(),
+                                        neuronsWeights,
+                                        neuronsBiases,
                                         activationFunction);
-            layers.add(nextLayer);
+            layers.add(layer);
+            skip += neuronsCount;
+        }
+    }
+
+    private void calculateNeuronsWeightsAndBiases(@NonNull List<List<Double>> layersWeights,
+                                                  @NonNull List<List<Double>> neuronsWeights,
+                                                  @NonNull List<Double> neuronsBiases,
+                                                  @NonNull Integer skipNeuronsCount,
+                                                  @NonNull Integer currentLayerNeuronsCount) {
+        val sublist = layersWeights.subList(skipNeuronsCount, layersWeights.size());
+        int index = 0;
+        while(index < currentLayerNeuronsCount) {
+            val neuronWeights = sublist.get(index);
+            neuronsBiases.add(neuronWeights.get(neuronWeights.size()-1));
+            neuronsWeights.add(neuronWeights.stream().limit(neuronWeights.size()-1).collect(Collectors.toList()));
+            index++;
         }
     }
 
@@ -146,5 +185,10 @@ public class Network<T> {
         }
         double percentage = (double) correct / (double) inputs.size();
         return new Results(correct, inputs.size(), percentage);
+    }
+
+    @NonNull
+    public NetworkConfiguration getConfiguration() {
+        return new NetworkConfiguration(this);
     }
 }

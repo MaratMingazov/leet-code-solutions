@@ -97,39 +97,30 @@ public class Util {
         }
     }
 
-    public static <T> void saveNetworkConfiguration(@NonNull String filename,
-                                                    @NonNull Network<T> network) {
-        val layers = network.getLayers();
-        val neuronsCount = layers.stream()
-                            .map(layer -> layer.getNeurons().size())
-                            .map(String::valueOf)
-                            .collect(Collectors.toList());
-        String networkStructure = String.join(",", neuronsCount);
-
-        List<List<Double>> weights = new ArrayList<>();
-        for (Layer layer : layers.subList(1,layers.size())) {
-            val neurons = layer.getNeurons();
-            for (Neuron neuron : neurons) {
-                List<Double> neuronWeights = new ArrayList<>(neuron.getWeights());
-                neuronWeights.add(neuron.getBiasWeight());
-                weights.add(neuronWeights);
-            }
-        }
-
-
+    public static void saveNetworkConfiguration(@NonNull String filename,
+                                                @NonNull NetworkConfiguration configuration) {
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
-            bw.write(networkStructure);
-            for (List<Double> weight : weights) {
+            bw.write(configuration.getLayersStructureAsString());
+            for (String weight : configuration.getLayersWeightsAsString()) {
                 bw.newLine();
-                val weightsString = weight.stream()
-                                          .map(String::valueOf)
-                                          .collect(Collectors.toList());
-                String weightsLine = String.join(",", weightsString);
-                bw.write(weightsLine);
+                bw.write(weight);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static NetworkConfiguration loadNetworkConfiguration(@NonNull String filename) {
+        val data = loadCSV(filename, ",");
+        val layersStructure = data.get(0)
+                                  .stream()
+                                  .map(Integer::parseInt)
+                                  .collect(Collectors.toList());
+        List<List<Double>> layersWeights = new ArrayList<>();
+        for (List<String> weights : data.subList(1, data.size())) {
+            layersWeights.add(weights.stream().map(Double::parseDouble).collect(Collectors.toList()));
+        }
+        return new NetworkConfiguration(layersStructure, layersWeights);
     }
 
     // Find the maximum in an array of doubles
