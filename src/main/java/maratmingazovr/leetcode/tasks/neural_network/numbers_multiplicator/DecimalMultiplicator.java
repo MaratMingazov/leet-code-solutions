@@ -2,6 +2,8 @@ package maratmingazovr.leetcode.tasks.neural_network.numbers_multiplicator;
 
 import lombok.NonNull;
 import lombok.val;
+import maratmingazovr.leetcode.neural_network.ActivationFunction;
+import maratmingazovr.leetcode.neural_network.Network;
 import maratmingazovr.leetcode.neural_network.Util;
 import maratmingazovr.leetcode.tasks.neural_network.AbstractClassificator;
 
@@ -13,13 +15,20 @@ import java.util.stream.Collectors;
 public class DecimalMultiplicator extends AbstractClassificator {
 
     public DecimalMultiplicator() {
-        super("src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/numbers.txt",
-              "src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/configuration.txt");
+        super(
+                "src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/numbers_train.txt",
+                "src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/numbers_test.txt",
+              "src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/decimal_configuration.txt"
+             );
     }
 
     @Override
     public void createDefaultNetworkAndTrain() {
-
+//        network = new Network(List.of(2,6,5,1), 0.9, List.of(ActivationFunction.SIGMOID, ActivationFunction.SIGMOID, ActivationFunction.SIGMOID));
+//        saveNetworkConfiguration();
+        loadNetwork();
+        loadData();
+        train(10000L);
     }
 
     @NonNull
@@ -29,16 +38,19 @@ public class DecimalMultiplicator extends AbstractClassificator {
 
         val expectedMaxValueIndex = expected.get(0);
         val outputMaxValueIndex = output.get(0);
-        return expectedMaxValueIndex.equals(outputMaxValueIndex);
+
+        return Math.abs(expectedMaxValueIndex - outputMaxValueIndex) < 2.0;
     }
 
     @Override
-    public void loadData() {
+    public void loadData(@NonNull String datasetFile,
+                         @NonNull List<List<Double>> inputs,
+                         @NonNull List<List<Double>> expects) {
 
         val dataset = Util.loadCSV(datasetFile);
-        Collections.shuffle(dataset);
-        List<List<Double>> inputs = new ArrayList<>();
-        List<List<Double>> expects = new ArrayList<>();
+//        Collections.shuffle(dataset);
+        inputs.clear();
+        expects.clear();
 
         for (List<String> data : dataset) {
             val inputList = data.stream()
@@ -55,11 +67,6 @@ public class DecimalMultiplicator extends AbstractClassificator {
             val expectedDouble = Double.parseDouble(expectString) / 100;
             expects.add(List.of(expectedDouble));
         }
-        Util.normalizeByFeatureScaling(inputs);
-
-        inputsTrain.addAll(inputs.subList(0,150));
-        expectsTrain.addAll(expects.subList(0,150));
-        inputsValidate.addAll(inputs.subList(150,178));
-        expectsValidate.addAll(expects.subList(150,178));
+//        Util.normalizeByFeatureScaling(inputs);
     }
 }

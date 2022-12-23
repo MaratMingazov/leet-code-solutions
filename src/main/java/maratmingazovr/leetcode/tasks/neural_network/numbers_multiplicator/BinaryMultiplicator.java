@@ -6,7 +6,6 @@ import maratmingazovr.leetcode.neural_network.Util;
 import maratmingazovr.leetcode.tasks.neural_network.AbstractClassificator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +13,9 @@ import java.util.stream.Collectors;
 public class BinaryMultiplicator extends AbstractClassificator {
 
     public BinaryMultiplicator() {
-        super("src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/numbers.txt",
+        super(
+                "src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/numbers_train.txt",
+                "src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/numbers_test.txt",
               "src/main/java/maratmingazovr/leetcode/tasks/neural_network/numbers_multiplicator/data/configuration.txt");
     }
 
@@ -30,11 +31,11 @@ public class BinaryMultiplicator extends AbstractClassificator {
     }
 
     @Override
-    public void loadData() {
+    public void loadData(@NonNull String datasetFile,
+                         @NonNull List<List<Double>> inputs,
+                         @NonNull List<List<Double>> expects) {
         val dataset = Util.loadCSV(datasetFile);
         Collections.shuffle(dataset);
-        List<List<Double>> inputs = new ArrayList<>();
-        List<List<Double>> expects = new ArrayList<>();
 
         for (List<String> data : dataset) {
             val inputList = data.stream()
@@ -56,11 +57,6 @@ public class BinaryMultiplicator extends AbstractClassificator {
             expects.add(expect);
         }
         Util.normalizeByFeatureScaling(inputs);
-
-        inputsTrain.addAll(inputs.subList(0,150));
-        expectsTrain.addAll(expects.subList(0,150));
-        inputsValidate.addAll(inputs.subList(150,178));
-        expectsValidate.addAll(expects.subList(150,178));
     }
 
     @NonNull
