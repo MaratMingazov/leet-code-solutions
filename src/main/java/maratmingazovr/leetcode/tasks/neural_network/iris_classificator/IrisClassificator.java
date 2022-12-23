@@ -5,6 +5,8 @@ import lombok.val;
 import maratmingazovr.leetcode.neural_network.ActivationFunction;
 import maratmingazovr.leetcode.neural_network.Network;
 import maratmingazovr.leetcode.neural_network.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,8 +24,16 @@ public class IrisClassificator {
     List<List<Double>> expects = new ArrayList<>();
     private List<String> irisSpecies = new ArrayList<>();
 
+    private Network<String> irisNetwork;
+
+    private final String datasetFilename = "src/main/java/maratmingazovr/leetcode/neural_network/iris_classification/iris.csv";
+    private final String configurationFilename = "src/main/java/maratmingazovr/leetcode/neural_network/iris_classification/configuration.txt";
+
+    @NonNull
+    Logger log = LoggerFactory.getLogger(Network.class);
+
     public IrisClassificator() {
-        val irisDataset = Util.loadCSV("src/main/java/maratmingazovr/leetcode/neural_network/iris_classification/iris.csv");
+        val irisDataset = Util.loadCSV(datasetFilename);
         Collections.shuffle(irisDataset);
         for (List<String> data : irisDataset) {
             List<Double> input = data.stream().limit(4).map(Double::parseDouble).collect(Collectors.toList());
@@ -46,19 +56,30 @@ public class IrisClassificator {
         Util.normalizeByFeatureScaling(inputs);
     }
 
-    public Network<String>.Results classify() {
-        // 4, 6, 3 layer structure; 0.3 learning rate; sigmoid activation function
-        Network<String> irisNetwork = new Network<>(List.of(4,6,3), 0.3, ActivationFunction.SIGMOID);
+    public void loadNetwork() {
+        irisNetwork = new Network<>(Util.loadNetworkConfiguration(configurationFilename));
+    }
 
-        // train over the first 140 irises in the data set 50 times
+    public void createNetwork() {
+        irisNetwork = new Network<>(List.of(4,6,3), 0.3, ActivationFunction.SIGMOID);
+    }
+
+    public void train() {
         val inputsTrain = inputs.subList(0, 140);
         val expectsTrain = expects.subList(0, 140);
         irisNetwork.train(inputsTrain, expectsTrain, 50L);
+    }
 
-        // test over the last 10 of the irises in the data set
+    public void saveNetworkConfiguration() {
+        Util.saveNetworkConfiguration(configurationFilename, irisNetwork.getConfiguration());
+    }
+
+    public Network<String>.Results validate() {
         val inputsTest = inputs.subList(140, 150);
         val expectsTest = irisSpecies.subList(140, 150);
-        return irisNetwork.validate(inputsTest, expectsTest, this::irisInterpretOutput);
+        val result =  irisNetwork.validate(inputsTest, expectsTest, this::irisInterpretOutput);
+        log.info(result.correct + " correct of " + result.trials + " = " + result.percentage * 100 + "%");
+        return result;
     }
 
     @NonNull
