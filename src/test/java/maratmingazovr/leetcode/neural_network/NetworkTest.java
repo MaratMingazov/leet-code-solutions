@@ -1,8 +1,8 @@
 package maratmingazovr.leetcode.neural_network;
 
 import lombok.val;
-import maratmingazovr.leetcode.neural_network.iris_classification.IrisClassificator;
-import maratmingazovr.leetcode.neural_network.wine_classification.WineClassificator;
+import maratmingazovr.leetcode.tasks.neural_network.iris_classificator.IrisClassificator;
+import maratmingazovr.leetcode.tasks.neural_network.wine_classificator.WineClassificator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,7 +18,7 @@ public class NetworkTest {
 
     @Test
     void testNetwork() {
-        Network<String> network = new Network<>(List.of(3, 4, 3), 0.2, ActivationFunction.SIGMOID);
+        Network network = new Network(List.of(3, 4, 3), 0.2, List.of(ActivationFunction.SIGMOID, ActivationFunction.SIGMOID));
         val inputs = List.of(
                 List.of(0.1, 0.2, 0.3),
                 List.of(0.4, 0.5, 0.6),
@@ -39,16 +39,19 @@ public class NetworkTest {
 
     @Test
     void testIrisClassificator() {
-        val irisClassificator = new IrisClassificator();
-        val results = irisClassificator.classify();
-        assertThat("percentage", results.percentage, greaterThanOrEqualTo(0.8D));
+        val classificator = new IrisClassificator();
+        classificator.loadData();
+        classificator.loadNetwork();
+        val result = classificator.validate();
+        assertThat("percentage", result.getPercentage(), greaterThanOrEqualTo(0.8D));
     }
 
     @Test
     void testWineClassificator() {
-        val wineClassificator = new WineClassificator();
-        val results = wineClassificator.classify();
-        assertThat("percentage", results.percentage, greaterThanOrEqualTo(0.8D));
-        System.out.println(results.correct + " / " + results.trials + " / " + results.percentage);
+        val classificator = new WineClassificator();
+        classificator.loadData();
+        classificator.loadNetwork();
+        val result = classificator.validate();
+        assertThat("percentage", result.getPercentage(), greaterThanOrEqualTo(0.8D));
     }
 }
