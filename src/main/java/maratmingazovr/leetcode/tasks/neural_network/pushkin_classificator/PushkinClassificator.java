@@ -22,7 +22,9 @@ public class PushkinClassificator extends AbstractClassificator {
     private List<String> words = new ArrayList<>();
 
     public PushkinClassificator() {
-        super("src/main/java/maratmingazovr/leetcode/tasks/neural_network/pushkin_classificator/data/data.txt",
+        super(
+                "src/main/java/maratmingazovr/leetcode/tasks/neural_network/pushkin_classificator/data/data_train.txt",
+                "src/main/java/maratmingazovr/leetcode/tasks/neural_network/pushkin_classificator/data/data_test.txt",
               "src/main/java/maratmingazovr/leetcode/tasks/neural_network/pushkin_classificator/data/configuration.txt");
     }
     @Override
@@ -37,25 +39,20 @@ public class PushkinClassificator extends AbstractClassificator {
     }
 
     @Override
-    public void loadData() {
+    public void loadData(@NonNull String datasetFile,
+                         @NonNull List<List<Double>> inputs,
+                         @NonNull List<List<Double>> expects) {
         var dataset = Util.loadCSV(datasetFile);
         dataset = removeCharacters(dataset);
 
         addToTotalList(dataset);
 
-        List<List<Double>> inputs = new ArrayList<>();
-        List<List<Double>> expects = new ArrayList<>();
         for (int i = 0; i < dataset.size()-1; i++) {
             val inputStr = dataset.get(i);
             inputs.add(convertToDouble(inputStr));
             val outputStr = dataset.get(i+1);
             expects.add(convertToDouble(outputStr));
         }
-
-        inputsTrain.addAll(inputs.subList(0,150));
-        expectsTrain.addAll(expects.subList(0,150));
-        inputsValidate.addAll(inputs.subList(150,178));
-        expectsValidate.addAll(expects.subList(150,178));
     }
 
     @NonNull

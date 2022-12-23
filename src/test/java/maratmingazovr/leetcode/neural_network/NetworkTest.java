@@ -2,6 +2,7 @@ package maratmingazovr.leetcode.neural_network;
 
 import lombok.val;
 import maratmingazovr.leetcode.tasks.neural_network.iris_classificator.IrisClassificator;
+import maratmingazovr.leetcode.tasks.neural_network.numbers_multiplicator.DecimalMultiplicator;
 import maratmingazovr.leetcode.tasks.neural_network.wine_classificator.WineClassificator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,7 @@ public class NetworkTest {
                 List.of(1.0, 0.0, 0.0),
                 List.of(0.0, 1.0, 0.0),
                 List.of(0.0, 0.0, 1.0));
-        network.train(inputs, expected, 2000L);
+        network.train(inputs, expected, 1000L);
 
         val output0 = network.calculateOutputs(List.of(0.1, 0.2, 0.3));
         val output1 = network.calculateOutputs(List.of(0.4, 0.5, 0.6));
@@ -43,7 +44,7 @@ public class NetworkTest {
         classificator.loadData();
         classificator.loadNetwork();
         val result = classificator.validate();
-        assertThat("percentage", result.getPercentage(), greaterThanOrEqualTo(0.8D));
+        assertThat("percentage", result.getPercentage(), greaterThanOrEqualTo(0.95D));
     }
 
     @Test
@@ -52,6 +53,15 @@ public class NetworkTest {
         classificator.loadData();
         classificator.loadNetwork();
         val result = classificator.validate();
-        assertThat("percentage", result.getPercentage(), greaterThanOrEqualTo(0.8D));
+        assertThat("percentage", result.getPercentage(), greaterThanOrEqualTo(0.95D));
+    }
+
+    @Test
+    void testDecimalMultiplicator() {
+        val multiplicator = new DecimalMultiplicator();
+        multiplicator.loadData();
+        multiplicator.loadNetwork();
+        val result = multiplicator.validate();
+        assertThat("percentage", result.getPercentage(), greaterThanOrEqualTo(0.95D));
     }
 }
