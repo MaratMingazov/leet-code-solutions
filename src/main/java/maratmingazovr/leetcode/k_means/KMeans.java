@@ -62,13 +62,30 @@ public class KMeans {
             assignClusters();
             List<Point> oldCentroids = new ArrayList<>(getCentroids());
             generateCentroids(); // find new centroids
+            relocateEmptyClusters();
             if (listsEqual(oldCentroids, getCentroids())) {
                 log.info("Converged after " + iteration + " iterations.");
                 return clusters;
             }
+
         }
         log.info("Finished after " + epoh + " epoh.");
         return clusters;
+    }
+
+
+    // We find clusters with no points and move them near cluster with max point
+    private void relocateEmptyClusters() {
+        for (Cluster cluster : clusters) {
+            if (!cluster.getPoints().isEmpty()) {
+                continue;
+            }
+            val maxPoints = clusters.stream().map(c -> c.getPoints().size()).max(Integer::compare).orElse(0);
+            val maxPointCluster = clusters.stream().filter(c -> c.getPoints().size() == maxPoints).findFirst().orElseThrow();
+            val centroid = maxPointCluster.getCentroid();
+            val newCentroid = centroid.getNormalizedValue().stream().map(v -> v + v * 0.1D).collect(Collectors.toList());
+            cluster.centroid = new Point(newCentroid, "");
+        }
     }
 
     // Find the center of each cluster and move the centroid to there
@@ -87,7 +104,7 @@ public class KMeans {
                                                      .orElse(0);
                 means.add(dimensionMean);
             }
-            cluster.centroid = new Point(means, "centroid");
+            cluster.centroid = new Point(means, "");
         }
     }
 

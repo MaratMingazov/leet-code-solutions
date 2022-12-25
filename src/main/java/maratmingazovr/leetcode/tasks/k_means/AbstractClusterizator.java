@@ -5,7 +5,6 @@ import lombok.val;
 import maratmingazovr.leetcode.k_means.Cluster;
 import maratmingazovr.leetcode.k_means.KMeans;
 import maratmingazovr.leetcode.k_means.Point;
-import maratmingazovr.leetcode.neural_network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ public abstract class AbstractClusterizator {
     protected List<String> labels = new ArrayList<>();
 
     @NonNull
-    Logger log = LoggerFactory.getLogger(Network.class);
+    Logger log = LoggerFactory.getLogger(AbstractClusterizator.class);
 
     protected AbstractClusterizator(@NonNull String datasetFile) {
         this.datasetFile = datasetFile;
@@ -38,14 +37,35 @@ public abstract class AbstractClusterizator {
                                      @NonNull List<String> labels);
 
     @NonNull
-    public List<Cluster> run(@NonNull Integer epoh,
-                             @NonNull Integer clustersCount) {
+    public List<Cluster> run(@NonNull Integer clustersCount,
+                            @NonNull Integer epoh) {
 
         val points = calulatePoints();
         val kMeans = new KMeans(points, clustersCount);
         val clusters = kMeans.run(epoh);
         log.info("Finish");
         return clusters;
+    }
+
+    public void describe(@NonNull List<Cluster> clusters) {
+        for (Cluster cluster : clusters) {
+            log.info("Cluster: ");
+            for (Point point : cluster.getPoints()) {
+                log.info("  " + point.getLabel() + " / " + point.getOriginalValue());
+            }
+        }
+    }
+
+    public void findClustersNumber(@NonNull Integer maxClustersNubmer,
+                                   @NonNull Integer epoh) {
+        val points = calulatePoints();
+        for (int i = 1; i <= maxClustersNubmer; i++) {
+            val kMeans = new KMeans(points, i);
+            val clusters = kMeans.run(epoh);
+            val distance = kMeans.calculateSumOfDistances();
+            log.info("clusters = " + i + " / distance = " + distance);
+            describe(clusters);
+        }
     }
 
     @NonNull
