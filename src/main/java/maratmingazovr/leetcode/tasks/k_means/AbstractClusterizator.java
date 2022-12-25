@@ -24,6 +24,8 @@ public abstract class AbstractClusterizator {
     @NonNull
     Logger log = LoggerFactory.getLogger(AbstractClusterizator.class);
 
+    private KMeans kMeans;
+
     protected AbstractClusterizator(@NonNull String datasetFile) {
         this.datasetFile = datasetFile;
     }
@@ -41,13 +43,15 @@ public abstract class AbstractClusterizator {
                             @NonNull Integer epoh) {
 
         val points = calulatePoints();
-        val kMeans = new KMeans(points, clustersCount);
+        kMeans = new KMeans(points, clustersCount);
         val clusters = kMeans.run(epoh);
         log.info("Finish");
         return clusters;
     }
 
     public void describe(@NonNull List<Cluster> clusters) {
+        val distance = kMeans.calculateSumOfDistances();
+        log.info("distance = " + distance);
         for (Cluster cluster : clusters) {
             log.info("Cluster: ");
             for (Point point : cluster.getPoints()) {
