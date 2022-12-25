@@ -1,4 +1,4 @@
-package maratmingazovr.leetcode.tasks.k_means;
+package maratmingazovr.leetcode.k_means;
 
 import lombok.NonNull;
 import lombok.val;

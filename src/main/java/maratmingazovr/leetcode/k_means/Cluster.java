@@ -1,4 +1,4 @@
-package maratmingazovr.leetcode.tasks.k_means;
+package maratmingazovr.leetcode.k_means;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +11,7 @@ import java.util.List;
 public class Cluster {
 
     @NonNull
-    List<List<Double>> points;
+    List<Point> points;
 
     @NonNull
     List<Double> centroid;
