@@ -14,5 +14,5 @@ public class Cluster {
     List<Point> points;
 
     @NonNull
-    List<Double> centroid;
+    Point centroid;
 }
