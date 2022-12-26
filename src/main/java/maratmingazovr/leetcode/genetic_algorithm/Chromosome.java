@@ -10,7 +10,7 @@ public interface Chromosome extends Comparable<Chromosome> {
     Double fitness();
 
     @NonNull
-    List<Chromosome> crossover(@NonNull Chromosome chromosome);
+    List<Chromosome> crossover(@NonNull Chromosome other);
 
     void mutate();
 
