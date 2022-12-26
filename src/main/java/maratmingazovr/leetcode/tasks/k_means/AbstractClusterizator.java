@@ -42,7 +42,7 @@ public abstract class AbstractClusterizator {
     public List<Cluster> run(@NonNull Integer clustersCount,
                             @NonNull Integer epoh) {
 
-        val points = calulatePoints();
+        val points = calculatePoints();
         kMeans = new KMeans(points, clustersCount);
         val clusters = kMeans.run(epoh);
         log.info("Finish");
@@ -60,10 +60,10 @@ public abstract class AbstractClusterizator {
         }
     }
 
-    public void findClustersNumber(@NonNull Integer maxClustersNubmer,
+    public void findClustersNumber(@NonNull Integer maxClustersNumber,
                                    @NonNull Integer epoh) {
-        val points = calulatePoints();
-        for (int i = 1; i <= maxClustersNubmer; i++) {
+        val points = calculatePoints();
+        for (int i = 1; i <= maxClustersNumber; i++) {
             val kMeans = new KMeans(points, i);
             val clusters = kMeans.run(epoh);
             val distance = kMeans.calculateSumOfDistances();
@@ -73,7 +73,7 @@ public abstract class AbstractClusterizator {
     }
 
     @NonNull
-    private List<Point> calulatePoints() {
+    private List<Point> calculatePoints() {
         List<Point> result = new ArrayList<>();
         for (int i = 0; i < inputs.size(); i++) {
             result.add(new Point(inputs.get(i), labels.get(i)));
