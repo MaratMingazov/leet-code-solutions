@@ -79,6 +79,12 @@
 			<artifactId>annotations</artifactId>
 			<version>23.0.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>19</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -87,7 +93,16 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.8</version>
+				<configuration>
+					<mainClass>maratmingazovr.leetcode.JavaFX</mainClass>
+				</configuration>
+			</plugin>
 		</plugins>
+
 	</build>
 
 </project>
