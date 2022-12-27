@@ -14,10 +14,11 @@ import java.util.List;
 public class JavaFxUtils {
 
     @NonNull
-    public static Scene generateImage2D(@NonNull List<List<PixelFx>> pixels) {
+    public static Scene generateImage2D(@NonNull ImageFx image) {
 
-        val width = pixels.size();
-        val height = pixels.get(0).size();
+        val width = image.getWidth();
+        val height = image.getHeight();
+        val pixels = image.getPixels();
         ImageView imageView = new ImageView();
         WritableImage wImage = new WritableImage(width, height);
         PixelWriter pixelWriter = wImage.getPixelWriter();
@@ -37,11 +38,12 @@ public class JavaFxUtils {
     }
 
     @NonNull
-    public static List<List<PixelFx>> scaleImage2D(@NonNull List<List<PixelFx>> pixels,
+    public static ImageFx scaleImage2D(@NonNull ImageFx image,
                                                    @NonNull Integer scale) {
         List<List<PixelFx>> result = new ArrayList<>();
-        val width = pixels.size();
-        val height = pixels.get(0).size();
+        val width = image.getWidth();
+        val height = image.getHeight();
+        val pixels = image.getPixels();
 
         int newY = 0;
         for (int y = 0; y < height; y++) {
@@ -59,6 +61,6 @@ public class JavaFxUtils {
                 newY++;
             }
         }
-        return result;
+        return new ImageFx(result);
     }
 }
