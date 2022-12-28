@@ -28,6 +28,18 @@ public class Util {
     }
 
     @NonNull
+    public static double getMedian(@NonNull List<Double> values) {
+        Collections.sort(values);
+        double median;
+        int size = values.size();
+        if (values.size() % 2 == 0) {
+            return (values.get(size/2) + values.get(size/2 -1))/2;
+        } else {
+            return values.get(size/2);
+        }
+    }
+
+    @NonNull
     public static DoubleUnaryOperator getActivationFunction(@NonNull ActivationFunction activationFunction) {
         switch (activationFunction) {
             case SIGMOID: return Util::sigmoid;
