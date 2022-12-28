@@ -140,15 +140,16 @@ public class Network {
                       @NonNull List<List<Double>> expecteds,
                       @NonNull Long epoh) {
         for (int e = 0; e < epoh; e++) {
+            double allInputsError = 0;
             for (int i = 0; i < inputs.size(); i++) {
                 val xs = inputs.get(i);
                 val  ys = expecteds.get(i);
-                val outputs = calculateOutputs(xs);
-                log.info("input = " + xs + " / expected = " + ys + " / output = " + outputs);
+                calculateOutputs(xs);
                 backpropagate(ys);
                 updateWeights();
+                allInputsError += layers.get(layers.size()-1).getLastLayerTotalError();
             }
-            log.info("epoh =" + e + " / totalError = " + layers.get(layers.size()-1).getLastLayerTotalError());
+            log.info("epoh =" + e + " / totalError = " + allInputsError);
         }
 
     }
@@ -167,12 +168,7 @@ public class Network {
             val isEqual = interpret.apply(expected, output);
             if (isEqual) {
                 correct++;
-                log.info("+");
             }
-            log.info("input = " + input);
-            log.info("expected = " + expected);
-            log.info("output = " + output);
-            log.info("");
         }
         double percentage = (double) correct / (double) inputs.size();
         log.info(correct + " correct of " + inputs.size() + " = " + percentage * 100 + "%");
