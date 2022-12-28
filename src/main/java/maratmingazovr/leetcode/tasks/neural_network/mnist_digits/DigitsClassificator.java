@@ -24,11 +24,11 @@ public class DigitsClassificator extends AbstractClassificator {
 
     @Override
     public void createDefaultNetworkAndTrain() {
-//        network = new Network(List.of(4, 6, 3), 0.3, List.of(ActivationFunction.SIGMOID, ActivationFunction.SIGMOID));
-//        loadData();
-//        train(50L);
-//        saveNetworkConfiguration();
+//        network = new Network(List.of(784, 100, 10), 0.3, List.of(ActivationFunction.SIGMOID, ActivationFunction.SIGMOID));
 //        loadNetwork();
+//        loadData();
+//        train(100L);
+//        saveNetworkConfiguration();
 //        validate();
     }
 
@@ -61,34 +61,34 @@ public class DigitsClassificator extends AbstractClassificator {
             val type = data.get(0);
             switch (type) {
                 case "0":
-                    expects.add(new ArrayList<>(Arrays.asList(1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.99, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
                     break;
                 case "1":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.99, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
                     break;
                 case "2":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.99, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
                     break;
                 case "3":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.99, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
                     break;
                 case "4":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.99, 0.01, 0.01, 0.01, 0.01, 0.01)));
                     break;
                 case "5":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.99, 0.01, 0.01, 0.01, 0.01)));
                     break;
                 case "6":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.99, 0.01, 0.01, 0.01)));
                     break;
                 case "7":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.99, 0.01, 0.01)));
                     break;
                 case "8":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.99, 0.01)));
                     break;
                 case "9":
-                    expects.add(new ArrayList<>(Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)));
+                    expects.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.99)));
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid type");
