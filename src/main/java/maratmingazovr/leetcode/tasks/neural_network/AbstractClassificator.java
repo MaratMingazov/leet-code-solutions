@@ -53,6 +53,7 @@ public abstract class AbstractClassificator {
     }
 
     public ValidationResult validate() {
+        network.validate(inputsTrain, expectsTrain, this::isExpectedEqualToOutput);
         return  network.validate(inputsValidate, expectsValidate, this::isExpectedEqualToOutput);
     }
 
