@@ -85,6 +85,12 @@
 			<artifactId>javafx-controls</artifactId>
 			<version>19</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.nd4j</groupId>
+			<artifactId>nd4j-native</artifactId>
+			<version>1.0.0-M2.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
