@@ -14,15 +14,11 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import lombok.NonNull;
 import lombok.val;
-import maratmingazovr.leetcode.java_fx.ImageFx;
+import maratmingazovr.leetcode.generative_network.naive_bayes_generator.NaiveBayesImageGenerator;
 import maratmingazovr.leetcode.java_fx.JavaFxUtils;
-import maratmingazovr.leetcode.java_fx.PixelFx;
-import maratmingazovr.leetcode.tasks.neural_network.mnist_digits.DigitsClassificator;
+import maratmingazovr.leetcode.tasks.generative_network.naive_bayes_generator.ZeroDigitGenerator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan("maratmingazovr.leetcode.config")
@@ -34,35 +30,19 @@ public class JavaFX extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        val digitsClassificator = new DigitsClassificator();
-        digitsClassificator.loadData();
-        val image = digitsClassificator.getTestImage(1);
-//        val train = digitsClassificator.getInputsTrain();
-//        System.out.println(train.size() + " / " + train.get(0).size());
-//        for (List<Double> doubles : train) {
-//            System.out.println(doubles);
-//        }
+        val zeroDigit = new ZeroDigitGenerator();
+        val imagesColors = zeroDigit.getColors();
+        val generator = new NaiveBayesImageGenerator(imagesColors.get(0).size());
+        imagesColors.forEach(generator::addInput);
+        generator.calculateProbabilities();
+        val image = generator.generateImage();
         val scaledImage = JavaFxUtils.scaleImage2D(image, 10);
-       stage.setScene(JavaFxUtils.generateImage2D(scaledImage));
+        stage.setScene(JavaFxUtils.generateImage2D(scaledImage));
         stage.show();
+
+
     }
 
-    private ImageFx getImage() {
-        List<List<PixelFx>> result = new ArrayList<>();
-        for (int y = 0; y < 32; y++) {
-            List<PixelFx> row = new ArrayList<>();
-            for (int x = 0; x < 32; x++) {
-                if (x==20 && y==5 || x==21 && y==5 || x==20 && y==6 || x==21 && y==6) {
-                    row.add(new PixelFx(x, y, Color.BLACK));
-                } else {
-                    row.add(new PixelFx(x, y, Color.RED));
-                }
-
-            }
-            result.add(row);
-        }
-        return new ImageFx(result);
-    }
 
     @NonNull
     private Scene getLineChart() {

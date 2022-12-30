@@ -165,9 +165,12 @@ public class Util {
     }
 
     @NonNull
-    public static List<Double> getSoftMaxFromInt(@NonNull List<Integer> input) {
+    public static List<Double> getProbabilityDistribution(@NonNull List<Integer> input) {
         val inputDouble = input.stream().map(value -> (double) value).collect(Collectors.toList());
-        return getSoftMax(inputDouble);
+        val total = inputDouble.stream().reduce(Double::sum).orElse(0.0);
+        return inputDouble.stream()
+                    .map(value -> value / total)
+                    .collect(Collectors.toList());
     }
 
     @NonNull
