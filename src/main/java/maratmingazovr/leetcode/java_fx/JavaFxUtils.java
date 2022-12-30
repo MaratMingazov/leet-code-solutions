@@ -5,11 +5,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import lombok.NonNull;
 import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JavaFxUtils {
 
@@ -39,7 +41,7 @@ public class JavaFxUtils {
 
     @NonNull
     public static ImageFx scaleImage2D(@NonNull ImageFx image,
-                                                   @NonNull Integer scale) {
+                                       @NonNull Integer scale) {
         List<List<PixelFx>> result = new ArrayList<>();
         val width = image.getWidth();
         val height = image.getHeight();
@@ -61,6 +63,8 @@ public class JavaFxUtils {
                 newY++;
             }
         }
-        return new ImageFx(result);
+        List<Color> colors = new ArrayList<>();
+        result.forEach(row -> colors.addAll(row.stream().map(PixelFx::getColor).collect(Collectors.toList())));
+        return new ImageFx(colors);
     }
 }

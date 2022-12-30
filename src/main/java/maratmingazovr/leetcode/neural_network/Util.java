@@ -1,5 +1,6 @@
 package maratmingazovr.leetcode.neural_network;
 
+import javafx.scene.paint.Color;
 import lombok.NonNull;
 import lombok.val;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 
@@ -151,6 +153,58 @@ public class Util {
                               .mapToDouble(n -> n)
                               .max().orElse(Double.MIN_VALUE);
         return numbers.indexOf(maxValue);
+    }
+
+
+    @NonNull
+    public static List<Double> getSoftMax(@NonNull List<Double> input) {
+        val total = input.stream().map(Math::exp).reduce(Double::sum).orElse(0.0);
+        return input.stream()
+                    .map(value -> Math.exp(value) / total)
+                    .collect(Collectors.toList());
+    }
+
+    @NonNull
+    public static List<Double> getSoftMaxFromInt(@NonNull List<Integer> input) {
+        val inputDouble = input.stream().map(value -> (double) value).collect(Collectors.toList());
+        return getSoftMax(inputDouble);
+    }
+
+    @NonNull
+    public static Integer RGBtoInt(@NonNull Integer r,
+                                   @NonNull Integer g,
+                                   @NonNull Integer b) {
+        return b * 65536 + g * 256 + r;
+    }
+
+    @NonNull
+    public static Color IntToColor(@NonNull Integer colorValue) {
+        int b = colorValue / 65536;
+        int g = (colorValue - b * 65536) / 256;
+        int r = colorValue - b * 65536 - g * 256;
+        return Color.color(((double)r)/255,((double)g)/255,((double)b)/255);
+    }
+
+    @NonNull
+    public static Integer colorToInt(@NonNull Color color) {
+        val r = (int)Math.round(color.getRed() * 255.0);
+        val g = (int)Math.round(color.getGreen() * 255.0);
+        val b = (int)Math.round(color.getBlue() * 255.0);
+        return Util.RGBtoInt(r,g,b);
+    }
+
+    @NonNull
+    public static Integer getProbabilityValue (@NonNull List<Integer> values,
+                                          @NonNull List<Double> probabilities) {
+        val random = new Random();
+        double pick = random.nextDouble();
+        for (int i = 0; i < probabilities.size(); i++) {
+            pick -= probabilities.get(i);
+            if (pick <= 0) { // we had one that took us over, leads to a pick
+                return values.get(i);
+            }
+        }
+        return values.get(0);
     }
 
 }
