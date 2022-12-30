@@ -1,10 +1,7 @@
 package maratmingazovr.leetcode.tasks.neural_network.mnist_digits;
 
-import javafx.scene.paint.Color;
 import lombok.NonNull;
 import lombok.val;
-import maratmingazovr.leetcode.java_fx.ImageFx;
-import maratmingazovr.leetcode.java_fx.PixelFx;
 import maratmingazovr.leetcode.neural_network.Util;
 import maratmingazovr.leetcode.tasks.neural_network.AbstractClassificator;
 
@@ -95,22 +92,5 @@ public class DigitsClassificator extends AbstractClassificator {
             }
         }
 //        Util.normalizeByFeatureScaling(inputs);
-    }
-
-    @NonNull
-    public ImageFx getTestImage(@NonNull Integer index) {
-        val inputTrain = inputsValidate.get(index);
-        int pixelIndex = 0;
-        List<List<PixelFx>> pixels = new ArrayList<>();
-        for (int y = 0; y < 28; y++) {
-            List<PixelFx> row = new ArrayList<>();
-            for (int x = 0; x < 28; x++) {
-                double colorValue = inputTrain.get(pixelIndex);
-                pixelIndex++;
-                row.add(new PixelFx(x, y, Color.gray(1-colorValue)));
-            }
-            pixels.add(row);
-        }
-        return new ImageFx(pixels);
     }
 }
