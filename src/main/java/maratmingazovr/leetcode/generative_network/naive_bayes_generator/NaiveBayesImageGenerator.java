@@ -9,6 +9,7 @@ import maratmingazovr.leetcode.neural_network.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -62,12 +63,26 @@ public class NaiveBayesImageGenerator {
 
     @NonNull
     public ImageFx generateImage() {
-        val colors = pixelsValuesProbabilities.stream().map(pixelValuesProbabilities -> {
-            val pixelValues = new ArrayList<>(pixelValuesProbabilities.keySet());
-            val pixelCounts = new ArrayList<>(pixelValuesProbabilities.values());
-            val colorValue = Util.getProbabilityValue(pixelValues, pixelCounts);
-            return Util.IntToColor(colorValue);
-        }).collect(Collectors.toList());
-        return new ImageFx(colors);
+        val map = generateImages();
+        return map.get(map.lastKey());
+    }
+
+    private SortedMap<Double, ImageFx> generateImages() {
+        SortedMap<Double, ImageFx> result = new TreeMap<>();
+        for (int i = 0; i < 10000; i++) {
+            List<Double> pixelProbabilities = new ArrayList<>();
+            val colors = pixelsValuesProbabilities.stream().map(pixelValuesProbabilities -> {
+                val pixelValues = new ArrayList<>(pixelValuesProbabilities.keySet());
+                val pixelCounts = new ArrayList<>(pixelValuesProbabilities.values());
+                val colorValuePair = Util.getProbabilityValue(pixelValues, pixelCounts);
+                val colorValue = colorValuePair.getKey();
+                val colorProbability = colorValuePair.getValue();
+                pixelProbabilities.add(colorProbability);
+                return Util.IntToColor(colorValue);
+            }).collect(Collectors.toList());
+            val totalProbability = pixelProbabilities.stream().reduce((x,y) -> x * y).orElse(0.0);
+            result.put(totalProbability, new ImageFx(colors));
+        }
+        return result;
     }
 }

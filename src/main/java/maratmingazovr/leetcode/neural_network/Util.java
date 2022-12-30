@@ -1,6 +1,7 @@
 package maratmingazovr.leetcode.neural_network;
 
 import javafx.scene.paint.Color;
+import javafx.util.Pair;
 import lombok.NonNull;
 import lombok.val;
 
@@ -197,17 +198,17 @@ public class Util {
     }
 
     @NonNull
-    public static Integer getProbabilityValue (@NonNull List<Integer> values,
-                                          @NonNull List<Double> probabilities) {
+    public static Pair<Integer, Double> getProbabilityValue(@NonNull List<Integer> values,
+                                           @NonNull List<Double> probabilities) {
         val random = new Random();
         double pick = random.nextDouble();
         for (int i = 0; i < probabilities.size(); i++) {
             pick -= probabilities.get(i);
             if (pick <= 0) { // we had one that took us over, leads to a pick
-                return values.get(i);
+                return new Pair<>(values.get(i),probabilities.get(i));
             }
         }
-        return values.get(0);
+        return new Pair<>(values.get(0),probabilities.get(0));
     }
 
 }

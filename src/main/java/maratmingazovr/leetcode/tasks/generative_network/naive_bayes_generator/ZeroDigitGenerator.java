@@ -21,7 +21,7 @@ public class ZeroDigitGenerator {
 
         for (List<String> data : dataset) {
             val digit = data.get(0);
-            if (!digit.equals("5")) {
+            if (!digit.equals("0")) {
                 continue;
             }
             List<Integer> input = data.stream()
