@@ -29,6 +29,9 @@ public class TOperation {
     TOperationType type;
 
     @NonNull
+    String typeString;
+
+    @NonNull
     TCurrency currency;
 
     @NonNull
@@ -53,6 +56,7 @@ public class TOperation {
         this.figi = operation.getFigi();
         this.instrumentType = operation.getInstrumentType();
         this.type = TOperationType.getFromString(operation.getType());
+        this.typeString = operation.getType();
         this.instant = Instant.ofEpochSecond(operation.getDate().getSeconds(), operation.getDate().getNanos());
         this.currency = TCurrency.getFromString(operation.getCurrency());
         this.price = TUtils.moneyValueToDouble(operation.getPrice());
@@ -78,7 +82,7 @@ public class TOperation {
                 + "date: " + formatter.format(instant) + "\n"
                 + "share: " + shareId + "\n"
                 + "type: " + instrumentType + "\n"
-                + "type: " + this.type  + "\n"
+                + "type: " + this.typeString  + "\n"
                 + "currency: " + currency + "\n"
                 + "quantity: " + quantity + "\n"
                 + "price: " + price + " " + priceCurrency + "\n"

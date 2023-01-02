@@ -4,7 +4,8 @@ import lombok.NonNull;
 
 public enum TOperationType {
     BUY,
-    SELL;
+    SELL,
+    OTHER;
 
     @NonNull
     public static TOperationType getFromString(@NonNull String type) {
@@ -14,6 +15,6 @@ public enum TOperationType {
         if (type.toLowerCase().contains("продажа")) {
             return TOperationType.SELL;
         }
-        throw new IllegalArgumentException("Invalid type: " + type);
+        return TOperationType.OTHER;
     }
 }
