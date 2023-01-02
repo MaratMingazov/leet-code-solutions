@@ -340,6 +340,9 @@ public class AnalyzerService {
     private List<TCandle> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
                                                @NonNull CandleInterval interval) {
         List<TCandle> candlesToBuy = new ArrayList<>();
+        if (portfolio.getDollarBalance() < 2000 || portfolio.getRubBalance() < 2000) {
+            return candlesToBuy;
+        }
         for (TShare share : portfolio.getShares()) {
             if (!share.getActiveShares().isEmpty()) {
                 continue;
