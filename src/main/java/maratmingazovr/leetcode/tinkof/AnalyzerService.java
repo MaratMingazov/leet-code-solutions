@@ -38,25 +38,28 @@ public class AnalyzerService {
     public void executeEveryMinute() {
 
 
+
         val accountId = apiService.getAccountFromApi();
 //        apiService.closeSandboxAccount(accountId);
 //        apiService.openSandboxAccount();
 
-        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        val sharesToSell = findActiveSharesToSellSandbox(portfolio);
-        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShare().getFigi()));
-        val candlesToBuyLong = findCandlesToBuyLong(portfolio, interval);
-        if (candlesToBuyLong.size() > 0) {
-            log.info("candles to buy = " + candlesToBuyLong.size());
-            buySharesLong(accountId, candlesToBuyLong);
-        }
         updateOperations(accountId, portfolio);
+
+
+//        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
+//        updateSharesFromApi(interval);
+//        calculateMetrics(interval);
+//        val sharesToSell = findActiveSharesToSellSandbox(portfolio);
+//        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShare().getFigi()));
+//        val candlesToBuyLong = findCandlesToBuyLong(portfolio, interval);
+//        if (candlesToBuyLong.size() > 0) {
+//            log.info("candles to buy = " + candlesToBuyLong.size());
+//            buySharesLong(accountId, candlesToBuyLong);
+//        }
+
     }
 
-    @Scheduled(cron = "0 0/5  * * * *") // every 5 minutes
-    //0 0 0/1 * * * every hour
+    //@Scheduled(cron = "0 0/5  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
         log.info("start 5 minute");
         val accountId = apiService.getAccountFromApi();
@@ -72,8 +75,7 @@ public class AnalyzerService {
         log.info("finish 5 minute");
     }
 
-    @Scheduled(cron = "0 0/15  * * * *") // every 15 minutes
-    //0 0 0/1 * * * every hour
+    //@Scheduled(cron = "0 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
         log.info("start 15 minute");
         val accountId = apiService.getAccountFromApi();
@@ -89,8 +91,7 @@ public class AnalyzerService {
         log.info("finish 15 minute");
     }
 
-    @Scheduled(cron = "0 0 0/1 * * *") // every 1 hour
-    //0 0 0/1 * * * every hour
+    //@Scheduled(cron = "0 0 0/1 * * *") // every 1 hour
     public void executeEvery1Hour() {
         log.info("start 1 hour");
         val accountId = apiService.getAccountFromApi();
@@ -259,11 +260,24 @@ public class AnalyzerService {
                 totalCandlesCount += candle.size();
             }
         }
+
+
         val activeShares = portfolio.getShares().stream().flatMap(share -> share.getActiveShares().stream()).collect(Collectors.toList());
+        double rubSharesSum = 0.0;
+        double usdSharesSum = 0.0;
+        for (TActiveShare activeShare : activeShares) {
+            if (activeShare.getCurrency().equals(TCurrency.RUB)) {
+                rubSharesSum += activeShare.getPrice() * activeShare.getCount();
+            }
+            if (activeShare.getCurrency().equals(TCurrency.USD)) {
+                usdSharesSum += activeShare.getPrice() * activeShare.getCount();
+            }
+        }
+
         StringBuilder result = new StringBuilder()
                 .append("Balance:" + "\n")
-                .append("USD: " + String.format("%.2f", portfolio.getDollarBalance()) + "\n")
-                .append("RUB: " + String.format("%.2f", portfolio.getRubBalance()) + "\n")
+                .append("USD: " + String.format("%.2f", portfolio.getDollarBalance() + usdSharesSum) + "\n")
+                .append("RUB: " + String.format("%.2f", portfolio.getRubBalance() + rubSharesSum) + "\n")
                 .append("operations: " + portfolio.getOperations().size() + "\n")
                 .append("candlesCount: " + totalCandlesCount + "\n");
 

@@ -26,10 +26,10 @@ public class TOperation {
     Instant instant;
 
     @NonNull
-    String type;
+    TOperationType type;
 
     @NonNull
-    String currency;
+    TCurrency currency;
 
     @NonNull
     Double price;
@@ -52,9 +52,9 @@ public class TOperation {
                       @NonNull TPortfolio portfolio) {
         this.figi = operation.getFigi();
         this.instrumentType = operation.getInstrumentType();
-        this.type = operation.getType();
+        this.type = TOperationType.getFromString(operation.getType());
         this.instant = Instant.ofEpochSecond(operation.getDate().getSeconds(), operation.getDate().getNanos());
-        this.currency = operation.getCurrency();
+        this.currency = TCurrency.getFromString(operation.getCurrency());
         this.price = TUtils.moneyValueToDouble(operation.getPrice());
         this.priceCurrency = operation.getPrice().getCurrency();
         this.payment = TUtils.moneyValueToDouble(operation.getPayment());
@@ -87,7 +87,7 @@ public class TOperation {
 
     private String checkStopLossOrTakeProfit() {
         for (TShare share : portfolio.getShares()) {
-            if (share.getFigi().equals(this.figi) && this.type.toLowerCase().contains("продажа")) {
+            if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.SELL)) {
                 if (this.price > share.getLastSharePrice()) {
                     return "type: TAKE_PROFIT \n"
                             + "buyPrice: " + String.format("%.2f", share.getLastSharePrice()) + "\n"
@@ -101,7 +101,7 @@ public class TOperation {
                             + "stopLoss: " + String.format("%.2f", share.getLastShareStopLoss()) + "\n";
                 }
             }
-            if (share.getFigi().equals(this.figi) && this.type.toLowerCase().contains("покупка")) {
+            if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"

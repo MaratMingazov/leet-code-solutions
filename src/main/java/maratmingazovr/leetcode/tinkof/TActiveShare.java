@@ -6,7 +6,7 @@ import lombok.NonNull;
 @Data
 public class TActiveShare {
     @NonNull
-    private final String currency;
+    private final TCurrency currency;
 
     @NonNull
     private final Double price;
@@ -21,7 +21,7 @@ public class TActiveShare {
                         @NonNull Double price,
                         @NonNull Double count,
                         @NonNull TShare share) {
-        this.currency = currency;
+        this.currency = TCurrency.getFromString(currency);
         this.price = price;
         this.count = count;
         this.share = share;
