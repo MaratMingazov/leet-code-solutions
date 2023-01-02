@@ -9,10 +9,12 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import lombok.val;
 
 @com.github.kshashov.telegram.api.bind.annotation.BotController
 @RequiredArgsConstructor
+@Log4j2
 public class BotController implements TelegramMvcController {
 
     private final TelegramBot bot;
@@ -30,12 +32,13 @@ public class BotController implements TelegramMvcController {
 
     @BotRequest(value = "/start", type = {MessageType.CALLBACK_QUERY, MessageType.MESSAGE})
     public BaseRequest start(User user, Chat chat) {
+        log.info("start from " + user.firstName() + " " + user.lastName());
         botService.addSubscriber(chat, user);
         return new SendMessage(chat.id(), "Hi " + user.firstName() + "! You are welcome.");
     }
 
     @BotRequest(value = "/stop", type = {MessageType.CALLBACK_QUERY, MessageType.MESSAGE})
-    public BaseRequest sopt(User user, Chat chat) {
+    public BaseRequest stop(User user, Chat chat) {
         botService.removeSubscriber(chat);
         return new SendMessage(chat.id(), "You was removed from subscribers list");
     }
@@ -47,7 +50,8 @@ public class BotController implements TelegramMvcController {
     }
 
     @BotRequest(value = "/balance", type = {MessageType.CALLBACK_QUERY, MessageType.MESSAGE})
-    public BaseRequest BaseRequest(User user, Chat chat) {
+    public BaseRequest balance(User user, Chat chat) {
+        log.info("balance from " + user.firstName() + " " + user.lastName());
         val portfolio = analyzerService.getPortfolio();
         return new SendMessage(chat.id(), portfolio);
     }
