@@ -16,6 +16,12 @@ public class TPortfolio {
     private final List<TOperation> operations = new ArrayList<>();
 
     @NonNull
+    private Long buyOperationsCount = 0L;
+
+    @NonNull
+    private Long sellOperationsCount = 0L;
+
+    @NonNull
     private Double dollarBalance;
 
     @NonNull
