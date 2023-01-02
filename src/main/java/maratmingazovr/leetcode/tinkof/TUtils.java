@@ -12,6 +12,9 @@ public class TUtils {
 
     private static final Integer SIMPLE_MOVING_AVERAGE_SIZE = 20;
 
+    public static final Double TAKE_PROFIT_PERCENT = 0.02;
+    public static final Double STOP_LOSS_PERCENT = 0.02;
+
     public static void calculateSimpleMovingAverage(@NonNull TShare share,
                                                     @NonNull CandleInterval interval) {
         val candles = share.getCandlesMap().get(interval);

@@ -46,64 +46,60 @@ public class AnalyzerService {
         updateOperations(accountId, portfolio);
 
 
-//        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
-//        updateSharesFromApi(interval);
-//        calculateMetrics(interval);
-//        val sharesToSell = findActiveSharesToSellSandbox(portfolio);
-//        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShare().getFigi()));
-//        val candlesToBuyLong = findCandlesToBuyLong(portfolio, interval);
-//        if (candlesToBuyLong.size() > 0) {
-//            log.info("candles to buy = " + candlesToBuyLong.size());
-//            buySharesLong(accountId, candlesToBuyLong);
-//        }
-
-    }
-
-    //@Scheduled(cron = "0 0/5  * * * *") // every 5 minutes
-    public void executeEvery5Minutes() {
-        log.info("start 5 minute");
-        val accountId = apiService.getAccountFromApi();
-
-        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
+        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
         updateSharesFromApi(interval);
         calculateMetrics(interval);
-        val candlesToBuyLong = findCandlesToBuyLong(portfolio, interval);
+        val sharesToSell = findActiveSharesToSellSandbox(portfolio);
+        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShare().getFigi()));
+
+        var candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_DAY);
+        if (candlesToBuyLong.isEmpty()) {
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_HOUR);
+        }
+        if (candlesToBuyLong.isEmpty()) {
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN);
+        }
         if (candlesToBuyLong.size() > 0) {
             log.info("candles to buy = " + candlesToBuyLong.size());
             buySharesLong(accountId, candlesToBuyLong);
         }
-        log.info("finish 5 minute");
+
     }
 
-    //@Scheduled(cron = "0 0/15  * * * *") // every 15 minutes
+//    @Scheduled(cron = "0 0/5  * * * *") // every 5 minutes
+//    public void executeEvery5Minutes() {
+//        log.info("start 5 minute");
+//        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
+//        updateSharesFromApi(interval);
+//        calculateMetrics(interval);
+//        log.info("finish 5 minute");
+//    }
+
+    @Scheduled(cron = "0 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
         log.info("start 15 minute");
-        val accountId = apiService.getAccountFromApi();
-
         val interval = CandleInterval.CANDLE_INTERVAL_15_MIN;
         updateSharesFromApi(interval);
         calculateMetrics(interval);
-        val candlesToBuyLong = findCandlesToBuyLong(portfolio, interval);
-        if (candlesToBuyLong.size() > 0) {
-            log.info("candles to buy = " + candlesToBuyLong.size());
-            buySharesLong(accountId, candlesToBuyLong);
-        }
         log.info("finish 15 minute");
     }
 
-    //@Scheduled(cron = "0 0 0/1 * * *") // every 1 hour
+    @Scheduled(cron = "0 0 0/1 * * *") // every 1 hour
     public void executeEvery1Hour() {
         log.info("start 1 hour");
-        val accountId = apiService.getAccountFromApi();
         val interval = CandleInterval.CANDLE_INTERVAL_HOUR;
         updateSharesFromApi(interval);
         calculateMetrics(interval);
-        val candlesToBuyLong = findCandlesToBuyLong(portfolio, interval);
-        if (candlesToBuyLong.size() > 0) {
-            log.info("candles to buy = " + candlesToBuyLong.size());
-            buySharesLong(accountId, candlesToBuyLong);
-        }
         log.info("finish 1 hour");
+    }
+
+    @Scheduled(cron = "0 0 0 0/1 * *") // every 1 day
+    public void executeEvery1Day() {
+        log.info("start 1 day");
+        val interval = CandleInterval.CANDLE_INTERVAL_DAY;
+        updateSharesFromApi(interval);
+        calculateMetrics(interval);
+        log.info("finish 1 day");
     }
 
     private synchronized void buySharesLong(@NonNull String accountId,
@@ -117,8 +113,8 @@ public class AnalyzerService {
             val comission = TUtils.moneyValueToDouble(order.getExecutedCommission());
             val comissionCurrency = order.getExecutedCommission().getCurrency();
             val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
-            val takeProfit = price + 0.02 * price;
-            val stopLoss = price - 0.02 * price;
+            val takeProfit = price + TUtils.TAKE_PROFIT_PERCENT * price;
+            val stopLoss = price - TUtils.STOP_LOSS_PERCENT * price;
             val sma = String.format("%.2f", candle.getSimpleMovingAverage());
             val bollingerUp = String.format("%.2f", candle.getBollingerUp());
             val bollingerDown = String.format("%.2f", candle.getBollingerDown());
@@ -308,7 +304,7 @@ public class AnalyzerService {
                 defaultFrom = Instant.now().minus(22, ChronoUnit.HOURS);
                 break;
             case CANDLE_INTERVAL_DAY:
-                defaultFrom = Instant.now().minus(periodsCount, ChronoUnit.DAYS);
+                defaultFrom = Instant.now().minus(30, ChronoUnit.DAYS);
                 //defaultFrom = Instant.now().minus(100, ChronoUnit.DAYS);
                 break;
             default: throw new IllegalArgumentException("Invalid candleInterval");
@@ -348,14 +344,19 @@ public class AnalyzerService {
             if (!share.getActiveShares().isEmpty()) {
                 continue;
             }
-            val candleToButOpt = findCandleToBuyLong(share.getCandlesMap().get(interval));
-            candleToButOpt.ifPresent(candlesToBuy::add);
+            val minuteCandles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_1_MIN);
+            if (minuteCandles.isEmpty()) {
+                continue;
+            }
+            val currentPrice = minuteCandles.get(minuteCandles.size() - 1).getLow();
+            val candleToBuyOpt = findCandleToBuyLong(currentPrice, share.getCandlesMap().get(interval));
+            candleToBuyOpt.ifPresent(candlesToBuy::add);
         }
         return candlesToBuy;
     }
 
     @NonNull
-    private Optional<TCandle> findCandleToBuyLong(List<TCandle> candles) {
+    private Optional<TCandle> findCandleToBuyLong(@NonNull Double currentPrice, @NonNull List<TCandle> candles) {
         if (candles.isEmpty()) {
             // we have no candles to check
             return Optional.empty();
@@ -364,7 +365,11 @@ public class AnalyzerService {
         if (lastCandle.getBollingerDown() == null) {
             return Optional.empty();
         }
-        if (lastCandle.getLow() < lastCandle.getBollingerDown()) {
+        if (lastCandle.getBollingerUp() == null) {
+            return Optional.empty();
+        }
+        if (currentPrice < lastCandle.getBollingerDown()
+                && (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp() ) {
             return Optional.of(lastCandle);
         }
         return Optional.empty();
