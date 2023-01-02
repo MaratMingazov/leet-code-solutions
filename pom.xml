@@ -91,6 +91,19 @@
 			<artifactId>nd4j-native</artifactId>
 			<version>1.0.0-M2.1</version>
 		</dependency>
+
+		<dependency>
+			<groupId>ru.tinkoff.piapi</groupId>
+			<artifactId>java-sdk-core</artifactId>
+			<version>1.0.19</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.kshashov</groupId>
+			<artifactId>spring-boot-starter-telegram</artifactId>
+			<version>0.27</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
