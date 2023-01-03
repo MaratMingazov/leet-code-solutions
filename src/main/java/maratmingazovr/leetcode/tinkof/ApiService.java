@@ -19,6 +19,7 @@ import ru.tinkoff.piapi.contract.v1.StopOrderType;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.models.Position;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -67,17 +68,23 @@ public class ApiService {
 
     @NonNull
     public PostOrderResponse buyShareFromApi(@NonNull String accountId,
-                                             @NonNull String shareFigi) {
+                                             @NonNull String shareFigi,
+                                             @NonNull Double price) {
 
-        Quotation lastPrice = api.getMarketDataService().getLastPricesSync(List.of(shareFigi)).get(0).getPrice();
+        val value = BigDecimal.valueOf(price);
+        Quotation quotationPrice = Quotation.newBuilder()
+                                       .setUnits(value.longValue() )
+                                       .setNano(value.remainder(BigDecimal.ONE).multiply(BigDecimal.valueOf(1_000_000_000)).intValue())
+                                       .build();
+        //Quotation lastPrice = api.getMarketDataService().getLastPricesSync(List.of(shareFigi)).get(0).getPrice();
 
         //Выставляем заявку на покупку по рыночной цене
         return api.getOrdersService().postOrderSync(shareFigi,
                                                     1,
-                                                    lastPrice,
+                                                    quotationPrice,
                                                     OrderDirection.ORDER_DIRECTION_BUY,
                                                     accountId,
-                                                    OrderType.ORDER_TYPE_MARKET,
+                                                    OrderType.ORDER_TYPE_LIMIT,
                                                     UUID.randomUUID().toString());
     }
 
