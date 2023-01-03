@@ -78,6 +78,9 @@ public class AnalyzerService {
         }
         if (candlesToBuyLong.size() > 0) {
             log.info("candles to buy = " + candlesToBuyLong.size());
+            for (TShareToBuy shareToBuy : candlesToBuyLong) {
+                log.info("want to buy: " + shareToBuy.getCandle().getShare().getId() + " / " + shareToBuy.getPriceToBuy());
+            }
             buySharesLong(accountId, candlesToBuyLong);
         }
 
@@ -120,13 +123,14 @@ public class AnalyzerService {
     }
 
     private synchronized void buySharesLong(@NonNull String accountId,
-                                            @NonNull List<TCandle> candles) {
-        for (TCandle candle : candles) {
+                                            @NonNull List<TShareToBuy> sharesToBuy) {
+        for (TShareToBuy shareToBuy : sharesToBuy) {
+            val candle = shareToBuy.getCandle();
             if(!candle.getShare().getActiveShares().isEmpty()) {
                 continue;
             }
             val figi = candle.getShare().getFigi();
-            val order = apiService.buyShareFromApi(accountId, figi);
+            val order = apiService.buyShareFromApi(accountId, figi, shareToBuy.getPriceToBuy());
             val comission = TUtils.moneyValueToDouble(order.getExecutedCommission());
             val comissionCurrency = order.getExecutedCommission().getCurrency();
             val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
@@ -371,9 +375,9 @@ public class AnalyzerService {
     }
 
     @NonNull
-    private List<TCandle> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
+    private List<TShareToBuy> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
                                                @NonNull CandleInterval interval) {
-        List<TCandle> candlesToBuy = new ArrayList<>();
+        List<TShareToBuy> candlesToBuy = new ArrayList<>();
         if (portfolio.getDollarBalance() < 2000 || portfolio.getRubBalance() < 2000) {
             return candlesToBuy;
         }
@@ -385,7 +389,7 @@ public class AnalyzerService {
             if (minuteCandles.isEmpty()) {
                 continue;
             }
-            val currentPrice = minuteCandles.get(minuteCandles.size() - 1).getLow();
+            val currentPrice = minuteCandles.get(minuteCandles.size() - 1).getClose();
             val candleToBuyOpt = findCandleToBuyLong(currentPrice, share.getCandlesMap().get(interval));
             candleToBuyOpt.ifPresent(candlesToBuy::add);
         }
@@ -393,7 +397,7 @@ public class AnalyzerService {
     }
 
     @NonNull
-    private Optional<TCandle> findCandleToBuyLong(@NonNull Double currentPrice, @NonNull List<TCandle> candles) {
+    private Optional<TShareToBuy> findCandleToBuyLong(@NonNull Double currentPrice, @NonNull List<TCandle> candles) {
         if (candles.isEmpty()) {
             // we have no candles to check
             return Optional.empty();
@@ -407,7 +411,7 @@ public class AnalyzerService {
         }
         if (currentPrice < lastCandle.getBollingerDown()
                 && (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp() ) {
-            return Optional.of(lastCandle);
+            return Optional.of(new TShareToBuy(lastCandle, currentPrice));
         }
         return Optional.empty();
     }
