@@ -81,41 +81,38 @@ public class TOperation {
                 + type
                 + "date: " + formatter.format(instant) + "\n"
                 + "share: " + shareId + "\n"
-                + "type: " + instrumentType + "\n"
                 + "type: " + this.typeString  + "\n"
                 + "currency: " + currency + "\n"
-                + "quantity: " + quantity + "\n"
-                + "price: " + price + " " + priceCurrency + "\n"
-                + "payment: " + payment + " " + paymentCurrency + "\n";
+                + "payment: " + quantity + " * " + price + " = " + payment + "\n";
     }
 
     private String checkStopLossOrTakeProfit() {
         for (TShare share : portfolio.getShares()) {
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.SELL)) {
                 if (this.price > share.getLastSharePrice()) {
-                    return "type: TAKE_PROFIT \n"
-                            + "buyPrice: " + String.format("%.2f", share.getLastSharePrice()) + "\n"
-                            + "takeProfit: " + String.format("%.2f", share.getLastShareTakeProfit()) + "\n"
-                            + "stopLoss: " + String.format("%.2f", share.getLastShareStopLoss()) + "\n";
+                    return "type: SELL \n"
+                            + "type: TAKE_PROFIT \n"
+                            + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n";
                 }
                 if (this.price < share.getLastSharePrice()) {
-                    return "type: STOP_LOSS + \n "
-                            + "buyPrice: " + String.format("%.2f", share.getLastSharePrice()) + "\n"
-                            + "takeProfit: " + String.format("%.2f", share.getLastShareTakeProfit()) + "\n"
-                            + "stopLoss: " + String.format("%.2f", share.getLastShareStopLoss()) + "\n";
+                    return "type: SELL \n"
+                            + "type: STOP_LOSS \n"
+                            + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n";
                 }
             }
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
-                        + "buyPrice: " + String.format("%.2f", share.getLastSharePrice()) + "\n"
+                        + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n"
                         + "comission: " + String.format("%.2f", share.getLastShareComission()) + " " + share.getLastShareComissionCurrency() + "\n"
-                        + "takeProfit: " + String.format("%.2f", share.getLastShareTakeProfit()) + "\n"
-                        + "stopLoss: " + String.format("%.2f", share.getLastShareStopLoss()) + "\n"
                         + "BB: " + share.getLastShareSMA() + " " + share.getLastShareBollingerUp() + " " + share.getLastShareBollingerDown() + "\n";
             }
         }
         return "";
+    }
+
+    private String format(@NonNull Double value) {
+        return String.format("%.2f", value);
     }
 }

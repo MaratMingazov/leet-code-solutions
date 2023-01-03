@@ -11,6 +11,7 @@ import ru.tinkoff.piapi.contract.v1.PostOrderResponse;
 import ru.tinkoff.piapi.contract.v1.StopOrder;
 
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_15_MIN;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_DAY;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_HOUR;
 
 @Log4j2
 @Service
@@ -34,6 +39,13 @@ public class AnalyzerService {
     @NonNull
     private final BotService botService;
 
+    @PostConstruct
+    public void init() {
+        val accountId = apiService.getAccountFromApi();
+        apiService.updatePortfolioFromApi(accountId, portfolio);
+        log.info(getPortfolio());
+    }
+
     @Scheduled(cron = "0 0/1  * * * *") // every minute
     public void executeEveryMinute() {
 
@@ -44,6 +56,7 @@ public class AnalyzerService {
 //        apiService.openSandboxAccount();
 
         updateOperations(accountId, portfolio);
+
 
 
         val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
@@ -149,10 +162,20 @@ public class AnalyzerService {
         val operations = portfolio.getOperations();
         if (portfolio.getOperations().size() > 0) {
             val lastOperation = operations.get(operations.size() - 1);
-            from = lastOperation.getInstant();
+            from = lastOperation.getInstant().plus(1L, ChronoUnit.SECONDS);
         }
+        //log.info("Update operations from: " + from);
+
 
         val newOperations = apiService.getOperationsFromApi(accountId, from, portfolio);
+
+        if (newOperations.size() > 0) {
+            log.info("Got new operations: " + newOperations.size());
+            for (TOperation newOperation : newOperations) {
+                log.info(newOperation.getInstant() + " / " + newOperation.getShareId() + " / " + newOperation.getType() + " / " + newOperation.getPrice() + " / " + newOperation.getCurrency());
+            }
+        }
+
         val buyOperations = newOperations.stream().filter(o -> o.getType().equals(TOperationType.BUY)).count();
         val sellOperations = newOperations.stream().filter(o -> o.getType().equals(TOperationType.SELL)).count();
         portfolio.setBuyOperationsCount(portfolio.getBuyOperationsCount() + buyOperations);
@@ -306,10 +329,10 @@ public class AnalyzerService {
                 defaultFrom = Instant.now().minus(  20, ChronoUnit.HOURS);
                 break;
             case CANDLE_INTERVAL_HOUR:
-                defaultFrom = Instant.now().minus(22, ChronoUnit.HOURS);
+                defaultFrom = Instant.now().minus(5, ChronoUnit.DAYS);
                 break;
             case CANDLE_INTERVAL_DAY:
-                defaultFrom = Instant.now().minus(30, ChronoUnit.DAYS);
+                defaultFrom = Instant.now().minus(50, ChronoUnit.DAYS);
                 //defaultFrom = Instant.now().minus(100, ChronoUnit.DAYS);
                 break;
             default: throw new IllegalArgumentException("Invalid candleInterval");

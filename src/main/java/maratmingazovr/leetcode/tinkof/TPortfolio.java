@@ -22,10 +22,10 @@ public class TPortfolio {
     private Long sellOperationsCount = 0L;
 
     @NonNull
-    private Double dollarBalance;
+    private Double dollarBalance = 0.0;
 
     @NonNull
-    private Double rubBalance;
+    private Double rubBalance = 0.0;
 
     @NonNull
     private String dollarBalanceFigi = "BBG0013HGFT4";
