@@ -73,6 +73,7 @@ public class AnalyzerService {
     public static void saveLastShares(@NonNull String filename,
                                       @NonNull TPortfolio portfolio) {
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            List<String> savedShares = new ArrayList<>();
             val shares = portfolio.getShares();
             for (int i = 0; i < shares.size(); i++) {
                 val share = shares.get(i);
@@ -81,8 +82,10 @@ public class AnalyzerService {
                     bw.write(",");
                     bw.write(share.getLastSharePrice().toString());
                     bw.newLine();
+                    savedShares.add(share.getId() + ": " + share.getLastSharePrice().toString() + " / ");
                 }
             }
+            log.info("savedShares: " + savedShares);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -175,7 +178,8 @@ public class AnalyzerService {
             val order = apiService.buyShareFromApi(accountId, figi, shareToBuy.getPriceToBuy());
             val comission = TUtils.moneyValueToDouble(order.getExecutedCommission());
             val comissionCurrency = order.getExecutedCommission().getCurrency();
-            val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
+            //val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
+            val price = shareToBuy.getPriceToBuy();
             val takeProfit = price + TUtils.TAKE_PROFIT_PERCENT * price;
             val stopLoss = price - TUtils.STOP_LOSS_PERCENT * price;
             val sma = String.format("%.2f", candle.getSimpleMovingAverage());
