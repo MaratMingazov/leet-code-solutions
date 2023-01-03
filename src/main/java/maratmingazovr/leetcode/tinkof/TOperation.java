@@ -93,8 +93,7 @@ public class TOperation {
                     return "type: SELL \n"
                             + "type: TAKE_PROFIT \n"
                             + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n";
-                }
-                if (this.price < share.getLastSharePrice()) {
+                } else {
                     return "type: SELL \n"
                             + "type: STOP_LOSS \n"
                             + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n";
