@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import maratmingazovr.leetcode.neural_network.NetworkConfiguration;
+import maratmingazovr.leetcode.neural_network.Util;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
@@ -12,6 +14,9 @@ import ru.tinkoff.piapi.contract.v1.StopOrder;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +49,43 @@ public class AnalyzerService {
         val accountId = apiService.getAccountFromApi();
         apiService.updatePortfolioFromApi(accountId, portfolio);
         log.info(getPortfolio());
+        String filename = "src/main/java/maratmingazovr/leetcode/tinkof/data.txt";
+        val shares = Util.loadCSV(filename);
+        int count = 0;
+        for (List<String> share : shares) {
+            if (share.size() < 2) {
+                continue;
+            }
+            val shareId = share.get(0);
+            val shareBuyPrice = Double.valueOf(share.get(1));
+            for (TShare portfolioShare : portfolio.getShares()) {
+                if (portfolioShare.getId().equals(shareId)) {
+                    portfolioShare.setLastSharePrice(shareBuyPrice);
+                    portfolioShare.setLastShareTakeProfit(shareBuyPrice + shareBuyPrice * TUtils.TAKE_PROFIT_PERCENT);
+                    portfolioShare.setLastShareStopLoss(shareBuyPrice - shareBuyPrice * TUtils.TAKE_PROFIT_PERCENT);
+                    count++;
+                }
+            }
+        }
+        log.info("load shares = " + count);
+    }
+
+    public static void saveLastShares(@NonNull String filename,
+                                      @NonNull TPortfolio portfolio) {
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            val shares = portfolio.getShares();
+            for (int i = 0; i < shares.size(); i++) {
+                val share = shares.get(i);
+                if (share.getLastSharePrice() > 0) {
+                    bw.write(share.getId());
+                    bw.write(",");
+                    bw.write(share.getLastSharePrice().toString());
+                    bw.newLine();
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Scheduled(cron = "3 0/1  * * * *") // every minute
@@ -156,6 +198,7 @@ public class AnalyzerService {
             //log.info(message);
             //botService.sendMassage(message);
         }
+        saveLastShares("src/main/java/maratmingazovr/leetcode/tinkof/data.txt", portfolio);
     }
 
     public String getPortfolio() {
