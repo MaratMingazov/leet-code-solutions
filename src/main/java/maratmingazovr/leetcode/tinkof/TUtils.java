@@ -11,6 +11,7 @@ import static ru.tinkoff.piapi.core.utils.MapperUtils.quotationToBigDecimal;
 public class TUtils {
 
     private static final Integer SIMPLE_MOVING_AVERAGE_SIZE = 20;
+    private static final Double BB_MULTIPLICATOR = 1.8;
 
     public static final Double TAKE_PROFIT_PERCENT = 0.02;
     public static final Double STOP_LOSS_PERCENT = 0.02;
@@ -65,9 +66,8 @@ public class TUtils {
                 }
                 val stdDev = Math.sqrt(sum / SIMPLE_MOVING_AVERAGE_SIZE);
                 val candle = candles.get(i + SIMPLE_MOVING_AVERAGE_SIZE - 1);
-                double multiplicator = 1.2;
-                val bollingerUp = candle.getSimpleMovingAverage() + stdDev * multiplicator;
-                val bollingerDown = candle.getSimpleMovingAverage() - stdDev * multiplicator;
+                val bollingerUp = candle.getSimpleMovingAverage() + stdDev * BB_MULTIPLICATOR;
+                val bollingerDown = candle.getSimpleMovingAverage() - stdDev * BB_MULTIPLICATOR;
                 candle.setBollingerUp(bollingerUp);
                 candle.setBollingerDown(bollingerDown);
             }

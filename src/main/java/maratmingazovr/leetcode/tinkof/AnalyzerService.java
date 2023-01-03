@@ -46,7 +46,7 @@ public class AnalyzerService {
         log.info(getPortfolio());
     }
 
-    @Scheduled(cron = "0 0/1  * * * *") // every minute
+    @Scheduled(cron = "3 0/1  * * * *") // every minute
     public void executeEveryMinute() {
 
 
