@@ -315,7 +315,8 @@ public class AnalyzerService {
             val count = activeShare.getCount();
             val price = activeShare.getPrice();
             val total = count * price;
-            result.append(activeShare.getShare().getId() + ": " + count + " * " + price + " = " + total +"\n" );
+            val currency = activeShare.getCurrency().toString();
+            result.append(activeShare.getShare().getId() + ": " + count + " * " + price + " = " + total + " " + currency + "\n" );
         }
         return result.toString();
     }
