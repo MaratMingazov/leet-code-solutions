@@ -54,6 +54,10 @@ public class AnalyzerService {
         val accountId = apiService.getAccountFromApi();
 //        apiService.closeSandboxAccount(accountId);
 //        apiService.openSandboxAccount();
+//        log.info("finish");
+//        if(true) {
+//            return;
+//        }
 
         updateOperations(accountId, portfolio);
 
@@ -308,10 +312,10 @@ public class AnalyzerService {
 
         result.append("SHARES: \n");
         for (TActiveShare activeShare : activeShares) {
-            result.append(activeShare.getShare().getId())
-                  .append(" count: ").append(activeShare.getCount())
-                  .append(" price: ").append(String.format("%.2f", activeShare.getPrice()))
-                  .append(" ").append(activeShare.getCurrency()).append("\n");
+            val count = activeShare.getCount();
+            val price = activeShare.getPrice();
+            val total = count * price;
+            result.append(activeShare.getShare().getId() + ": " + count + " * " + price + " = " + total +"\n" );
         }
         return result.toString();
     }
