@@ -169,13 +169,6 @@ public class AnalyzerService {
 
         val newOperations = apiService.getOperationsFromApi(accountId, from, portfolio);
 
-        if (newOperations.size() > 0) {
-            log.info("Got new operations: " + newOperations.size());
-            for (TOperation newOperation : newOperations) {
-                log.info(newOperation.getInstant() + " / " + newOperation.getShareId() + " / " + newOperation.getType() + " / " + newOperation.getPrice() + " / " + newOperation.getCurrency());
-            }
-        }
-
         val buyOperations = newOperations.stream().filter(o -> o.getType().equals(TOperationType.BUY)).count();
         val sellOperations = newOperations.stream().filter(o -> o.getType().equals(TOperationType.SELL)).count();
         portfolio.setBuyOperationsCount(portfolio.getBuyOperationsCount() + buyOperations);
@@ -191,6 +184,14 @@ public class AnalyzerService {
                     operations.add(newOperation);
                     botService.sendMassage(newOperation.toString());
                 }
+            }
+        }
+
+        if (newOperations.size() > 0) {
+            apiService.updatePortfolioFromApi(accountId, portfolio);
+            log.info("Got new operations: " + newOperations.size());
+            for (TOperation newOperation : newOperations) {
+                log.info(newOperation.getInstant() + " / " + newOperation.getShareId() + " / " + newOperation.getType() + " / " + newOperation.getPrice() + " / " + newOperation.getCurrency());
             }
         }
 
