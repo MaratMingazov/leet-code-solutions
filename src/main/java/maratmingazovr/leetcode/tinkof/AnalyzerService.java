@@ -405,6 +405,10 @@ public class AnalyzerService {
         val existingCandles = share.getCandlesMap().get(interval);
         if (!existingCandles.isEmpty()) {
             from = existingCandles.get(existingCandles.size()-1).getInstant().plus(1L, ChronoUnit.SECONDS);
+            if (from.isBefore(defaultFrom)) {
+                from = defaultFrom;
+            }
+
         }
         val newCandles = apiService.getCandlesFromApi(share, from, interval);
         val candles = share.getCandlesMap().get(interval);
