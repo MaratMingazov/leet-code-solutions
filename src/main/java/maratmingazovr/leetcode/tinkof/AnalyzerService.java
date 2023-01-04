@@ -87,14 +87,6 @@ public class AnalyzerService {
 //        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
         updateSharesFromApi(CANDLE_INTERVAL_1_MIN);
         calculateMetrics(CANDLE_INTERVAL_1_MIN);
-        updateSharesFromApi(CANDLE_INTERVAL_5_MIN);
-        calculateMetrics(CANDLE_INTERVAL_5_MIN);
-        updateSharesFromApi(CANDLE_INTERVAL_15_MIN);
-        calculateMetrics(CANDLE_INTERVAL_15_MIN);
-        updateSharesFromApi(CANDLE_INTERVAL_HOUR);
-        calculateMetrics(CANDLE_INTERVAL_HOUR);
-        updateSharesFromApi(CANDLE_INTERVAL_DAY);
-        calculateMetrics(CANDLE_INTERVAL_DAY);
 
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
@@ -119,41 +111,41 @@ public class AnalyzerService {
         }
     }
 
-//    @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
-//    public void executeEvery5Minutes() {
-//        log.info("start 5 minute");
-//        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
-//        updateSharesFromApi(interval);
-//        calculateMetrics(interval);
-//        log.info("finish 5 minute");
-//    }
+    @Scheduled(cron = "5 0/2  * * * *") // every 5 minutes
+    public void executeEvery5Minutes() {
+        log.info("start 5 minute");
+        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
+        updateSharesFromApi(interval);
+        calculateMetrics(interval);
+        log.info("finish 5 minute");
+    }
 
-//    @Scheduled(cron = "5 0/15  * * * *") // every 15 minutes
-//    public void executeEvery15Minutes() {
-//        log.info("start 15 minute");
-//        val interval = CandleInterval.CANDLE_INTERVAL_15_MIN;
-//        updateSharesFromApi(interval);
-//        calculateMetrics(interval);
-//        log.info("finish 15 minute");
-//    }
+    @Scheduled(cron = "5 0/5  * * * *") // every 15 minutes
+    public void executeEvery15Minutes() {
+        log.info("start 15 minute");
+        val interval = CandleInterval.CANDLE_INTERVAL_15_MIN;
+        updateSharesFromApi(interval);
+        calculateMetrics(interval);
+        log.info("finish 15 minute");
+    }
 
-//    @Scheduled(cron = "5 0 0/1 * * *") // every 1 hour
-//    public void executeEvery1Hour() {
-//        log.info("start 1 hour");
-//        val interval = CandleInterval.CANDLE_INTERVAL_HOUR;
-//        updateSharesFromApi(interval);
-//        calculateMetrics(interval);
-//        log.info("finish 1 hour");
-//    }
+    @Scheduled(cron = "5 0/10  * * * *") // every 15 minutes
+    public void executeEvery1Hour() {
+        log.info("start 1 hour");
+        val interval = CandleInterval.CANDLE_INTERVAL_HOUR;
+        updateSharesFromApi(interval);
+        calculateMetrics(interval);
+        log.info("finish 1 hour");
+    }
 
-//    @Scheduled(cron = "5 0 10 * * *") // every  day 10 o clock
-//    public void executeEvery1Day() {
-//        log.info("start 1 day");
-//        val interval = CandleInterval.CANDLE_INTERVAL_DAY;
-//        updateSharesFromApi(interval);
-//        calculateMetrics(interval);
-//        log.info("finish 1 day");
-//    }
+    @Scheduled(cron = "5 0 0/1 * * *") // every  day 10 o clock
+    public void executeEvery1Day() {
+        log.info("start 1 day");
+        val interval = CandleInterval.CANDLE_INTERVAL_DAY;
+        updateSharesFromApi(interval);
+        calculateMetrics(interval);
+        log.info("finish 1 day");
+    }
 
     public String getStatMessage(@NonNull String shareId,
                                  @NonNull CandleInterval interval,
@@ -389,7 +381,7 @@ public class AnalyzerService {
                 defaultFrom = Instant.now().minus(  20, ChronoUnit.HOURS);
                 break;
             case CANDLE_INTERVAL_HOUR:
-                defaultFrom = Instant.now().minus(3, ChronoUnit.DAYS);
+                defaultFrom = Instant.now().minus(2, ChronoUnit.DAYS);
                 break;
             case CANDLE_INTERVAL_DAY:
                 defaultFrom = Instant.now().minus(41, ChronoUnit.DAYS);
