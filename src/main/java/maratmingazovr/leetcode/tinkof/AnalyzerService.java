@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_15_MIN;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_1_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_DAY;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_HOUR;
 
@@ -462,5 +463,24 @@ public class AnalyzerService {
             return Optional.of(new TShareToBuy(lastCandle, currentPrice));
         }
         return Optional.empty();
+    }
+
+    public String getCandlesMessage(@NonNull String shareId) {
+        StringBuilder result = new StringBuilder();
+        for (TShare share : portfolio.getShares()) {
+            if (share.getId().toLowerCase().equals(shareId)) {
+                val candles = share.getCandlesMap().get(CANDLE_INTERVAL_1_MIN);
+                for (TCandle candle : candles) {
+                    result
+                            .append(candle.getInstant()).append(" / ")
+                            .append(candle.getOpen()).append(" / ")
+                            .append(candle.getClose()).append(" / ")
+                            .append(candle.getSimpleMovingAverage()).append(" / ")
+                            .append(candle.getBollingerUp()).append(" / ")
+                            .append(candle.getBollingerDown()).append("\n");
+                }
+            }
+        }
+        return result.toString();
     }
 }

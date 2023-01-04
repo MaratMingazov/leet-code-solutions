@@ -75,8 +75,16 @@ public class BotController implements TelegramMvcController {
             log.error(e);
             return "exception";
         }
+    }
 
-
+    @MessageRequest("/candles {data:[\\S]+}")
+    public String candles(@BotPathVariable("data") String data) {
+        try{
+            return analyzerService.getCandlesMessage(data.toLowerCase());
+        } catch (Exception e) {
+            log.error(e);
+            return "exception";
+        }
     }
 
     @NonNull
