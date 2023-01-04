@@ -71,8 +71,8 @@ public class AnalyzerService {
         log.info("load shares = " + count);
     }
 
-    @Scheduled(cron = "0/10 *  * * * *") // every minute
-    public void executeEvery10Seconds() {
+    @Scheduled(cron = "3 0/1  * * * *") // every minute
+    public void executeEveryMinute() {
         val accountId = apiService.getAccountFromApi();
         //        apiService.closeSandboxAccount(accountId);
         //        apiService.openSandboxAccount();
@@ -83,6 +83,9 @@ public class AnalyzerService {
 
         updateOperations(accountId, portfolio);
 
+        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
+        updateSharesFromApi(interval);
+        calculateMetrics(interval);
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
         sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShare().getFigi()));
@@ -97,9 +100,6 @@ public class AnalyzerService {
         if (candlesToBuyLong.isEmpty()) {
             candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_5_MIN);
         }
-        if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_1_MIN);
-        }
         if (candlesToBuyLong.size() > 0) {
             log.info("candles to buy = " + candlesToBuyLong.size());
             for (TShareToBuy shareToBuy : candlesToBuyLong) {
@@ -107,13 +107,6 @@ public class AnalyzerService {
             }
             buySharesLong(accountId, candlesToBuyLong);
         }
-    }
-
-    @Scheduled(cron = "0 0/1  * * * *") // every minute
-    public void executeEveryMinute() {
-        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
     }
 
     @Scheduled(cron = "0 0/5  * * * *") // every 5 minutes
@@ -412,13 +405,16 @@ public class AnalyzerService {
         }
         val newCandles = apiService.getCandlesFromApi(share, from, interval);
         val candles = share.getCandlesMap().get(interval);
-        val lastCandle = candles.get(candles.size() - 1);
-        for (TCandle newCandle : newCandles) {
-            if (newCandle.getInstant().isAfter(lastCandle.getInstant())) {
-                candles.add(newCandle);
+        if (!candles.isEmpty()) {
+            val lastCandle = candles.get(candles.size() - 1);
+            for (TCandle newCandle : newCandles) {
+                if (newCandle.getInstant().isAfter(lastCandle.getInstant())) {
+                    candles.add(newCandle);
+                }
             }
+        } else {
+            candles.addAll(newCandles);
         }
-        candles.addAll(newCandles);
         while(candles.size() > 100) {
             candles.remove(0);
         }
