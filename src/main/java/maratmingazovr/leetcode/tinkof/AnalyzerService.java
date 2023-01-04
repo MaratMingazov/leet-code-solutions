@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_15_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_1_MIN;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_5_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_DAY;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_HOUR;
 
@@ -71,7 +72,7 @@ public class AnalyzerService {
         log.info("load shares = " + count);
     }
 
-    @Scheduled(cron = "10 0/1  * * * *") // every minute
+    @Scheduled(cron = "0/30 *  * * * *") // every minute
     public void executeEveryMinute() {
         val accountId = apiService.getAccountFromApi();
         //        apiService.closeSandboxAccount(accountId);
@@ -83,9 +84,18 @@ public class AnalyzerService {
 
         updateOperations(accountId, portfolio);
 
-        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
+//        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
+        updateSharesFromApi(CANDLE_INTERVAL_1_MIN);
+        calculateMetrics(CANDLE_INTERVAL_1_MIN);
+        updateSharesFromApi(CANDLE_INTERVAL_5_MIN);
+        calculateMetrics(CANDLE_INTERVAL_5_MIN);
+        updateSharesFromApi(CANDLE_INTERVAL_15_MIN);
+        calculateMetrics(CANDLE_INTERVAL_15_MIN);
+        updateSharesFromApi(CANDLE_INTERVAL_HOUR);
+        calculateMetrics(CandleInterval.CANDLE_INTERVAL_HOUR);
+        updateSharesFromApi(CANDLE_INTERVAL_DAY);
+        calculateMetrics(CandleInterval.CANDLE_INTERVAL_DAY);
+
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
         sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShare().getFigi()));
@@ -98,7 +108,7 @@ public class AnalyzerService {
             candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN);
         }
         if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_5_MIN);
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CANDLE_INTERVAL_5_MIN);
         }
         if (candlesToBuyLong.size() > 0) {
             log.info("candles to buy = " + candlesToBuyLong.size());
@@ -109,41 +119,41 @@ public class AnalyzerService {
         }
     }
 
-    @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
-    public void executeEvery5Minutes() {
-        log.info("start 5 minute");
-        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        log.info("finish 5 minute");
-    }
+//    @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
+//    public void executeEvery5Minutes() {
+//        log.info("start 5 minute");
+//        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
+//        updateSharesFromApi(interval);
+//        calculateMetrics(interval);
+//        log.info("finish 5 minute");
+//    }
 
-    @Scheduled(cron = "5 0/15  * * * *") // every 15 minutes
-    public void executeEvery15Minutes() {
-        log.info("start 15 minute");
-        val interval = CandleInterval.CANDLE_INTERVAL_15_MIN;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        log.info("finish 15 minute");
-    }
+//    @Scheduled(cron = "5 0/15  * * * *") // every 15 minutes
+//    public void executeEvery15Minutes() {
+//        log.info("start 15 minute");
+//        val interval = CandleInterval.CANDLE_INTERVAL_15_MIN;
+//        updateSharesFromApi(interval);
+//        calculateMetrics(interval);
+//        log.info("finish 15 minute");
+//    }
 
-    @Scheduled(cron = "5 0 0/1 * * *") // every 1 hour
-    public void executeEvery1Hour() {
-        log.info("start 1 hour");
-        val interval = CandleInterval.CANDLE_INTERVAL_HOUR;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        log.info("finish 1 hour");
-    }
+//    @Scheduled(cron = "5 0 0/1 * * *") // every 1 hour
+//    public void executeEvery1Hour() {
+//        log.info("start 1 hour");
+//        val interval = CandleInterval.CANDLE_INTERVAL_HOUR;
+//        updateSharesFromApi(interval);
+//        calculateMetrics(interval);
+//        log.info("finish 1 hour");
+//    }
 
-    @Scheduled(cron = "5 0 10 * * *") // every  day 10 o clock
-    public void executeEvery1Day() {
-        log.info("start 1 day");
-        val interval = CandleInterval.CANDLE_INTERVAL_DAY;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        log.info("finish 1 day");
-    }
+//    @Scheduled(cron = "5 0 10 * * *") // every  day 10 o clock
+//    public void executeEvery1Day() {
+//        log.info("start 1 day");
+//        val interval = CandleInterval.CANDLE_INTERVAL_DAY;
+//        updateSharesFromApi(interval);
+//        calculateMetrics(interval);
+//        log.info("finish 1 day");
+//    }
 
     public String getStatMessage(@NonNull String shareId,
                                  @NonNull CandleInterval interval,
