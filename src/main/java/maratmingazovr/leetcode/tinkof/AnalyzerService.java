@@ -71,7 +71,7 @@ public class AnalyzerService {
         log.info("load shares = " + count);
     }
 
-    @Scheduled(cron = "0/3 *  * * * *") // every minute
+    @Scheduled(cron = "0/10 *  * * * *") // every minute
     public void executeEvery10Seconds() {
         val accountId = apiService.getAccountFromApi();
         //        apiService.closeSandboxAccount(accountId);
