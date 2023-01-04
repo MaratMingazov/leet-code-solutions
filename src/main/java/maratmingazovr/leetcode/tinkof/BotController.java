@@ -80,7 +80,10 @@ public class BotController implements TelegramMvcController {
     @MessageRequest("/candles {data:[\\S]+}")
     public String candles(@BotPathVariable("data") String data) {
         try{
-            return analyzerService.getCandlesMessage(data.toLowerCase());
+            log.info("ask: " + data);
+            val result =  analyzerService.getCandlesMessage(data.toLowerCase());
+            log.info(result);
+            return result;
         } catch (Exception e) {
             log.error(e);
             return "exception";
