@@ -92,9 +92,9 @@ public class AnalyzerService {
         updateSharesFromApi(CANDLE_INTERVAL_15_MIN);
         calculateMetrics(CANDLE_INTERVAL_15_MIN);
         updateSharesFromApi(CANDLE_INTERVAL_HOUR);
-        calculateMetrics(CandleInterval.CANDLE_INTERVAL_HOUR);
+        calculateMetrics(CANDLE_INTERVAL_HOUR);
         updateSharesFromApi(CANDLE_INTERVAL_DAY);
-        calculateMetrics(CandleInterval.CANDLE_INTERVAL_DAY);
+        calculateMetrics(CANDLE_INTERVAL_DAY);
 
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
@@ -389,10 +389,10 @@ public class AnalyzerService {
                 defaultFrom = Instant.now().minus(  20, ChronoUnit.HOURS);
                 break;
             case CANDLE_INTERVAL_HOUR:
-                defaultFrom = Instant.now().minus(5, ChronoUnit.DAYS);
+                defaultFrom = Instant.now().minus(3, ChronoUnit.DAYS);
                 break;
             case CANDLE_INTERVAL_DAY:
-                defaultFrom = Instant.now().minus(50, ChronoUnit.DAYS);
+                defaultFrom = Instant.now().minus(41, ChronoUnit.DAYS);
                 //defaultFrom = Instant.now().minus(100, ChronoUnit.DAYS);
                 break;
             default: throw new IllegalArgumentException("Invalid candleInterval");
