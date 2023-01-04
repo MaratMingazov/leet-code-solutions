@@ -81,13 +81,17 @@ public class TOperation {
         Optional<TShare> shareOpt = portfolio.getShares().stream().filter(share -> share.getFigi().equals(operation.getFigi())).findAny();
         if (shareOpt.isPresent()) {
             this.share = shareOpt.get();
-            share.setLastSharePrice(this.price);
-            share.setLastShareTakeProfit(this.price + this.price * TUtils.TAKE_PROFIT_PERCENT);
-            share.setLastShareStopLoss(this.price - this.price * TUtils.STOP_LOSS_PERCENT);
-            if (this.price > share.getLastSharePrice()) {
-                this.resultType = TOperationResultType.TAKE_PROFIT;
-            } else {
-                this.resultType = TOperationResultType.STOP_LOSS;
+            if (type.equals(TOperationType.BUY)) {
+                share.setLastSharePrice(this.price);
+                share.setLastShareTakeProfit(this.price + this.price * TUtils.TAKE_PROFIT_PERCENT);
+                share.setLastShareStopLoss(this.price - this.price * TUtils.STOP_LOSS_PERCENT);
+            }
+            if (type.equals(TOperationType.SELL)) {
+                if (this.price > share.getLastSharePrice()) {
+                    this.resultType = TOperationResultType.TAKE_PROFIT;
+                } else {
+                    this.resultType = TOperationResultType.STOP_LOSS;
+                }
             }
         }
 
