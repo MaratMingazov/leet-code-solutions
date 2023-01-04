@@ -219,8 +219,12 @@ public class AnalyzerService {
 
         val buyOperations = newOperations.stream().filter(o -> o.getType().equals(TOperationType.BUY)).count();
         val sellOperations = newOperations.stream().filter(o -> o.getType().equals(TOperationType.SELL)).count();
+        val takeProfitCount = newOperations.stream().filter(o -> o.getResultType().equals(TOperationResultType.TAKE_PROFIT)).count();
+        val stopLossCount = newOperations.stream().filter(o -> o.getResultType().equals(TOperationResultType.STOP_LOSS)).count();
         portfolio.setBuyOperationsCount(portfolio.getBuyOperationsCount() + buyOperations);
         portfolio.setSellOperationsCount(portfolio.getSellOperationsCount() + sellOperations);
+        portfolio.setTakeProfitCount(portfolio.getTakeProfitCount() + takeProfitCount);
+        portfolio.setStopLossCount(portfolio.getStopLossCount() + stopLossCount);
         val currentOperations = portfolio.getOperations();
         if (currentOperations.isEmpty()) {
             currentOperations.addAll(newOperations);
@@ -353,6 +357,8 @@ public class AnalyzerService {
                 .append("RUB: " + String.format("%.2f", portfolio.getRubBalance() + rubSharesSum) + "\n")
                 .append("buyOperations: " + portfolio.getBuyOperationsCount() + "\n")
                 .append("sellOperations: " + portfolio.getSellOperationsCount() + "\n")
+                .append("takeProfitCount: " + portfolio.getTakeProfitCount() + "\n")
+                .append("stopLossCount: " + portfolio.getStopLossCount() + "\n")
                 .append("candlesCount: " + totalCandlesCount + "\n");
 
         result.append("SHARES: \n");

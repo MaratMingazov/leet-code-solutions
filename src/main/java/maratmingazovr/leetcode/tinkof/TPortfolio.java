@@ -22,6 +22,12 @@ public class TPortfolio {
     private Long sellOperationsCount = 0L;
 
     @NonNull
+    private Long takeProfitCount = 0L;
+
+    @NonNull
+    private Long stopLossCount = 0L;
+
+    @NonNull
     private Double dollarBalance = 0.0;
 
     @NonNull

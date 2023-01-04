@@ -54,6 +54,9 @@ public class TOperation {
 
     @Nullable TShare share;
 
+    @NonNull
+    TOperationResultType resultType;
+
     public TOperation(@NonNull Operation operation,
                       @NonNull TPortfolio portfolio) {
         this.figi = operation.getFigi();
@@ -68,6 +71,7 @@ public class TOperation {
         this.paymentCurrency = operation.getPayment().getCurrency();
         this.quantity = operation.getQuantity();
         this.portfolio = portfolio;
+        this.resultType = TOperationResultType.OTHER;
 
         portfolio.getShares().stream()
                  .filter(share -> share.getFigi().equals(operation.getFigi()))
@@ -80,6 +84,11 @@ public class TOperation {
             share.setLastSharePrice(this.price);
             share.setLastShareTakeProfit(this.price + this.price * TUtils.TAKE_PROFIT_PERCENT);
             share.setLastShareStopLoss(this.price - this.price * TUtils.STOP_LOSS_PERCENT);
+            if (this.price > share.getLastSharePrice()) {
+                this.resultType = TOperationResultType.TAKE_PROFIT;
+            } else {
+                this.resultType = TOperationResultType.STOP_LOSS;
+            }
         }
 
     }
@@ -100,15 +109,10 @@ public class TOperation {
     private String checkStopLossOrTakeProfit() {
         for (TShare share : portfolio.getShares()) {
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.SELL)) {
-                if (this.price > share.getLastSharePrice()) {
-                    return "type: SELL \n"
-                            + "type: TAKE_PROFIT \n"
-                            + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n";
-                } else {
-                    return "type: SELL \n"
-                            + "type: STOP_LOSS \n"
-                            + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n";
-                }
+                return "type: SELL \n"
+                        + "type: " + resultType + "\n"
+                        + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n";
+
             }
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
