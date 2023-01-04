@@ -2,15 +2,19 @@ package maratmingazovr.leetcode.tinkof;
 
 import com.github.kshashov.telegram.api.MessageType;
 import com.github.kshashov.telegram.api.TelegramMvcController;
+import com.github.kshashov.telegram.api.bind.annotation.BotPathVariable;
 import com.github.kshashov.telegram.api.bind.annotation.BotRequest;
+import com.github.kshashov.telegram.api.bind.annotation.request.MessageRequest;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 @com.github.kshashov.telegram.api.bind.annotation.BotController
 @RequiredArgsConstructor
@@ -58,11 +62,33 @@ public class BotController implements TelegramMvcController {
 
 
 
-//    @MessageRequest("/hello {name:[\\S]+}")
-//    public String helloWithName(@BotPathVariable("name") String userName) {
-//        // Return a string if you need to reply with a simple message
-//        return "Hello, " + userName;
-//    }
+    @MessageRequest("/stat {data:[\\S]+}")
+    public String stat(@BotPathVariable("data") String data) {
+        try{
+            String[] objects = data.split(" ");
+            String shareId = objects[0];
+            String intervalValue = objects[1];
+            CandleInterval interval = getInterval(intervalValue);
+            Integer index = Integer.parseInt(objects[2]);
+            return analyzerService.getStatMessage(shareId, interval, index);
+        } catch (Exception e) {
+            log.error(e);
+            return "exception";
+        }
+
+
+    }
+
+    @NonNull
+    private CandleInterval getInterval(@NonNull String value) {
+        switch (value) {
+            case "1": return CandleInterval.CANDLE_INTERVAL_1_MIN;
+            case "15": return CandleInterval.CANDLE_INTERVAL_15_MIN;
+            case "60": return CandleInterval.CANDLE_INTERVAL_HOUR;
+            case "24": return CandleInterval.CANDLE_INTERVAL_DAY;
+            default: throw new IllegalArgumentException("Invalid argument");
+        }
+    }
 //
 //    @MessageRequest("/helloCallback")
 //    public String helloWithCustomCallback(TelegramRequest request, User user) {

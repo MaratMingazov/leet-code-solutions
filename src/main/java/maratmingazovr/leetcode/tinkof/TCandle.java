@@ -2,6 +2,7 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.Data;
 import lombok.NonNull;
+import lombok.val;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 
@@ -50,6 +51,26 @@ public class TCandle {
         this.instant = Instant.ofEpochSecond(candle.getTime().getSeconds(), candle.getTime().getNanos());
         this.interval = interval;
         this.share = share;
+    }
+
+    @Override
+    public String toString() {
+
+        val m1Candles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_1_MIN).size();
+        val m5Candles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_5_MIN).size();
+        val m15Candles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_15_MIN).size();
+        val m60Candles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_HOUR).size();
+        val m24Candles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_DAY).size();
+
+        return "open: " + open + "\n"
+                + "close: " + close + "\n"
+                + "high: " + high + "\n"
+                + "low: " + low + "\n"
+                + "vol: " + volume + "\n"
+                + "time: " + instant + "\n"
+                + "bb: " + simpleMovingAverage + " / " + bollingerUp + " / " + bollingerDown + "\n"
+                + "interval: " + interval + "\n"
+                + "candles: " + m1Candles + " / " + m5Candles + " / " + m15Candles + " / " + m60Candles + " / " + m24Candles + "\n";
     }
 
 

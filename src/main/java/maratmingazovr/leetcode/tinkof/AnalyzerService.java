@@ -146,6 +146,20 @@ public class AnalyzerService {
         log.info("finish 1 day");
     }
 
+    public String getStatMessage(@NonNull String shareId,
+                                 @NonNull CandleInterval interval,
+                                 @NonNull Integer index) {
+        for (TShare share : portfolio.getShares()) {
+            if (share.getId().equals(shareId)) {
+                val candles = share.getCandlesMap().get(interval);
+                if (candles.size() > index ) {
+                    return candles.get(index).toString();
+                }
+            }
+        }
+        return "nothing";
+    }
+
     private synchronized void buySharesLong(@NonNull String accountId,
                                             @NonNull List<TShareToBuy> sharesToBuy) {
         for (TShareToBuy shareToBuy : sharesToBuy) {
