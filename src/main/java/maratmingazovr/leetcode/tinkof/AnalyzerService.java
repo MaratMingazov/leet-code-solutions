@@ -100,6 +100,9 @@ public class AnalyzerService {
         if (candlesToBuyLong.isEmpty()) {
             candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN);
         }
+        if (candlesToBuyLong.isEmpty()) {
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_1_MIN);
+        }
         if (candlesToBuyLong.size() > 0) {
             log.info("candles to buy = " + candlesToBuyLong.size());
             for (TShareToBuy shareToBuy : candlesToBuyLong) {
