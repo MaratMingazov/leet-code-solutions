@@ -65,8 +65,8 @@ public class BotController implements TelegramMvcController {
     @MessageRequest("/stat {data:[\\S]+}")
     public String stat(@BotPathVariable("data") String data) {
         try{
-            String[] objects = data.split(" ");
-            String shareId = objects[0];
+            String[] objects = data.split("-");
+            String shareId = objects[0].toLowerCase();
             String intervalValue = objects[1];
             CandleInterval interval = getInterval(intervalValue);
             Integer index = Integer.parseInt(objects[2]);
