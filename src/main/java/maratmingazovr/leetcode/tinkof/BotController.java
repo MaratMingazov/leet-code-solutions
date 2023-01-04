@@ -94,6 +94,7 @@ public class BotController implements TelegramMvcController {
     private CandleInterval getInterval(@NonNull String value) {
         switch (value) {
             case "1": return CandleInterval.CANDLE_INTERVAL_1_MIN;
+            case "5": return CandleInterval.CANDLE_INTERVAL_5_MIN;
             case "15": return CandleInterval.CANDLE_INTERVAL_15_MIN;
             case "60": return CandleInterval.CANDLE_INTERVAL_HOUR;
             case "24": return CandleInterval.CANDLE_INTERVAL_DAY;
