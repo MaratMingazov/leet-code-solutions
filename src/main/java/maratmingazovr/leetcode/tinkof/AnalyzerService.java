@@ -412,7 +412,11 @@ public class AnalyzerService {
                     candles.add(newCandle);
                 }
                 if (newCandle.getInstant().equals(lastCandle.getInstant())) {
+                    lastCandle.setOpen(newCandle.getOpen());
                     lastCandle.setClose(newCandle.getClose());
+                    lastCandle.setHigh(newCandle.getHigh());
+                    lastCandle.setLow(newCandle.getLow());
+                    lastCandle.setVolume(newCandle.getVolume());
                 }
             }
         } else {
