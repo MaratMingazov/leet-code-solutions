@@ -102,7 +102,7 @@ public class AnalyzerService {
             candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN);
         }
         if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_1_MIN);
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_5_MIN);
         }
         if (candlesToBuyLong.size() > 0) {
             log.info("candles to buy = " + candlesToBuyLong.size());
@@ -114,14 +114,14 @@ public class AnalyzerService {
 
     }
 
-//    @Scheduled(cron = "0 0/5  * * * *") // every 5 minutes
-//    public void executeEvery5Minutes() {
-//        log.info("start 5 minute");
-//        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
-//        updateSharesFromApi(interval);
-//        calculateMetrics(interval);
-//        log.info("finish 5 minute");
-//    }
+    @Scheduled(cron = "0 0/5  * * * *") // every 5 minutes
+    public void executeEvery5Minutes() {
+        log.info("start 5 minute");
+        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
+        updateSharesFromApi(interval);
+        calculateMetrics(interval);
+        log.info("finish 5 minute");
+    }
 
     @Scheduled(cron = "0 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
