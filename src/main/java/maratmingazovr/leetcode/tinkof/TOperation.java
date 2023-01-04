@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @Data
 public class TOperation {
@@ -51,6 +52,8 @@ public class TOperation {
 
     @NonNull TPortfolio portfolio;
 
+    @Nullable TShare share;
+
     public TOperation(@NonNull Operation operation,
                       @NonNull TPortfolio portfolio) {
         this.figi = operation.getFigi();
@@ -70,6 +73,14 @@ public class TOperation {
                  .filter(share -> share.getFigi().equals(operation.getFigi()))
                  .map(TShare::getId).findAny()
                  .ifPresent(shareId -> this.shareId = shareId);
+
+        Optional<TShare> shareOpt = portfolio.getShares().stream().filter(share -> share.getFigi().equals(operation.getFigi())).findAny();
+        if (shareOpt.isPresent()) {
+            this.share = shareOpt.get();
+            share.setLastSharePrice(this.price);
+            share.setLastShareTakeProfit(this.price + this.price * TUtils.TAKE_PROFIT_PERCENT);
+            share.setLastShareStopLoss(this.price - this.price * TUtils.STOP_LOSS_PERCENT);
+        }
 
     }
 

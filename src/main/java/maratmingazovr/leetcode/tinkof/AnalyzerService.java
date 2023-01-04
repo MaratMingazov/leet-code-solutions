@@ -70,27 +70,6 @@ public class AnalyzerService {
         log.info("load shares = " + count);
     }
 
-    public static void saveLastShares(@NonNull String filename,
-                                      @NonNull TPortfolio portfolio) {
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
-            List<String> savedShares = new ArrayList<>();
-            val shares = portfolio.getShares();
-            for (int i = 0; i < shares.size(); i++) {
-                val share = shares.get(i);
-                if (share.getLastSharePrice() > 0) {
-                    bw.write(share.getId());
-                    bw.write(",");
-                    bw.write(share.getLastSharePrice().toString());
-                    bw.newLine();
-                    savedShares.add(share.getId() + ": " + share.getLastSharePrice().toString() + " / ");
-                }
-            }
-            log.info("savedShares: " + savedShares);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Scheduled(cron = "3 0/1  * * * *") // every minute
     public void executeEveryMinute() {
 
@@ -202,7 +181,7 @@ public class AnalyzerService {
             //log.info(message);
             //botService.sendMassage(message);
         }
-        saveLastShares("src/main/java/maratmingazovr/leetcode/tinkof/data.txt", portfolio);
+        TUtils.saveLastShares(portfolio);
     }
 
     public String getPortfolio() {
@@ -248,6 +227,7 @@ public class AnalyzerService {
             for (TOperation newOperation : newOperations) {
                 log.info(newOperation.getInstant() + " / " + newOperation.getShareId() + " / " + newOperation.getType() + " / " + newOperation.getPrice() + " / " + newOperation.getCurrency());
             }
+            TUtils.saveLastShares(portfolio);
         }
 
         while(operations.size() > 100) {
