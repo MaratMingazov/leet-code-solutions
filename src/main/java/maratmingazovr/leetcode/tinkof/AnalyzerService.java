@@ -411,6 +411,9 @@ public class AnalyzerService {
                 if (newCandle.getInstant().isAfter(lastCandle.getInstant())) {
                     candles.add(newCandle);
                 }
+                if (newCandle.getInstant().equals(lastCandle.getInstant())) {
+                    lastCandle.setClose(newCandle.getClose());
+                }
             }
         } else {
             candles.addAll(newCandles);
