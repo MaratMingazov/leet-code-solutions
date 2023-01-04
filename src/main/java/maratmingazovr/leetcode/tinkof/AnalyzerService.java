@@ -150,7 +150,7 @@ public class AnalyzerService {
                                  @NonNull CandleInterval interval,
                                  @NonNull Integer index) {
         for (TShare share : portfolio.getShares()) {
-            if (share.getId().equals(shareId)) {
+            if (share.getId().toLowerCase().equals(shareId)) {
                 val candles = share.getCandlesMap().get(interval);
                 if (candles.size() > index ) {
                     return candles.get(index).toString();
