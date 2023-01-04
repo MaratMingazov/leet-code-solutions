@@ -73,8 +73,12 @@ public class TCandle {
                 + "candles: " + m1Candles + " / " + m5Candles + " / " + m15Candles + " / " + m60Candles + " / " + m24Candles + "\n";
     }
 
-    private String format(@NonNull Double value) {
-        return String.format("%.2f", value);
+    private String format(@Nullable Double value) {
+        if (value == null) {
+            return "-";
+        } else {
+            return String.format("%.2f", value);
+        }
     }
 
 
