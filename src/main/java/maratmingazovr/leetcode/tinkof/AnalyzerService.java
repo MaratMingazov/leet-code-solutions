@@ -449,12 +449,10 @@ public class AnalyzerService {
         }
         for (TShare share : portfolio.getShares()) {
             if (!share.getActiveShares().isEmpty()) {
-                log.info(share.getId() + " already active");
                 continue;
             }
             val minuteCandles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_1_MIN);
             if (minuteCandles.isEmpty()) {
-                log.info(share.getId() + " minute candles empty");
                 continue;
             }
             val currentPrice = minuteCandles.get(minuteCandles.size() - 1).getClose();
