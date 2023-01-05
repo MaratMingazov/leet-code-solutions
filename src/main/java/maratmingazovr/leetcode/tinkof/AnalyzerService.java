@@ -471,9 +471,12 @@ public class AnalyzerService {
         if (lastCandle.getBollingerUp() == null) {
             return Optional.empty();
         }
-        if (currentPrice < lastCandle.getBollingerDown()
-                && (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp() ) {
-            return Optional.of(new TShareToBuy(lastCandle, currentPrice));
+        if (currentPrice < lastCandle.getBollingerDown()) {
+            log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown());
+            log.info("check: " + currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT + " / " + lastCandle.getBollingerUp());
+            if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp()) {
+                return Optional.of(new TShareToBuy(lastCandle, currentPrice));
+            }
         }
         return Optional.empty();
     }
