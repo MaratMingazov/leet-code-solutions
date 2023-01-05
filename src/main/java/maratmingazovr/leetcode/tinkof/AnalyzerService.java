@@ -138,7 +138,7 @@ public class AnalyzerService {
         log.info("finish 1 hour");
     }
 
-    @Scheduled(cron = "5 0 0/1 * * *") // every  day 10 o clock
+    @Scheduled(cron = "5 0 0/5 * * *") // every  day 10 o clock
     public void executeEvery1Day() {
         log.info("start 1 day");
         val interval = CandleInterval.CANDLE_INTERVAL_DAY;
