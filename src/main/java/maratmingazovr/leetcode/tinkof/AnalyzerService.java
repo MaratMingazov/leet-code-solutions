@@ -111,7 +111,8 @@ public class AnalyzerService {
         }
     }
 
-    @Scheduled(cron = "5 0/4  * * * *") // every 5 minutes
+ //   @Scheduled(cron = "5 0/4  * * * *") // every 5 minutes
+    @Scheduled(cron = "5 0/3  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
         log.info("start 5 minute");
         val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
@@ -120,7 +121,8 @@ public class AnalyzerService {
         log.info("finish 5 minute");
     }
 
-    @Scheduled(cron = "5 0/10  * * * *") // every 15 minutes
+//    @Scheduled(cron = "5 0/10  * * * *") // every 15 minutes
+    @Scheduled(cron = "5 0/7  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
         log.info("start 15 minute");
         val interval = CandleInterval.CANDLE_INTERVAL_15_MIN;
@@ -169,6 +171,7 @@ public class AnalyzerService {
                 continue;
             }
             val figi = candle.getShare().getFigi();
+            log.info("want to buy: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             val order = apiService.buyShareFromApi(accountId, figi, shareToBuy.getPriceToBuy());
             val comission = TUtils.moneyValueToDouble(order.getExecutedCommission());
             val comissionCurrency = order.getExecutedCommission().getCurrency();
@@ -441,14 +444,17 @@ public class AnalyzerService {
                                                @NonNull CandleInterval interval) {
         List<TShareToBuy> candlesToBuy = new ArrayList<>();
         if (portfolio.getDollarBalance() < 2000 || portfolio.getRubBalance() < 2000) {
+            log.info("balance is low, will not buy");
             return candlesToBuy;
         }
         for (TShare share : portfolio.getShares()) {
             if (!share.getActiveShares().isEmpty()) {
+                log.info(share.getId() + " already active");
                 continue;
             }
             val minuteCandles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_1_MIN);
             if (minuteCandles.isEmpty()) {
+                log.info(share.getId() + " minute candles empty");
                 continue;
             }
             val currentPrice = minuteCandles.get(minuteCandles.size() - 1).getClose();
@@ -472,9 +478,9 @@ public class AnalyzerService {
             return Optional.empty();
         }
         if (currentPrice < lastCandle.getBollingerDown()) {
-            log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown());
-            log.info("check: " + currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT + " / " + lastCandle.getBollingerUp());
+            log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT + " / " + lastCandle.getBollingerUp());
             if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp()) {
+                log.info("want to buy: " + lastCandle.getShare().getId());
                 return Optional.of(new TShareToBuy(lastCandle, currentPrice));
             }
         }
