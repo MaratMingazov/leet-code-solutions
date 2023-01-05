@@ -476,7 +476,7 @@ public class AnalyzerService {
             return Optional.empty();
         }
         if (currentPrice < lastCandle.getBollingerDown()) {
-            log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT + " / " + lastCandle.getBollingerUp());
+            log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
             if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp()) {
                 log.info("want to buy: " + lastCandle.getShare().getId());
                 return Optional.of(new TShareToBuy(lastCandle, currentPrice));
