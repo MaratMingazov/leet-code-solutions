@@ -72,7 +72,7 @@ public class AnalyzerService {
         log.info("load shares = " + count);
     }
 
-    @Scheduled(cron = "0/30 *  * * * *") // every minute
+    @Scheduled(cron = "3 0/1  * * * *") // every minute
     public void executeEveryMinute() {
         val accountId = apiService.getAccountFromApi();
         //        apiService.closeSandboxAccount(accountId);
@@ -111,8 +111,7 @@ public class AnalyzerService {
         }
     }
 
- //   @Scheduled(cron = "5 0/4  * * * *") // every 5 minutes
-    @Scheduled(cron = "5 0/3  * * * *") // every 5 minutes
+    @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
         log.info("start 5 minute");
         val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
@@ -121,8 +120,7 @@ public class AnalyzerService {
         log.info("finish 5 minute");
     }
 
-//    @Scheduled(cron = "5 0/10  * * * *") // every 15 minutes
-    @Scheduled(cron = "5 0/7  * * * *") // every 15 minutes
+    @Scheduled(cron = "5 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
         log.info("start 15 minute");
         val interval = CandleInterval.CANDLE_INTERVAL_15_MIN;
@@ -131,7 +129,7 @@ public class AnalyzerService {
         log.info("finish 15 minute");
     }
 
-    @Scheduled(cron = "5 0/50  * * * *")
+    @Scheduled(cron = "5 0 0/1 * * *")
     public void executeEvery1Hour() {
         log.info("start 1 hour");
         val interval = CandleInterval.CANDLE_INTERVAL_HOUR;
@@ -140,7 +138,7 @@ public class AnalyzerService {
         log.info("finish 1 hour");
     }
 
-    @Scheduled(cron = "5 0 0/8 * * *") // every  day 10 o clock
+    @Scheduled(cron = "0 0 10 * * *") // every  day 10 o clock
     public void executeEvery1Day() {
         log.info("start 1 day");
         val interval = CandleInterval.CANDLE_INTERVAL_DAY;
