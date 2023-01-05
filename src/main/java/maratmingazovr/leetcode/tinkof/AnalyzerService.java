@@ -399,7 +399,7 @@ public class AnalyzerService {
         var from = defaultFrom;
         val existingCandles = share.getCandlesMap().get(interval);
         if (!existingCandles.isEmpty()) {
-            from = existingCandles.get(existingCandles.size()-1).getInstant().plus(1L, ChronoUnit.SECONDS);
+            from = existingCandles.get(existingCandles.size()-1).getInstant();
             if (from.isBefore(defaultFrom)) {
                 from = defaultFrom;
             }
