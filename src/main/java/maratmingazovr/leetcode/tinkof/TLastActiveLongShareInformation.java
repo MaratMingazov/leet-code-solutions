@@ -21,8 +21,8 @@ public class TLastActiveLongShareInformation {
         this.stopLoss = price - price * TUtils.STOP_LOSS_PERCENT;
     }
 
-    @Override
-    public String toString() {
+
+    public String toStringPriceTakeProfitAndStopLoss() {
         return TUtils.formatDouble(price) + " / "
                 + TUtils.formatDouble(takeProfit) + " / "
                 + TUtils.formatDouble(stopLoss);

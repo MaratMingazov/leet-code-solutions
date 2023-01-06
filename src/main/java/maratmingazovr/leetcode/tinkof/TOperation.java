@@ -116,23 +116,23 @@ public class TOperation {
         val shareOptional = portfolio.findShareByFigi(this.figi);
         if (shareOptional.isPresent()) {
             val share = shareOptional.get();
-            String lastShareInformation = "-";
-            val lastShareInformationOptional = share.getLastLongShareInformation();
-            if (lastShareInformationOptional.isPresent()) {
-                lastShareInformation = lastShareInformationOptional.get().toString();
+            String pricaeTakeProfitStopLoss = "-";
+            val lastLongShareInformationOptional = share.getLastLongShareInformation();
+            if (lastLongShareInformationOptional.isPresent()) {
+                pricaeTakeProfitStopLoss = lastLongShareInformationOptional.get().toStringPriceTakeProfitAndStopLoss();
             }
 
             if (this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
                         + "sellResult: " + sellResult + "\n"
-                        + "buyPrice: " + lastShareInformation +  "\n";
+                        + "buyInfo: " + pricaeTakeProfitStopLoss +  "\n";
 
             }
             if (this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
-                        + "buyPrice: " + lastShareInformation +  "\n"
+                        + "buyInfo: " + pricaeTakeProfitStopLoss +  "\n"
                         + "comission: " + String.format("%.2f", share.getLastShareComission()) + " " + share.getLastShareComissionCurrency() + "\n"
                         + "BB: " + share.getLastShareSMA() + " " + share.getLastShareBollingerUp() + " " + share.getLastShareBollingerDown() + "\n";
             }
