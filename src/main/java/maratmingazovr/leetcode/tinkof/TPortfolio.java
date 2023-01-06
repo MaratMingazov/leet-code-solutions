@@ -5,6 +5,7 @@ import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 public class TPortfolio {
@@ -51,5 +52,11 @@ public class TPortfolio {
         shares.add(new TShare("AMZN","BBG000BVPV84"));
         shares.add(new TShare("GOOGL","BBG009S39JX6"));
         shares.add(new TShare("IBM","BBG000BLNNH6"));
+    }
+
+    public Optional<TShare> findShareByFigi(@NonNull String figi) {
+        return shares.stream()
+                     .filter(share -> share.getFigi().equals(figi))
+                     .findAny();
     }
 }

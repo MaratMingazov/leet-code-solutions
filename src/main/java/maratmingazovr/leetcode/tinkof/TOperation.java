@@ -113,21 +113,23 @@ public class TOperation {
     }
 
     private String checkStopLossOrTakeProfit() {
-        for (TShare share : portfolio.getShares()) {
 
+        val shareOptional = portfolio.findShareByFigi(this.figi);
+        if (shareOptional.isPresent()) {
+            val share = shareOptional.get();
             String lastShareInformation = "-";
             val lastShareInformationOptional = share.getLastLongShareInformation();
             if (lastShareInformationOptional.isPresent()) {
                 lastShareInformation = lastShareInformationOptional.get().toString();
             }
 
-            if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.SELL)) {
+            if (this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
                         + "type: " + resultType + "\n"
                         + "buyPrice: " + lastShareInformation +  "\n";
 
             }
-            if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.BUY)) {
+            if (this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
