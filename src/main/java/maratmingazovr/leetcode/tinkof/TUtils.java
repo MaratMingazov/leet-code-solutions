@@ -2,7 +2,6 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.NonNull;
 import lombok.val;
-import maratmingazovr.leetcode.k_means.KMeans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
@@ -12,6 +11,8 @@ import ru.tinkoff.piapi.contract.v1.Quotation;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,10 @@ public class TUtils {
     private static final String FILENAME = "src/main/java/maratmingazovr/leetcode/tinkof/data.txt";
 
     private static Logger log = LoggerFactory.getLogger(TUtils.class);
+
+    public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter
+            .ofPattern("dd.MM.yyyy:hh:mm")
+            .withZone(ZoneId.systemDefault());
 
 
     public static void calculateSimpleMovingAverage(@NonNull TShare share,
@@ -112,5 +117,10 @@ public class TUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @NonNull
+    public static String formatDouble(@NonNull Double value) {
+        return String.format("%.2f", value);
     }
 }

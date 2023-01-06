@@ -7,8 +7,6 @@ import ru.tinkoff.piapi.contract.v1.Operation;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Data
@@ -100,10 +98,9 @@ public class TOperation {
     @Override
     public String toString() {
         val type = checkStopLossOrTakeProfit();
-        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy:hh:mm").withZone(ZoneId.systemDefault());
         return "Operation: \n"
                 + type
-                + "date: " + formatter.format(instant) + "\n"
+                + "date: " + TUtils.TIME_FORMATTER.format(instant) + "\n"
                 + "share: " + shareId + "\n"
                 + "type: " + this.typeString  + "\n"
                 + "currency: " + currency + "\n"
@@ -115,22 +112,18 @@ public class TOperation {
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
                         + "type: " + resultType + "\n"
-                        + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n";
+                        + "buyPrice: " + TUtils.formatDouble(share.getLastSharePrice()) + " / " + TUtils.formatDouble(share.getLastShareTakeProfit()) + " / " + TUtils.formatDouble(share.getLastShareStopLoss()) +  "\n";
 
             }
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
-                        + "buyPrice: " + format(share.getLastSharePrice()) + " / " + format(share.getLastShareTakeProfit()) + " / " + format(share.getLastShareStopLoss()) +  "\n"
+                        + "buyPrice: " + TUtils.formatDouble(share.getLastSharePrice()) + " / " + TUtils.formatDouble(share.getLastShareTakeProfit()) + " / " + TUtils.formatDouble(share.getLastShareStopLoss()) +  "\n"
                         + "comission: " + String.format("%.2f", share.getLastShareComission()) + " " + share.getLastShareComissionCurrency() + "\n"
                         + "BB: " + share.getLastShareSMA() + " " + share.getLastShareBollingerUp() + " " + share.getLastShareBollingerDown() + "\n";
             }
         }
         return "";
-    }
-
-    private String format(@NonNull Double value) {
-        return String.format("%.2f", value);
     }
 }
