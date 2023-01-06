@@ -68,17 +68,9 @@ public class TCandle {
                 + "low: " + low + "\n"
                 + "vol: " + volume + "\n"
                 + "time: " + instant + "\n"
-                + "bb: " + format(simpleMovingAverage) + " / " + format(bollingerUp) + " / " + format(bollingerDown) + "\n"
+                + "bb: " + TUtils.formatDouble(simpleMovingAverage) + " / " + TUtils.formatDouble(bollingerUp) + " / " + TUtils.formatDouble(bollingerDown) + "\n"
                 + "interval: " + interval + "\n"
                 + "candles: " + m1Candles + " / " + m5Candles + " / " + m15Candles + " / " + m60Candles + " / " + m24Candles + "\n";
-    }
-
-    private String format(@Nullable Double value) {
-        if (value == null) {
-            return "-";
-        } else {
-            return String.format("%.2f", value);
-        }
     }
 
 

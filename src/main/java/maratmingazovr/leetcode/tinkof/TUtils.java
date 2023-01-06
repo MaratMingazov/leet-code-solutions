@@ -2,6 +2,7 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.NonNull;
 import lombok.val;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
@@ -120,7 +121,9 @@ public class TUtils {
     }
 
     @NonNull
-    public static String formatDouble(@NonNull Double value) {
-        return String.format("%.2f", value);
+    public static String formatDouble(@Nullable Double value) {
+        return value == null
+                ? "-"
+                : String.format("%.2f", value);
     }
 }
