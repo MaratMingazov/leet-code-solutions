@@ -20,8 +20,8 @@ import maratmingazovr.leetcode.tasks.generative_network.naive_bayes_generator.Ze
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
-@SpringBootApplication
-@ConfigurationPropertiesScan("maratmingazovr.leetcode.config")
+//@SpringBootApplication
+//@ConfigurationPropertiesScan("maratmingazovr.leetcode.config")
 public class JavaFX extends Application {
 
     public static void main(String[] args) {

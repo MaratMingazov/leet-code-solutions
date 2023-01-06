@@ -80,15 +80,22 @@ public class TOperation {
         if (shareOpt.isPresent()) {
             this.share = shareOpt.get();
             if (type.equals(TOperationType.BUY)) {
-                share.setLastSharePrice(this.price);
+                share.updateLastActiveLongShareInformation(this.price);
                 share.setLastShareTakeProfit(this.price + this.price * TUtils.TAKE_PROFIT_PERCENT);
                 share.setLastShareStopLoss(this.price - this.price * TUtils.STOP_LOSS_PERCENT);
             }
             if (type.equals(TOperationType.SELL)) {
-                if (this.price > share.getLastSharePrice()) {
-                    this.resultType = TOperationResultType.TAKE_PROFIT;
+                val lastShareInformationOptional = share.getLastLongShareInformation();
+                if (lastShareInformationOptional.isPresent()) {
+                    val lastShareInformation = lastShareInformationOptional.get();
+                    val lastSharePrice = lastShareInformation.getPrice();
+                    if (this.price > lastSharePrice) {
+                        this.resultType = TOperationResultType.TAKE_PROFIT;
+                    } else {
+                        this.resultType = TOperationResultType.STOP_LOSS;
+                    }
                 } else {
-                    this.resultType = TOperationResultType.STOP_LOSS;
+                    this.resultType = TOperationResultType.OTHER;
                 }
             }
         }
@@ -109,17 +116,24 @@ public class TOperation {
 
     private String checkStopLossOrTakeProfit() {
         for (TShare share : portfolio.getShares()) {
+            Double lastActiveLongSharePrice = null;
+            val lastShareInformationOptional = share.getLastLongShareInformation();
+            if (lastShareInformationOptional.isPresent()) {
+                val information = lastShareInformationOptional.get();
+                lastActiveLongSharePrice = information.getPrice();
+            }
+
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
                         + "type: " + resultType + "\n"
-                        + "buyPrice: " + TUtils.formatDouble(share.getLastSharePrice()) + " / " + TUtils.formatDouble(share.getLastShareTakeProfit()) + " / " + TUtils.formatDouble(share.getLastShareStopLoss()) +  "\n";
+                        + "buyPrice: " + TUtils.formatDouble(lastActiveLongSharePrice) + " / " + TUtils.formatDouble(share.getLastShareTakeProfit()) + " / " + TUtils.formatDouble(share.getLastShareStopLoss()) +  "\n";
 
             }
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
-                        + "buyPrice: " + TUtils.formatDouble(share.getLastSharePrice()) + " / " + TUtils.formatDouble(share.getLastShareTakeProfit()) + " / " + TUtils.formatDouble(share.getLastShareStopLoss()) +  "\n"
+                        + "buyPrice: " + TUtils.formatDouble(lastActiveLongSharePrice) + " / " + TUtils.formatDouble(share.getLastShareTakeProfit()) + " / " + TUtils.formatDouble(share.getLastShareStopLoss()) +  "\n"
                         + "comission: " + String.format("%.2f", share.getLastShareComission()) + " " + share.getLastShareComissionCurrency() + "\n"
                         + "BB: " + share.getLastShareSMA() + " " + share.getLastShareBollingerUp() + " " + share.getLastShareBollingerDown() + "\n";
             }

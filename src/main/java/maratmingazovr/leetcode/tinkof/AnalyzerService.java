@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import maratmingazovr.leetcode.neural_network.NetworkConfiguration;
 import maratmingazovr.leetcode.neural_network.Util;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,9 +13,6 @@ import ru.tinkoff.piapi.contract.v1.StopOrder;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -26,11 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_15_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_1_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_5_MIN;
-import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_DAY;
-import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_HOUR;
 
 @Log4j2
 @Service
@@ -62,7 +55,7 @@ public class AnalyzerService {
             val shareBuyPrice = Double.valueOf(share.get(1));
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
-                    portfolioShare.setLastSharePrice(shareBuyPrice);
+                    portfolioShare.updateLastActiveLongShareInformation(shareBuyPrice);
                     portfolioShare.setLastShareTakeProfit(shareBuyPrice + shareBuyPrice * TUtils.TAKE_PROFIT_PERCENT);
                     portfolioShare.setLastShareStopLoss(shareBuyPrice - shareBuyPrice * TUtils.TAKE_PROFIT_PERCENT);
                     count++;
@@ -168,7 +161,8 @@ public class AnalyzerService {
             if(!candle.getShare().getActiveShares().isEmpty()) {
                 continue;
             }
-            val figi = candle.getShare().getFigi();
+            val share = candle.getShare();
+            val figi = share.getFigi();
             log.info("want to buy: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             val order = apiService.buyShareFromApi(accountId, figi, shareToBuy.getPriceToBuy());
             val comission = TUtils.moneyValueToDouble(order.getExecutedCommission());
@@ -180,16 +174,16 @@ public class AnalyzerService {
             val sma = String.format("%.2f", candle.getSimpleMovingAverage());
             val bollingerUp = String.format("%.2f", candle.getBollingerUp());
             val bollingerDown = String.format("%.2f", candle.getBollingerDown());
-            candle.getShare().setLastShareStopLoss(stopLoss);
-            candle.getShare().setLastShareTakeProfit(takeProfit);
-            candle.getShare().setLastSharePrice(price);
-            candle.getShare().setLastSharePosition("LONG");
-            candle.getShare().setLastShareComission(comission);
-            candle.getShare().setLastShareComissionCurrency(comissionCurrency);
-            candle.getShare().setLastShareSMA(sma);
-            candle.getShare().setLastShareBollingerUp(bollingerUp);
-            candle.getShare().setLastShareBollingerDown(bollingerDown);
-            candle.getShare().setLastShareInterval(candle.getInterval().toString());
+            share.updateLastActiveLongShareInformation(price);
+            share.setLastShareStopLoss(stopLoss);
+            share.setLastShareTakeProfit(takeProfit);
+            share.setLastSharePosition("LONG");
+            share.setLastShareComission(comission);
+            share.setLastShareComissionCurrency(comissionCurrency);
+            share.setLastShareSMA(sma);
+            share.setLastShareBollingerUp(bollingerUp);
+            share.setLastShareBollingerDown(bollingerDown);
+            share.setLastShareInterval(candle.getInterval().toString());
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
             //val takeProfit = apiService.takeProfitOrder(accountId, figi, orderPrice);
             //val message = generateBuyShareMessage(order, stopLoss, takeProfit, candle, "LONG", Instant.now());

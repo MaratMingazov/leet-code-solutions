@@ -2,12 +2,14 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.Data;
 import lombok.NonNull;
+import lombok.val;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Data
 public class TShare {
@@ -24,8 +26,8 @@ public class TShare {
     @NonNull
     String figi;
 
-    @NonNull
-    Double lastSharePrice = 0.0;
+//    @NonNull
+//    Double lastSharePrice = 0.0;
 
     @NonNull
     Double lastShareTakeProfit = 0.0;
@@ -54,9 +56,11 @@ public class TShare {
     @NonNull
     String lastShareBollingerDown;
 
+    @NonNull
+    Optional<TLastActiveLongShareInformation> lastLongShareInformation = Optional.empty();
+
     public TShare(@NonNull String id,
                   @NonNull String figi) {
-
         this.id = id;
         this.figi = figi;
 
@@ -65,5 +69,15 @@ public class TShare {
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_15_MIN, new ArrayList<>());
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_HOUR, new ArrayList<>());
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_DAY, new ArrayList<>());
+    }
+
+    public void updateLastActiveLongShareInformation(@NonNull Double price) {
+        if (lastLongShareInformation.isPresent()) {
+            val information = lastLongShareInformation.get();
+            information.setPrice(price);
+        } else {
+            val information = new TLastActiveLongShareInformation(price);
+            lastLongShareInformation = Optional.of(information);
+        }
     }
 }

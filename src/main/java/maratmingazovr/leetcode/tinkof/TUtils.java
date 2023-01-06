@@ -104,14 +104,15 @@ public class TUtils {
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
             List<String> savedShares = new ArrayList<>();
             val shares = portfolio.getShares();
-            for (int i = 0; i < shares.size(); i++) {
-                val share = shares.get(i);
-                if (share.getLastSharePrice() > 0) {
+            for (final TShare share : shares) {
+                val lastActiveLongShareInformationOptional = share.getLastLongShareInformation();
+                if (lastActiveLongShareInformationOptional.isPresent()) {
+                    val information = lastActiveLongShareInformationOptional.get();
                     bw.write(share.getId());
                     bw.write(",");
-                    bw.write(share.getLastSharePrice().toString());
+                    bw.write(information.getPrice().toString());
                     bw.newLine();
-                    savedShares.add(share.getId() + ": " + share.getLastSharePrice() + " / ");
+                    savedShares.add(share.getId() + ": " + information.getPrice() + " / ");
                 }
             }
             log.info("savedShares: " + savedShares);
