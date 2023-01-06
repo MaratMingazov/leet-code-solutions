@@ -56,7 +56,6 @@ public class AnalyzerService {
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
                     portfolioShare.updateLastActiveLongShareInformation(shareBuyPrice);
-                    portfolioShare.setLastShareTakeProfit(shareBuyPrice + shareBuyPrice * TUtils.TAKE_PROFIT_PERCENT);
                     portfolioShare.setLastShareStopLoss(shareBuyPrice - shareBuyPrice * TUtils.TAKE_PROFIT_PERCENT);
                     count++;
                 }
@@ -76,6 +75,7 @@ public class AnalyzerService {
         //        }
 
         updateOperations(accountId, portfolio);
+        apiService.updatePortfolioFromApi(accountId, portfolio);
 
 //        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
         updateSharesFromApi(CANDLE_INTERVAL_1_MIN);
@@ -169,14 +169,12 @@ public class AnalyzerService {
             val comissionCurrency = order.getExecutedCommission().getCurrency();
             //val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
             val price = shareToBuy.getPriceToBuy();
-            val takeProfit = price + TUtils.TAKE_PROFIT_PERCENT * price;
             val stopLoss = price - TUtils.STOP_LOSS_PERCENT * price;
             val sma = String.format("%.2f", candle.getSimpleMovingAverage());
             val bollingerUp = String.format("%.2f", candle.getBollingerUp());
             val bollingerDown = String.format("%.2f", candle.getBollingerDown());
             share.updateLastActiveLongShareInformation(price);
             share.setLastShareStopLoss(stopLoss);
-            share.setLastShareTakeProfit(takeProfit);
             share.setLastSharePosition("LONG");
             share.setLastShareComission(comission);
             share.setLastShareComissionCurrency(comissionCurrency);
@@ -232,7 +230,6 @@ public class AnalyzerService {
         }
 
         if (newOperations.size() > 0) {
-            apiService.updatePortfolioFromApi(accountId, portfolio);
             log.info("Got new operations: " + newOperations.size());
             for (TOperation newOperation : newOperations) {
                 log.info(newOperation.getInstant() + " / " + newOperation.getShareId() + " / " + newOperation.getType() + " / " + newOperation.getPrice() + " / " + newOperation.getCurrency());
@@ -249,7 +246,13 @@ public class AnalyzerService {
         List<TActiveShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
             for (TActiveShare activeShare : share.getActiveShares()) {
-                if (activeShare.getPrice() > share.getLastShareTakeProfit() || activeShare.getPrice() < share.getLastShareStopLoss()) {
+                val lastActiveLongShareInformationOptional = share.getLastLongShareInformation();
+                double lastActiveLongShareTakeProfit = 0.0;
+                if (lastActiveLongShareInformationOptional.isPresent()) {
+                    val information = lastActiveLongShareInformationOptional.get();
+                    lastActiveLongShareTakeProfit = information.getTakeProfit();
+                }
+                if (activeShare.getPrice() > lastActiveLongShareTakeProfit || activeShare.getPrice() < share.getLastShareStopLoss()) {
                     result.add(activeShare);
                 }
             }

@@ -29,8 +29,8 @@ public class TShare {
 //    @NonNull
 //    Double lastSharePrice = 0.0;
 
-    @NonNull
-    Double lastShareTakeProfit = 0.0;
+//    @NonNull
+//    Double lastShareTakeProfit = 0.0;
 
     @NonNull
     Double lastShareStopLoss = 0.0;
@@ -72,12 +72,7 @@ public class TShare {
     }
 
     public void updateLastActiveLongShareInformation(@NonNull Double price) {
-        if (lastLongShareInformation.isPresent()) {
-            val information = lastLongShareInformation.get();
-            information.setPrice(price);
-        } else {
-            val information = new TLastActiveLongShareInformation(price);
-            lastLongShareInformation = Optional.of(information);
-        }
+        val information = new TLastActiveLongShareInformation(price);
+        lastLongShareInformation = Optional.of(information);
     }
 }

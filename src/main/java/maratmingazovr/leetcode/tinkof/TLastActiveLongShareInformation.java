@@ -1,13 +1,19 @@
 package maratmingazovr.leetcode.tinkof;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NonNull;
+import lombok.Value;
 
-@Data
-@AllArgsConstructor
+@Value
 public class TLastActiveLongShareInformation {
 
     @NonNull
-    Double price = 0.0;
+    Double price;
+
+    @NonNull
+    Double takeProfit;
+
+    public TLastActiveLongShareInformation(@NonNull Double price) {
+        this.price = price;
+        this.takeProfit = price + price * TUtils.TAKE_PROFIT_PERCENT;
+    }
 }
