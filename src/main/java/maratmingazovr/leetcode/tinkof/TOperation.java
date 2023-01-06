@@ -52,8 +52,7 @@ public class TOperation {
 
     @Nullable TShare share;
 
-    @NonNull
-    TOperationResultType resultType;
+    @NonNull TOperationSellResult sellResult;
 
     public TOperation(@NonNull Operation operation,
                       @NonNull TPortfolio portfolio) {
@@ -69,7 +68,7 @@ public class TOperation {
         this.paymentCurrency = operation.getPayment().getCurrency();
         this.quantity = operation.getQuantity();
         this.portfolio = portfolio;
-        this.resultType = TOperationResultType.OTHER;
+        this.sellResult = TOperationSellResult.OTHER;
 
         portfolio.getShares().stream()
                  .filter(share -> share.getFigi().equals(operation.getFigi()))
@@ -88,12 +87,12 @@ public class TOperation {
                     val lastShareInformation = lastShareInformationOptional.get();
                     val lastSharePrice = lastShareInformation.getPrice();
                     if (this.price > lastSharePrice) {
-                        this.resultType = TOperationResultType.TAKE_PROFIT;
+                        this.sellResult = TOperationSellResult.TAKE_PROFIT;
                     } else {
-                        this.resultType = TOperationResultType.STOP_LOSS;
+                        this.sellResult = TOperationSellResult.STOP_LOSS;
                     }
                 } else {
-                    this.resultType = TOperationResultType.OTHER;
+                    this.sellResult = TOperationSellResult.OTHER;
                 }
             }
         }
@@ -125,7 +124,7 @@ public class TOperation {
 
             if (this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
-                        + "type: " + resultType + "\n"
+                        + "sellResult: " + sellResult + "\n"
                         + "buyPrice: " + lastShareInformation +  "\n";
 
             }

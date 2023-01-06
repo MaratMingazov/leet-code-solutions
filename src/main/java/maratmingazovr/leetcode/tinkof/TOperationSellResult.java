@@ -1,6 +1,6 @@
 package maratmingazovr.leetcode.tinkof;
 
-public enum TOperationResultType {
+public enum TOperationSellResult {
     TAKE_PROFIT,
     STOP_LOSS,
     OTHER;
