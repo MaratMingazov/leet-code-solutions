@@ -32,8 +32,8 @@ public class TShare {
 //    @NonNull
 //    Double lastShareTakeProfit = 0.0;
 
-    @NonNull
-    Double lastShareStopLoss = 0.0;
+//    @NonNull
+//    Double lastShareStopLoss = 0.0;
 
     @NonNull
     Double lastShareComission = 0.0;

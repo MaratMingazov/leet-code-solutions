@@ -56,7 +56,6 @@ public class AnalyzerService {
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
                     portfolioShare.updateLastActiveLongShareInformation(shareBuyPrice);
-                    portfolioShare.setLastShareStopLoss(shareBuyPrice - shareBuyPrice * TUtils.TAKE_PROFIT_PERCENT);
                     count++;
                 }
             }
@@ -169,12 +168,10 @@ public class AnalyzerService {
             val comissionCurrency = order.getExecutedCommission().getCurrency();
             //val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
             val price = shareToBuy.getPriceToBuy();
-            val stopLoss = price - TUtils.STOP_LOSS_PERCENT * price;
             val sma = String.format("%.2f", candle.getSimpleMovingAverage());
             val bollingerUp = String.format("%.2f", candle.getBollingerUp());
             val bollingerDown = String.format("%.2f", candle.getBollingerDown());
             share.updateLastActiveLongShareInformation(price);
-            share.setLastShareStopLoss(stopLoss);
             share.setLastSharePosition("LONG");
             share.setLastShareComission(comission);
             share.setLastShareComissionCurrency(comissionCurrency);
@@ -248,11 +245,13 @@ public class AnalyzerService {
             for (TActiveShare activeShare : share.getActiveShares()) {
                 val lastActiveLongShareInformationOptional = share.getLastLongShareInformation();
                 double lastActiveLongShareTakeProfit = 0.0;
+                double lastActiveLongShareStopLoss = 0.0;
                 if (lastActiveLongShareInformationOptional.isPresent()) {
                     val information = lastActiveLongShareInformationOptional.get();
                     lastActiveLongShareTakeProfit = information.getTakeProfit();
+                    lastActiveLongShareStopLoss = information.getStopLoss();
                 }
-                if (activeShare.getPrice() > lastActiveLongShareTakeProfit || activeShare.getPrice() < share.getLastShareStopLoss()) {
+                if (activeShare.getPrice() > lastActiveLongShareTakeProfit || activeShare.getPrice() < lastActiveLongShareStopLoss) {
                     result.add(activeShare);
                 }
             }

@@ -12,8 +12,19 @@ public class TLastActiveLongShareInformation {
     @NonNull
     Double takeProfit;
 
+    @NonNull
+    Double stopLoss;
+
     public TLastActiveLongShareInformation(@NonNull Double price) {
         this.price = price;
         this.takeProfit = price + price * TUtils.TAKE_PROFIT_PERCENT;
+        this.stopLoss = price - price * TUtils.STOP_LOSS_PERCENT;
+    }
+
+    @Override
+    public String toString() {
+        return TUtils.formatDouble(price) + " / "
+                + TUtils.formatDouble(takeProfit) + " / "
+                + TUtils.formatDouble(stopLoss);
     }
 }

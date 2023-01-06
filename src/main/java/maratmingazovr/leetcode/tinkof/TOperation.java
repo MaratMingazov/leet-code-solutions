@@ -81,7 +81,6 @@ public class TOperation {
             this.share = shareOpt.get();
             if (type.equals(TOperationType.BUY)) {
                 share.updateLastActiveLongShareInformation(this.price);
-                share.setLastShareStopLoss(this.price - this.price * TUtils.STOP_LOSS_PERCENT);
             }
             if (type.equals(TOperationType.SELL)) {
                 val lastShareInformationOptional = share.getLastLongShareInformation();
@@ -115,26 +114,24 @@ public class TOperation {
 
     private String checkStopLossOrTakeProfit() {
         for (TShare share : portfolio.getShares()) {
-            Double lastActiveLongSharePrice = null;
-            Double lastActiveLongShareTakeProfit = null;
+
+            String lastShareInformation = "-";
             val lastShareInformationOptional = share.getLastLongShareInformation();
             if (lastShareInformationOptional.isPresent()) {
-                val information = lastShareInformationOptional.get();
-                lastActiveLongSharePrice = information.getPrice();
-                lastActiveLongShareTakeProfit = information.getTakeProfit();
+                lastShareInformation = lastShareInformationOptional.get().toString();
             }
 
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
                         + "type: " + resultType + "\n"
-                        + "buyPrice: " + TUtils.formatDouble(lastActiveLongSharePrice) + " / " + TUtils.formatDouble(lastActiveLongShareTakeProfit) + " / " + TUtils.formatDouble(share.getLastShareStopLoss()) +  "\n";
+                        + "buyPrice: " + lastShareInformation +  "\n";
 
             }
             if (share.getFigi().equals(this.figi) && this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
-                        + "buyPrice: " + TUtils.formatDouble(lastActiveLongSharePrice) + " / " + TUtils.formatDouble(lastActiveLongShareTakeProfit) + " / " + TUtils.formatDouble(share.getLastShareStopLoss()) +  "\n"
+                        + "buyPrice: " + lastShareInformation +  "\n"
                         + "comission: " + String.format("%.2f", share.getLastShareComission()) + " " + share.getLastShareComissionCurrency() + "\n"
                         + "BB: " + share.getLastShareSMA() + " " + share.getLastShareBollingerUp() + " " + share.getLastShareBollingerDown() + "\n";
             }
