@@ -3,6 +3,8 @@ package maratmingazovr.leetcode.tinkof;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.tinkoff.piapi.contract.v1.Operation;
 
 import javax.annotation.Nullable;
@@ -54,6 +56,8 @@ public class TOperation {
 
     @NonNull TOperationSellResult sellResult;
 
+    private static Logger log = LoggerFactory.getLogger(TOperation.class);
+
     public TOperation(@NonNull Operation operation,
                       @NonNull TPortfolio portfolio) {
         this.figi = operation.getFigi();
@@ -79,7 +83,13 @@ public class TOperation {
         if (shareOpt.isPresent()) {
             this.share = shareOpt.get();
             if (type.equals(TOperationType.BUY)) {
-                share.updateLastActiveLongShareInformation(this.price);
+                val lastActiveLongShareInformationOptional =  share.getLastLongShareInformation();
+                if (lastActiveLongShareInformationOptional.isPresent()) {
+                    val information = lastActiveLongShareInformationOptional.get();
+                    information.updatePrice(this.price);
+                } else {
+                    log.info("Exception. TOperation. Buy share. but lastActiveLongShare does not exists. share = " + this.share.getId() + " / price = " + this.price);
+                }
             }
             if (type.equals(TOperationType.SELL)) {
                 val lastShareInformationOptional = share.getLastLongShareInformation();

@@ -171,7 +171,10 @@ public class AnalyzerService {
             val sma = String.format("%.2f", candle.getSimpleMovingAverage());
             val bollingerUp = String.format("%.2f", candle.getBollingerUp());
             val bollingerDown = String.format("%.2f", candle.getBollingerDown());
-            share.updateLastActiveLongShareInformation(price);
+
+            val lastActiveLongShareInformation = new TLastActiveLongShareInformation(price);
+            share.setLastLongShareInformation(Optional.of(lastActiveLongShareInformation));
+
             share.setLastSharePosition("LONG");
             share.setLastShareComission(comission);
             share.setLastShareComissionCurrency(comissionCurrency);

@@ -70,9 +70,4 @@ public class TShare {
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_HOUR, new ArrayList<>());
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_DAY, new ArrayList<>());
     }
-
-    public void updateLastActiveLongShareInformation(@NonNull Double price) {
-        val information = new TLastActiveLongShareInformation(price);
-        lastLongShareInformation = Optional.of(information);
-    }
 }
