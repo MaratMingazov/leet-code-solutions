@@ -26,17 +26,7 @@ public class TShare {
     @NonNull
     String figi;
 
-    @NonNull
-    String lastShareSMA;
 
-    @NonNull
-    String lastShareBollingerUp;
-
-    @NonNull
-    String lastShareInterval = "";
-
-    @NonNull
-    String lastShareBollingerDown;
 
     @NonNull
     TLastActiveLongShareInformation lastLongShareInformation = new TLastActiveLongShareInformation();

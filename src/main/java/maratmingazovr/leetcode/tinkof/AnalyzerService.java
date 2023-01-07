@@ -147,28 +147,15 @@ public class AnalyzerService {
             val share = candle.getShare();
             val figi = share.getFigi();
             log.info("want to buy: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
-            val order = apiService.buyShareFromApi(accountId, figi, shareToBuy.getPriceToBuy());
-            val commission = TUtils.moneyValueToDouble(order.getExecutedCommission());
-            val comissionCurrencyString = order.getExecutedCommission().getCurrency();
-            val commissionCurrency = TCurrency.getFromString(comissionCurrencyString);
-            //val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
-            val price = shareToBuy.getPriceToBuy();
-            val sma = String.format("%.2f", candle.getSimpleMovingAverage());
-            val bollingerUp = String.format("%.2f", candle.getBollingerUp());
-            val bollingerDown = String.format("%.2f", candle.getBollingerDown());
-
-            val lastActiveLongShareInformation = new TLastActiveLongShareInformation(price, commission, commissionCurrency);
+            apiService.sendByLimitLongOrder(accountId, figi, shareToBuy.getPriceToBuy());
+            val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareToBuy.getPriceToBuy(),
+                                                                                     candle.getSimpleMovingAverage(),
+                                                                                     candle.getBollingerUp(),
+                                                                                     candle.getBollingerDown(),
+                                                                                     candle.getInterval());
             share.setLastLongShareInformation(lastActiveLongShareInformation);
-            share.setLastShareSMA(sma);
-            share.setLastShareBollingerUp(bollingerUp);
-            share.setLastShareBollingerDown(bollingerDown);
-            share.setLastShareInterval(candle.getInterval().toString());
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
             //val takeProfit = apiService.takeProfitOrder(accountId, figi, orderPrice);
-            //val message = generateBuyShareMessage(order, stopLoss, takeProfit, candle, "LONG", Instant.now());
-            //val message = generateBuyShareMessageSandbox(order, stopLoss, takeProfit, candle, "LONG", Instant.now());
-            //log.info(message);
-            //botService.sendMassage(message);
         }
         TUtils.saveLastActiveLongShares(portfolio);
     }
@@ -236,70 +223,6 @@ public class AnalyzerService {
             }
         }
         return result;
-    }
-
-    private String generateBuyShareMessageSandbox(@NonNull PostOrderResponse order,
-                                           @NonNull Double stopLoss,
-                                           @NonNull Double takeProfit,
-                                           @NonNull TCandle candle,
-                                           @NonNull String position,
-                                           @NonNull Instant instant) {
-
-        val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
-        val priceCurrency = order.getExecutedOrderPrice().getCurrency();
-        val comission = TUtils.moneyValueToDouble(order.getExecutedCommission());
-        val comissionCurrency = order.getExecutedCommission().getCurrency();
-        val takeProfitPrice = String.format("%.2f", takeProfit);
-        val stopLossPrice = String.format("%.2f", stopLoss);
-        val sma = String.format("%.2f", candle.getSimpleMovingAverage());
-        val bollingerUp = String.format("%.2f", candle.getBollingerUp());
-        val bollingerDown = String.format("%.2f", candle.getBollingerDown());
-
-        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy:hh:mm").withZone(ZoneId.systemDefault());
-
-        return "Buy:" + "\n"
-                + "id: " + candle.getShare().getId() + "\n"
-                + "position: " + position + "\n"
-                + "date: " + formatter.format(instant) + "\n"
-                + "price: " + price + " " + priceCurrency + "\n"
-                + "comission: " + comission + " " + comissionCurrency + "\n"
-                + "takeProfit: " + takeProfitPrice + "\n"
-                + "stopLoss: " + stopLossPrice + "\n"
-                + "BB: " + sma + " " + bollingerUp + " " + bollingerDown + "\n";
-    }
-
-    private String generateBuyShareMessage(@NonNull PostOrderResponse order,
-                                           @Nullable StopOrder stopLoss,
-                                           @Nullable StopOrder takeProfit,
-                                           @NonNull TCandle candle,
-                                           @NonNull String position,
-                                           @NonNull Instant instant) {
-
-        val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
-        val priceCurrency = order.getExecutedOrderPrice().getCurrency();
-        val comission = TUtils.moneyValueToDouble(order.getExecutedCommission());
-        val comissionCurrency = order.getExecutedCommission().getCurrency();
-//        val takeProfitPrice = TUtils.moneyValueToDouble(takeProfit.getPrice());
-//        val takeProfitCurrency = takeProfit.getCurrency();
-//        val takeProfitExpiration = timestampToString(takeProfit.getExpirationTime());
-//        val stopLossPrice = TUtils.moneyValueToDouble(stopLoss.getPrice());
-//        val stopLossCurrency = stopLoss.getCurrency();
-//        val stopLossExpiration = timestampToString(stopLoss.getExpirationTime());
-        val sma = String.format("%.2f", candle.getSimpleMovingAverage());
-        val bollingerUp = String.format("%.2f", candle.getBollingerUp());
-        val bollingerDown = String.format("%.2f", candle.getBollingerDown());
-
-        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy:hh:mm").withZone(ZoneId.systemDefault());
-
-        return "Buy:" + "\n"
-                + "id: " + candle.getShare().getId() + "\n"
-                + "position: " + position + "\n"
-                + "date: " + formatter.format(instant) + "\n"
-                + "price: " + price + " " + priceCurrency + "\n"
-                + "comission: " + comission + " " + comissionCurrency + "\n"
-//                + "takeProfit: " + takeProfitPrice + " " + takeProfitCurrency + " " + takeProfitExpiration + "\n"
-//                + "stopLoss: " + stopLossPrice + " " + stopLossCurrency + " " + stopLossExpiration + "\n"
-                + "BB: " + sma + " " + bollingerUp + " " + bollingerDown + "\n";
     }
 
     private String generatePortfolioMessage(@NonNull TPortfolio portfolio) {
@@ -449,9 +372,8 @@ public class AnalyzerService {
             return Optional.empty();
         }
         if (currentPrice < lastCandle.getBollingerDown()) {
-            log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
+            //log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
             if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp()) {
-                log.info("want to buy: " + lastCandle.getShare().getId());
                 return Optional.of(new TShareToBuy(lastCandle, currentPrice));
             }
         }

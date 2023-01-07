@@ -67,7 +67,7 @@ public class ApiService {
     }
 
     @NonNull
-    public PostOrderResponse buyShareFromApi(@NonNull String accountId,
+    public PostOrderResponse sendByLimitLongOrder(@NonNull String accountId,
                                              @NonNull String shareFigi,
                                              @NonNull Double price) {
 
@@ -76,9 +76,7 @@ public class ApiService {
                                        .setUnits(value.longValue() )
                                        .setNano(value.remainder(BigDecimal.ONE).multiply(BigDecimal.valueOf(1_000_000_000)).intValue())
                                        .build();
-        //Quotation lastPrice = api.getMarketDataService().getLastPricesSync(List.of(shareFigi)).get(0).getPrice();
 
-        //Выставляем заявку на покупку по рыночной цене
         return api.getOrdersService().postOrderSync(shareFigi,
                                                     1,
                                                     quotationPrice,

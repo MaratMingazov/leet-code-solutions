@@ -129,11 +129,16 @@ public class TUtils {
             }
             val shareId = share.get(0);
             val shareBuyPrice = Double.valueOf(share.get(1));
-            val shareComission = Double.valueOf(share.get(2));
-            val commissionCurrency = TCurrency.getFromString(share.get(3));
+            val simpleMovingAverage = Double.valueOf(share.get(2));
+            val bollingerUp = Double.valueOf(share.get(3));
+            val bollingerDown = Double.valueOf(share.get(4));
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
-                    val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareBuyPrice, shareComission, commissionCurrency);
+                    val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareBuyPrice,
+                                                                                             simpleMovingAverage,
+                                                                                             bollingerUp,
+                                                                                             bollingerDown,
+                                                                                             CandleInterval.CANDLE_INTERVAL_UNSPECIFIED);
                     portfolioShare.setLastLongShareInformation(lastActiveLongShareInformation);
                     count++;
                 }

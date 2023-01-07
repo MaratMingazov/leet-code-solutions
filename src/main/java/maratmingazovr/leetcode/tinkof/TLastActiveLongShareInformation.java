@@ -2,7 +2,7 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.Data;
 import lombok.NonNull;
-
+import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 
 @Data
@@ -18,25 +18,37 @@ public class TLastActiveLongShareInformation {
     Double stopLoss;
 
     @NonNull
-    Double comission;
+    Double simpleMovingAverage;
 
     @NonNull
-    TCurrency commissionCurrency;
+    Double bollingerUp;
+
+    @NonNull
+    Double bollingerDown;
+
+    @NonNull
+    CandleInterval interval;
 
     public TLastActiveLongShareInformation() {
         this.price = 0.0;
         this.takeProfit = 0.0;
         this.stopLoss = 0.0;
-        this.comission = 0.0;
-        this.commissionCurrency = TCurrency.USD;
+        this.simpleMovingAverage = 0.0;
+        this.bollingerUp = 0.0;
+        this.bollingerDown = 0.0;
+        this.interval = CandleInterval.CANDLE_INTERVAL_UNSPECIFIED;
     }
 
     public TLastActiveLongShareInformation(@NonNull Double price,
-                                           @NonNull Double comission,
-                                           @NonNull TCurrency commissionCurrency) {
+                                           @NonNull Double simpleMovingAverage,
+                                           @NonNull Double bollingerUp,
+                                           @NonNull Double bollingerDown,
+                                           @NonNull CandleInterval interval) {
         updatePrice(price);
-        this.comission = comission;
-        this.commissionCurrency = commissionCurrency;
+        this.simpleMovingAverage = simpleMovingAverage;
+        this.bollingerUp = bollingerUp;
+        this.bollingerDown = bollingerDown;
+        this.interval = interval;
     }
 
 
@@ -44,10 +56,6 @@ public class TLastActiveLongShareInformation {
         return TUtils.formatDouble(price) + " / "
                 + TUtils.formatDouble(takeProfit) + " / "
                 + TUtils.formatDouble(stopLoss);
-    }
-
-    public String toStringComission() {
-        return TUtils.formatDouble(comission) + " / " + commissionCurrency;
     }
 
     public void updatePrice(@NonNull Double price) {
@@ -58,7 +66,13 @@ public class TLastActiveLongShareInformation {
 
     @NonNull
     public String toStringForSave() {
-        return price + "," + comission + "," + commissionCurrency;
+        return price + "," + simpleMovingAverage + "," + bollingerUp + "," + bollingerDown;
+    }
+
+    public String toStringBB() {
+        return TUtils.formatDouble(simpleMovingAverage) + " / "
+                + TUtils.formatDouble(bollingerUp) + " / "
+                + TUtils.formatDouble(bollingerDown);
     }
 
 
