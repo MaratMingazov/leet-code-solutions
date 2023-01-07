@@ -2,6 +2,7 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.Data;
 import lombok.NonNull;
+import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,5 +59,12 @@ public class TPortfolio {
         return shares.stream()
                      .filter(share -> share.getFigi().equals(figi))
                      .findAny();
+    }
+
+    public void calculateMetrics(@NonNull CandleInterval interval) {
+        getShares().forEach(share -> {
+            TUtils.calculateSimpleMovingAverage(share, interval);
+            TUtils.calculateBollingerUpAndDown(share, interval);
+        } );
     }
 }

@@ -60,7 +60,7 @@ public class AnalyzerService {
 
 //        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
         updateSharesFromApi(CANDLE_INTERVAL_1_MIN);
-        calculateMetrics(CANDLE_INTERVAL_1_MIN);
+        portfolio.calculateMetrics(CANDLE_INTERVAL_1_MIN);
 
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
@@ -87,38 +87,29 @@ public class AnalyzerService {
 
     @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
-        log.info("start 5 minute");
-        val interval = CandleInterval.CANDLE_INTERVAL_5_MIN;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        log.info("finish 5 minute");
+        execute(CandleInterval.CANDLE_INTERVAL_5_MIN);
     }
 
     @Scheduled(cron = "5 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
-        log.info("start 15 minute");
-        val interval = CandleInterval.CANDLE_INTERVAL_15_MIN;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        log.info("finish 15 minute");
+        execute(CandleInterval.CANDLE_INTERVAL_15_MIN);
     }
 
     @Scheduled(cron = "5 0 0/1 * * *")
     public void executeEvery1Hour() {
-        log.info("start 1 hour");
-        val interval = CandleInterval.CANDLE_INTERVAL_HOUR;
-        updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        log.info("finish 1 hour");
+        execute(CandleInterval.CANDLE_INTERVAL_HOUR);
     }
 
     @Scheduled(cron = "0 0 10 * * *") // every  day 10 o clock
     public void executeEvery1Day() {
-        log.info("start 1 day");
-        val interval = CandleInterval.CANDLE_INTERVAL_DAY;
+        execute(CandleInterval.CANDLE_INTERVAL_DAY);
+    }
+
+    private synchronized void execute(@NonNull CandleInterval interval) {
+        log.info("start: " + interval);
         updateSharesFromApi(interval);
-        calculateMetrics(interval);
-        log.info("finish 1 day");
+        portfolio.calculateMetrics(interval);
+        log.info("finish: " + interval);
     }
 
     public String getStatMessage(@NonNull String shareId,
@@ -326,13 +317,6 @@ public class AnalyzerService {
         while(candles.size() > 100) {
             candles.remove(0);
         }
-    }
-
-    private void calculateMetrics(@NonNull CandleInterval interval) {
-        portfolio.getShares().forEach(share -> {
-            TUtils.calculateSimpleMovingAverage(share, interval);
-            TUtils.calculateBollingerUpAndDown(share, interval);
-        } );
     }
 
     @NonNull
