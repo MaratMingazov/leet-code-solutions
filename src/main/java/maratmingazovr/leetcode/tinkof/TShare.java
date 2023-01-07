@@ -18,17 +18,16 @@ public class TShare {
     Map<CandleInterval, List<TCandle>> candlesMap = new HashMap<>();
 
     @NonNull
-    List<TActiveLongShare> activeShares = new ArrayList<>();
-
-    @NonNull
     String id;
 
     @NonNull
     String figi;
 
+    @NonNull
+    TActiveLongShare activeShare = new TActiveLongShare();
 
-
-    @NonNull TActiveLongShareInfo activeLongShareInfo = new TActiveLongShareInfo();
+    @NonNull
+    TActiveLongShareInfo activeLongShareInfo = new TActiveLongShareInfo();
 
     public TShare(@NonNull String id,
                   @NonNull String figi) {

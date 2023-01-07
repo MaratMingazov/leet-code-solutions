@@ -34,4 +34,12 @@ public class TActiveLongShare {
         this.count = count;
         this.currency = currency;
     }
+
+    public TActiveLongShare() {
+        this.shareId = "";
+        this.shareFigi = "";
+        this.price = 0.0;
+        this.count = 0.0;
+        this.currency = TCurrency.USD;
+    }
 }

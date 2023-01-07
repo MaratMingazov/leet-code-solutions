@@ -108,7 +108,7 @@ public class ApiService {
         val portfolioSync = api.getOperationsService().getPortfolioSync(accountId);
         val positions = portfolioSync.getPositions();
         for (TShare share : portfolio.getShares()) {
-            share.getActiveShares().clear();
+            share.setActiveShare(new TActiveLongShare());
         }
         for (Position position : positions) {
             val figi = position.getFigi();
@@ -127,11 +127,11 @@ public class ApiService {
             }
             for (TShare share : portfolio.getShares()) {
                 if (figi.equals(share.getFigi())) {
-                    share.getActiveShares().add(new TActiveLongShare(share.getId(),
-                                                                     share.getFigi(),
-                                                                     currency,
-                                                                     price,
-                                                                     count));
+                    share.setActiveShare(new TActiveLongShare(share.getId(),
+                                                              share.getFigi(),
+                                                              currency,
+                                                              price,
+                                                              count));
                 }
             }
         }

@@ -139,7 +139,8 @@ public class AnalyzerService {
                                             @NonNull List<TShareToBuy> sharesToBuy) {
         for (TShareToBuy shareToBuy : sharesToBuy) {
             val candle = shareToBuy.getCandle();
-            if(!candle.getShare().getActiveShares().isEmpty()) {
+            val activeShare = candle.getShare().getActiveShare();
+            if(activeShare.getCount() > 0.0) {
                 continue;
             }
             val share = candle.getShare();
@@ -210,13 +211,15 @@ public class AnalyzerService {
     private List<TActiveLongShare> findActiveSharesToSellSandbox(@NonNull TPortfolio portfolio) {
         List<TActiveLongShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
-            for (TActiveLongShare activeShare : share.getActiveShares()) {
-                val activeLongShareInfo = share.getActiveLongShareInfo();
-                val lastActiveLongShareTakeProfit = activeLongShareInfo.getTakeProfit();
-                val lastActiveLongShareStopLoss = activeLongShareInfo.getStopLoss();
-                if (activeShare.getPrice() > lastActiveLongShareTakeProfit || activeShare.getPrice() < lastActiveLongShareStopLoss) {
-                    result.add(activeShare);
-                }
+            val activeShare = share.getActiveShare();
+            if (activeShare.getCount() == 0) {
+                continue;
+            }
+            val info = share.getActiveLongShareInfo();
+            val takeProfit = info.getTakeProfit();
+            val stopLoss = info.getStopLoss();
+            if (activeShare.getPrice() > takeProfit || activeShare.getPrice() < stopLoss) {
+                result.add(activeShare);
             }
         }
         return result;
@@ -232,7 +235,7 @@ public class AnalyzerService {
         }
 
 
-        val activeShares = portfolio.getShares().stream().flatMap(share -> share.getActiveShares().stream()).collect(Collectors.toList());
+        val activeShares = portfolio.getShares().stream().map(TShare::getActiveShare).collect(Collectors.toList());
         double rubSharesSum = 0.0;
         double usdSharesSum = 0.0;
         for (TActiveLongShare activeShare : activeShares) {
@@ -341,7 +344,8 @@ public class AnalyzerService {
             return candlesToBuy;
         }
         for (TShare share : portfolio.getShares()) {
-            if (!share.getActiveShares().isEmpty()) {
+            val activeShare = share.getActiveShare();
+            if (activeShare.getCount() > 0.0) {
                 continue;
             }
             val minuteCandles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_1_MIN);
