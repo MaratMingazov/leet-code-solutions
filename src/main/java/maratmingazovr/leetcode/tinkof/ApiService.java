@@ -12,6 +12,7 @@ import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.contract.v1.LastPrice;
 import ru.tinkoff.piapi.contract.v1.MoneyValue;
+import ru.tinkoff.piapi.contract.v1.Operation;
 import ru.tinkoff.piapi.contract.v1.OrderDirection;
 import ru.tinkoff.piapi.contract.v1.OrderState;
 import ru.tinkoff.piapi.contract.v1.OrderType;
@@ -21,6 +22,7 @@ import ru.tinkoff.piapi.contract.v1.StopOrder;
 import ru.tinkoff.piapi.contract.v1.StopOrderDirection;
 import ru.tinkoff.piapi.contract.v1.StopOrderType;
 import ru.tinkoff.piapi.core.InvestApi;
+import ru.tinkoff.piapi.core.models.Portfolio;
 import ru.tinkoff.piapi.core.models.Position;
 
 import java.math.BigDecimal;
@@ -106,38 +108,8 @@ public class ApiService {
                                                     UUID.randomUUID().toString());
     }
 
-    public synchronized void updatePortfolioFromApi(@NonNull String accountId,
-                                      @NonNull TPortfolio portfolio) {
-        val portfolioSync = api.getOperationsService().getPortfolioSync(accountId);
-        val positions = portfolioSync.getPositions();
-        for (TShare share : portfolio.getShares()) {
-            share.setActiveShare(new TActiveLongShare());
-        }
-        for (Position position : positions) {
-            val figi = position.getFigi();
-            double count = position.getQuantity().doubleValue();
-            if (count <= 0) {
-                continue;
-            }
-            val price = position.getCurrentPrice().getValue().doubleValue();
-            val currencyString = position.getCurrentPrice().getCurrency();
-            val currency = TCurrency.getFromString(currencyString);
-            if (figi.equals(portfolio.getDollarBalanceFigi())) {
-                portfolio.setDollarBalance(count);
-            }
-            if (figi.equals(portfolio.getRubBalanceFigi())) {
-                portfolio.setRubBalance(count);
-            }
-            for (TShare share : portfolio.getShares()) {
-                if (figi.equals(share.getFigi())) {
-                    share.setActiveShare(new TActiveLongShare(share.getId(),
-                                                              share.getFigi(),
-                                                              currency,
-                                                              price,
-                                                              count));
-                }
-            }
-        }
+    public synchronized Portfolio updatePortfolioFromApi(@NonNull String accountId) {
+        return api.getOperationsService().getPortfolioSync(accountId);
     }
 
     @NonNull
@@ -201,13 +173,9 @@ public class ApiService {
     }
 
     @NonNull
-    public List<TOperation> getOperationsFromApi(@NonNull String accountId,
-                                                 @NonNull Instant from,
-                                                 @NonNull TPortfolio portfolio) {
-        return api.getOperationsService()
-                            .getAllOperationsSync(accountId, from, Instant.now())
-                .stream().map(operation -> new TOperation(operation, portfolio))
-                .collect(Collectors.toList());
+    public List<Operation> getOperationsFromApi(@NonNull String accountId,
+                                                @NonNull Instant from) {
+        return api.getOperationsService().getAllOperationsSync(accountId, from, Instant.now());
     }
 
     @NonNull

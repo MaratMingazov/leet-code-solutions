@@ -4,9 +4,18 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.val;
 import maratmingazovr.leetcode.tinkof.enums.TCurrency;
+import maratmingazovr.leetcode.tinkof.enums.TOperationType;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
+import ru.tinkoff.piapi.contract.v1.LastPrice;
+import ru.tinkoff.piapi.contract.v1.Operation;
+import ru.tinkoff.piapi.core.models.Portfolio;
+import ru.tinkoff.piapi.core.models.Position;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +48,8 @@ public class TPortfolio {
     private String dollarBalanceFigi = "BBG0013HGFT4";
     @NonNull
     private String rubBalanceFigi = "RUB000UTSTOM";
+
+    private static Logger log = LoggerFactory.getLogger(TUtils.class);
 
     public TPortfolio() {
         shares.add(new TShare("AAPL","BBG000B9XRY4"));
@@ -84,7 +95,7 @@ public class TPortfolio {
             }
         }
 
-        val activeShares = shares.stream().map(TShare::getActiveShare).collect(Collectors.toList());
+        val activeShares = shares.stream().map(TShare::getActiveLongShare).collect(Collectors.toList());
         double rubSharesSum = 0.0;
         double usdSharesSum = 0.0;
         for (TActiveLongShare activeShare : activeShares) {
@@ -106,6 +117,9 @@ public class TPortfolio {
 
         result.append("SHARES: \n");
         for (TActiveLongShare activeShare : activeShares) {
+            if (activeShare.getCount() == 0.0) {
+                continue;
+            }
             val count = activeShare.getCount();
             val price = activeShare.getPrice();
             val total = count * price;
@@ -133,6 +147,97 @@ public class TPortfolio {
             }
         }
         return result.toString();
+    }
+
+    public void updatePortfolio(@NonNull Portfolio portfolio) {
+        val positions = portfolio.getPositions();
+        for (TShare share : shares) {
+            share.setActiveLongShare(new TActiveLongShare());
+        }
+        for (Position position : positions) {
+            val figi = position.getFigi();
+            double count = position.getQuantity().doubleValue();
+            if (count <= 0) {
+                continue;
+            }
+            val price = position.getCurrentPrice().getValue().doubleValue();
+            val currencyString = position.getCurrentPrice().getCurrency();
+            val currency = TCurrency.getFromString(currencyString);
+            if (figi.equals(dollarBalanceFigi)) {
+                dollarBalance = count;
+            }
+            if (figi.equals(rubBalanceFigi)) {
+                rubBalance = count;
+            }
+            for (TShare share : shares) {
+                if (figi.equals(share.getFigi())) {
+                    share.setActiveLongShare(new TActiveLongShare(share.getId(),
+                                                              share.getFigi(),
+                                                              currency,
+                                                              price,
+                                                              count,
+                                                              Instant.now()));
+                }
+            }
+        }
+    }
+
+    @NonNull
+    public Instant getLastOperationDate() {
+        if (operations.size() > 0) {
+            val lastOperation = operations.get(operations.size() - 1);
+            return lastOperation.getInstant().plus(1L, ChronoUnit.SECONDS);
+        }
+        return Instant.now().minus(1, ChronoUnit.DAYS);
+    }
+
+
+    public void updateOperations(@NonNull List<Operation> newOperationsFromApi,
+                                 @NonNull BotService botService) {
+        val newOperations = newOperationsFromApi.stream()
+                                                .map(operation -> new TOperation(operation, this))
+                                                .collect(Collectors.toList());
+
+        buyOperationsCount += newOperations.stream().filter(o -> o.getType().equals(TOperationType.BUY)).count();
+        sellOperationsCount += newOperations.stream().filter(o -> o.getType().equals(TOperationType.SELL)).count();
+
+
+        if (operations.isEmpty()) {
+            operations.addAll(newOperations);
+            operations.forEach(operation -> botService.sendMassage(operation.toString()));
+        } else {
+            val lastOperation = operations.get(operations.size() - 1);
+            for (TOperation newOperation : newOperations) {
+                if (newOperation.getInstant().isAfter(lastOperation.getInstant())) {
+                    operations.add(newOperation);
+                    botService.sendMassage(newOperation.toString());
+                }
+            }
+        }
+
+        if (newOperations.size() > 0) {
+            log.info("Got new operations: " + newOperations.size());
+            for (TOperation newOperation : newOperations) {
+                log.info(newOperation.getInstant() + " / " + newOperation.getShareId() + " / " + newOperation.getType() + " / " + newOperation.getPrice() + " / " + newOperation.getCurrency());
+            }
+            TUtils.saveLastActiveLongShares(this);
+        }
+
+        while(operations.size() > 100) {
+            operations.remove(0);
+        }
+    }
+
+    public void updateLastPrices(@NonNull List<LastPrice> lastPrices) {
+        for (LastPrice lastPrice : lastPrices) {
+            for (TShare share : shares) {
+                if (share.getFigi().equals(lastPrice.getFigi())) {
+                    val activeShare = share.getActiveLongShare();
+                    activeShare.setPrice(TUtils.QuotationToDouble(lastPrice.getPrice()));
+                    activeShare.setUpdateTime(TUtils.timeStampToInstant(lastPrice.getTime()));
+                }
+            }
+        }
     }
 
 

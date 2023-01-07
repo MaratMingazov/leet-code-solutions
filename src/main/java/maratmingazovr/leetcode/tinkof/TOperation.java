@@ -66,7 +66,7 @@ public class TOperation {
         this.instrumentType = operation.getInstrumentType();
         this.type = TOperationType.getFromString(operation.getType());
         this.typeString = operation.getType();
-        this.instant = Instant.ofEpochSecond(operation.getDate().getSeconds(), operation.getDate().getNanos());
+        this.instant = TUtils.timeStampToInstant(operation.getDate());
         this.currency = TCurrency.getFromString(operation.getCurrency());
         this.price = TUtils.moneyValueToDouble(operation.getPrice());
         this.priceCurrency = operation.getPrice().getCurrency();

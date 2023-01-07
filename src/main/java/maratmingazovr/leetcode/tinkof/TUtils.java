@@ -1,5 +1,6 @@
 package maratmingazovr.leetcode.tinkof;
 
+import com.google.protobuf.Timestamp;
 import lombok.NonNull;
 import lombok.val;
 import maratmingazovr.leetcode.neural_network.Util;
@@ -14,6 +15,7 @@ import ru.tinkoff.piapi.contract.v1.Quotation;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -100,6 +102,17 @@ public class TUtils {
     public static Double moneyValueToDouble(@NonNull MoneyValue value) {
         val quotation = Quotation.newBuilder().setUnits(value.getUnits()).setNano(value.getNano()).build();
         return quotationToBigDecimal(quotation).doubleValue();
+    }
+
+    @NonNull
+    public static Double QuotationToDouble(@NonNull Quotation value) {
+        val quotation = Quotation.newBuilder().setUnits(value.getUnits()).setNano(value.getNano()).build();
+        return quotationToBigDecimal(quotation).doubleValue();
+    }
+
+    @NonNull
+    public static Instant timeStampToInstant(@NonNull Timestamp timestamp) {
+        return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
     }
 
     public static void saveLastActiveLongShares(@NonNull TPortfolio portfolio) {

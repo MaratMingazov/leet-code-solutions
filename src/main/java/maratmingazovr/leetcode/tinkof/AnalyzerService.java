@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import maratmingazovr.leetcode.tinkof.enums.TOperationType;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShareInfo;
 import maratmingazovr.leetcode.tinkof.long_share.TShareToBuyLong;
@@ -19,8 +18,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_1_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_5_MIN;
 
 @Log4j2
@@ -39,52 +38,40 @@ public class AnalyzerService {
 
     @PostConstruct
     public void init() {
-        val accountId = apiService.getAccountFromApi();
-        apiService.updatePortfolioFromApi(accountId, portfolio);
-        log.info(getPortfolio());
         TUtils.loadLastActiveLongShares(portfolio);
     }
 
-    @Scheduled(cron = "3 0/1  * * * *") // every minute
-    public void executeEveryMinute() {
+    @Scheduled(cron = "0/10 * * * * *")
+    public void executePrices() {
         val accountId = apiService.getAccountFromApi();
-        //        apiService.closeSandboxAccount(accountId);
-        //        apiService.openSandboxAccount();
-        //        log.info("finish");
-        //        if(true) {
-        //            return;
-        //        }
+        val figis = portfolio.getShares().stream().map(TShare::getFigi).collect(Collectors.toList());
+        val from = portfolio.getLastOperationDate();
 
-        updateOperations(accountId, portfolio);
-        apiService.updatePortfolioFromApi(accountId, portfolio);
+        val lastPrices = apiService.getLastPrices(figis);
+        val newOperationsFromApi = apiService.getOperationsFromApi(accountId, from);
+        val portfolioUpdate =  apiService.updatePortfolioFromApi(accountId);
         val activeOrders = apiService.getActiveOrdersFromApi(accountId);
 
-//        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
-        updateSharesFromApi(CANDLE_INTERVAL_1_MIN);
-        portfolio.calculateMetrics(CANDLE_INTERVAL_1_MIN);
-
+        portfolio.updatePortfolio(portfolioUpdate);
+        portfolio.updateOperations(newOperationsFromApi, botService);
+        portfolio.updateLastPrices(lastPrices);
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
         sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShareFigi()));
+        checkSharesToBuyLong(accountId, portfolio, activeOrders);
 
-        var candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_DAY, activeOrders);
-        if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_HOUR, activeOrders);
-        }
-        if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN, activeOrders);
-        }
-        if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CANDLE_INTERVAL_5_MIN, activeOrders);
-        }
-        if (candlesToBuyLong.size() > 0) {
-            log.info("candles to buy = " + candlesToBuyLong.size());
-            for (TShareToBuyLong shareToBuy : candlesToBuyLong) {
-                log.info("want to buy: " + shareToBuy.getCandle().getShare().getId() + " / " + shareToBuy.getPriceToBuy());
-            }
-            buySharesLong(accountId, candlesToBuyLong);
-        }
     }
+
+//    //@Scheduled(cron = "3 0/1  * * * *") // every minute
+//    public void executeEveryMinute() {
+//        val accountId = apiService.getAccountFromApi();
+//        //        apiService.closeSandboxAccount(accountId);
+//        //        apiService.openSandboxAccount();
+//        //        log.info("finish");
+//        //        if(true) {
+//        //            return;
+//        //        }
+//    }
 
     @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
@@ -131,7 +118,7 @@ public class AnalyzerService {
                                             @NonNull List<TShareToBuyLong> sharesToBuy) {
         for (TShareToBuyLong shareToBuy : sharesToBuy) {
             val candle = shareToBuy.getCandle();
-            val activeShare = candle.getShare().getActiveShare();
+            val activeShare = candle.getShare().getActiveLongShare();
             if(activeShare.getCount() > 0.0) {
                 continue;
             }
@@ -156,53 +143,10 @@ public class AnalyzerService {
         return generatePortfolioMessage(portfolio);
     }
 
-    private synchronized void updateOperations(@NonNull String accountId,
-                                               @NonNull TPortfolio portfolio) {
-        var from = Instant.now().minus(1, ChronoUnit.DAYS);
-        val operations = portfolio.getOperations();
-        if (portfolio.getOperations().size() > 0) {
-            val lastOperation = operations.get(operations.size() - 1);
-            from = lastOperation.getInstant().plus(1L, ChronoUnit.SECONDS);
-        }
-
-
-        val newOperations = apiService.getOperationsFromApi(accountId, from, portfolio);
-
-        val buyOperations = newOperations.stream().filter(o -> o.getType().equals(TOperationType.BUY)).count();
-        val sellOperations = newOperations.stream().filter(o -> o.getType().equals(TOperationType.SELL)).count();
-        portfolio.setBuyOperationsCount(portfolio.getBuyOperationsCount() + buyOperations);
-        portfolio.setSellOperationsCount(portfolio.getSellOperationsCount() + sellOperations);
-        val currentOperations = portfolio.getOperations();
-        if (currentOperations.isEmpty()) {
-            currentOperations.addAll(newOperations);
-            currentOperations.forEach(operation -> botService.sendMassage(operation.toString()));
-        } else {
-            val lastOperation = operations.get(operations.size() - 1);
-            for (TOperation newOperation : newOperations) {
-                if (newOperation.getInstant().isAfter(lastOperation.getInstant())) {
-                    operations.add(newOperation);
-                    botService.sendMassage(newOperation.toString());
-                }
-            }
-        }
-
-        if (newOperations.size() > 0) {
-            log.info("Got new operations: " + newOperations.size());
-            for (TOperation newOperation : newOperations) {
-                log.info(newOperation.getInstant() + " / " + newOperation.getShareId() + " / " + newOperation.getType() + " / " + newOperation.getPrice() + " / " + newOperation.getCurrency());
-            }
-            TUtils.saveLastActiveLongShares(portfolio);
-        }
-
-        while(operations.size() > 100) {
-            operations.remove(0);
-        }
-    }
-
     private List<TActiveLongShare> findActiveSharesToSellSandbox(@NonNull TPortfolio portfolio) {
         List<TActiveLongShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
-            val activeShare = share.getActiveShare();
+            val activeShare = share.getActiveLongShare();
             if (activeShare.getCount() == 0) {
                 continue;
             }
@@ -282,6 +226,25 @@ public class AnalyzerService {
         }
     }
 
+
+    private void checkSharesToBuyLong(@NonNull String accountId,
+                                      @NonNull TPortfolio portfolio,
+                                      @NonNull List<OrderState> activeOrders) {
+        var candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_DAY, activeOrders);
+        if (candlesToBuyLong.isEmpty()) {
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_HOUR, activeOrders);
+        }
+        if (candlesToBuyLong.isEmpty()) {
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN, activeOrders);
+        }
+        if (candlesToBuyLong.isEmpty()) {
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CANDLE_INTERVAL_5_MIN, activeOrders);
+        }
+        if (candlesToBuyLong.size() > 0) {
+            buySharesLong(accountId, candlesToBuyLong);
+        }
+    }
+
     @NonNull
     private List<TShareToBuyLong> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
                                                        @NonNull CandleInterval interval,
@@ -292,7 +255,7 @@ public class AnalyzerService {
             return candlesToBuy;
         }
         for (TShare share : portfolio.getShares()) {
-            val activeShare = share.getActiveShare();
+            val activeShare = share.getActiveLongShare();
             if (activeShare.getCount() > 0.0) {
                 continue;
             }

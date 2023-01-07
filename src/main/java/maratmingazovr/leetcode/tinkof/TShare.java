@@ -24,7 +24,7 @@ public class TShare {
     String figi;
 
     @NonNull
-    TActiveLongShare activeShare = new TActiveLongShare();
+    TActiveLongShare activeLongShare = new TActiveLongShare();
 
     @NonNull
     TActiveLongShareInfo activeLongShareInfo = new TActiveLongShareInfo();
