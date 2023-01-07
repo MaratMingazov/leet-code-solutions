@@ -66,7 +66,7 @@ public class AnalyzerService {
 
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
-        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShare().getFigi()));
+        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShareFigi()));
 
         var candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_DAY);
         if (candlesToBuyLong.isEmpty()) {
@@ -161,8 +161,6 @@ public class AnalyzerService {
     }
 
     public String getPortfolio() {
-        val accountId = apiService.getAccountFromApi();
-        apiService.updatePortfolioFromApi(accountId, portfolio);
         return generatePortfolioMessage(portfolio);
     }
 
@@ -261,7 +259,7 @@ public class AnalyzerService {
             val price = activeShare.getPrice();
             val total = count * price;
             val currency = activeShare.getCurrency().toString();
-            result.append(activeShare.getShare().getId() + ": " + count + " * " + price + " = " + total + " " + currency + "\n" );
+            result.append(activeShare.getShareId() + ": " + count + " * " + price + " = " + total + " " + currency + "\n" );
         }
         return result.toString();
     }

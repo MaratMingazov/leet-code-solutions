@@ -5,25 +5,31 @@ import lombok.NonNull;
 
 @Data
 public class TActiveShare {
-    @NonNull
-    private final TCurrency currency;
 
     @NonNull
-    private final Double price;
+    String shareId;
 
     @NonNull
-    private final Double count;
+    String shareFigi;
 
     @NonNull
-    private final TShare share;
+    Double price;
 
-    public TActiveShare(@NonNull String currency,
+    @NonNull
+    Double count;
+
+    @NonNull
+    TCurrency currency;
+
+
+    public TActiveShare(@NonNull String shareId,
+                        @NonNull String shareFigi,
+                        @NonNull TCurrency currency,
                         @NonNull Double price,
-                        @NonNull Double count,
-                        @NonNull TShare share) {
-        this.currency = TCurrency.getFromString(currency);
+                        @NonNull Double count) {
+        this.shareId = shareId;
         this.price = price;
         this.count = count;
-        this.share = share;
+        this.currency = currency;
     }
 }

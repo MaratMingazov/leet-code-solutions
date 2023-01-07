@@ -115,7 +115,8 @@ public class ApiService {
                 continue;
             }
             val price = position.getCurrentPrice().getValue().doubleValue();
-            val currency = position.getCurrentPrice().getCurrency();
+            val currencyString = position.getCurrentPrice().getCurrency();
+            val currency = TCurrency.getFromString(currencyString);
             if (figi.equals(portfolio.getDollarBalanceFigi())) {
                 portfolio.setDollarBalance(count);
             }
@@ -124,7 +125,11 @@ public class ApiService {
             }
             for (TShare share : portfolio.getShares()) {
                 if (figi.equals(share.getFigi())) {
-                    share.getActiveShares().add(new TActiveShare(currency, price, count, share));
+                    share.getActiveShares().add(new TActiveShare(share.getId(),
+                                                                 share.getFigi(),
+                                                                 currency,
+                                                                 price,
+                                                                 count));
                 }
             }
         }
