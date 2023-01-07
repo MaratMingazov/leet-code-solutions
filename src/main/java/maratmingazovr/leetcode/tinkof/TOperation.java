@@ -52,7 +52,8 @@ public class TOperation {
 
     @NonNull TPortfolio portfolio;
 
-    @Nullable TShare share;
+    @Nullable
+    Optional<TShare> share;
 
     @NonNull TOperationSellResult sellResult;
 
@@ -81,14 +82,15 @@ public class TOperation {
 
         Optional<TShare> shareOpt = portfolio.getShares().stream().filter(share -> share.getFigi().equals(operation.getFigi())).findAny();
         if (shareOpt.isPresent()) {
-            this.share = shareOpt.get();
+            val share = shareOpt.get();
+            this.share = Optional.of(share);
             if (type.equals(TOperationType.BUY)) {
                 val lastActiveLongShareInformationOptional =  share.getLastLongShareInformation();
                 if (lastActiveLongShareInformationOptional.isPresent()) {
                     val information = lastActiveLongShareInformationOptional.get();
                     information.updatePrice(this.price);
                 } else {
-                    log.info("Exception. TOperation. Buy share. but lastActiveLongShare does not exists. share = " + this.share.getId() + " / price = " + this.price);
+                    log.info("Exception. TOperation. Buy share. but lastActiveLongShare does not exists. share = " + share.getId() + " / price = " + this.price);
                 }
             }
             if (type.equals(TOperationType.SELL)) {

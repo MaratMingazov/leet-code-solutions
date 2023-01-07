@@ -1,6 +1,8 @@
 package maratmingazovr.leetcode.tinkof;
 
+import lombok.Data;
 import lombok.NonNull;
+
 
 
 public class TLastActiveLongShareInformation {
@@ -35,5 +37,16 @@ public class TLastActiveLongShareInformation {
     public Double getPrice() {
         return this.price;
     }
+
+    @NonNull
+    public Double getTakeProfit() {
+        return this.takeProfit;
+    }
+
+    @NonNull
+    public Double getStopLoss() {
+        return this.stopLoss;
+    }
+
 
 }

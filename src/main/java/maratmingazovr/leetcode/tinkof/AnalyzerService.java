@@ -55,7 +55,8 @@ public class AnalyzerService {
             val shareBuyPrice = Double.valueOf(share.get(1));
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
-                    portfolioShare.updateLastActiveLongShareInformation(shareBuyPrice);
+                    val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareBuyPrice);
+                    portfolioShare.setLastLongShareInformation(Optional.of(lastActiveLongShareInformation));
                     count++;
                 }
             }
