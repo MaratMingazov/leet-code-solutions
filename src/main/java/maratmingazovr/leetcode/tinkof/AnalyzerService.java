@@ -88,7 +88,7 @@ public class AnalyzerService {
         execute(CandleInterval.CANDLE_INTERVAL_HOUR);
     }
 
-    @Scheduled(cron = "0 0 10 * * *") // every  day 10 o clock
+    @Scheduled(cron = "5 0 10 * * *") // every  day 10 o clock
     public void executeEvery1Day() {
         execute(CandleInterval.CANDLE_INTERVAL_DAY);
     }
@@ -140,7 +140,7 @@ public class AnalyzerService {
     }
 
     public String getPortfolio() {
-        return generatePortfolioMessage(portfolio);
+        return portfolio.toStringMessage();
     }
 
     private List<TActiveLongShare> findActiveSharesToSellSandbox(@NonNull TPortfolio portfolio) {
@@ -158,10 +158,6 @@ public class AnalyzerService {
             }
         }
         return result;
-    }
-
-    private String generatePortfolioMessage(@NonNull TPortfolio portfolio) {
-        return portfolio.toStringMessage();
     }
 
     private synchronized void updateSharesFromApi(@NonNull CandleInterval interval) {
@@ -182,7 +178,6 @@ public class AnalyzerService {
                 break;
             case CANDLE_INTERVAL_DAY:
                 defaultFrom = Instant.now().minus(41, ChronoUnit.DAYS);
-                //defaultFrom = Instant.now().minus(100, ChronoUnit.DAYS);
                 break;
             default: throw new IllegalArgumentException("Invalid candleInterval");
         }
