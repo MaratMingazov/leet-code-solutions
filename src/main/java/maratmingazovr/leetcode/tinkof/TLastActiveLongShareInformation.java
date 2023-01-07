@@ -5,6 +5,7 @@ import lombok.NonNull;
 
 
 
+@Data
 public class TLastActiveLongShareInformation {
 
     @NonNull
@@ -16,8 +17,18 @@ public class TLastActiveLongShareInformation {
     @NonNull
     Double stopLoss;
 
-    public TLastActiveLongShareInformation(@NonNull Double price) {
+    @NonNull
+    Double comission;
+
+    @NonNull
+    String comissionCurrency;
+
+    public TLastActiveLongShareInformation(@NonNull Double price,
+                                           @NonNull Double comission,
+                                           @NonNull String comissionCurrency) {
         updatePrice(price);
+        this.comission = comission;
+        this.comissionCurrency = comissionCurrency;
     }
 
 
@@ -27,6 +38,10 @@ public class TLastActiveLongShareInformation {
                 + TUtils.formatDouble(stopLoss);
     }
 
+    public String toStringComission() {
+        return TUtils.formatDouble(comission) + " / " + comissionCurrency;
+    }
+
     public void updatePrice(@NonNull Double price) {
         this.price = price;
         this.takeProfit = price + price * TUtils.TAKE_PROFIT_PERCENT;
@@ -34,18 +49,8 @@ public class TLastActiveLongShareInformation {
     }
 
     @NonNull
-    public Double getPrice() {
-        return this.price;
-    }
-
-    @NonNull
-    public Double getTakeProfit() {
-        return this.takeProfit;
-    }
-
-    @NonNull
-    public Double getStopLoss() {
-        return this.stopLoss;
+    public String toStringForSave() {
+        return price + "," + comission + "," + comissionCurrency;
     }
 
 

@@ -129,9 +129,12 @@ public class TOperation {
         if (shareOptional.isPresent()) {
             val share = shareOptional.get();
             String pricaeTakeProfitStopLoss = "-";
+            String comission = "-";
             val lastLongShareInformationOptional = share.getLastLongShareInformation();
             if (lastLongShareInformationOptional.isPresent()) {
-                pricaeTakeProfitStopLoss = lastLongShareInformationOptional.get().toStringPriceTakeProfitAndStopLoss();
+                val information = lastLongShareInformationOptional.get();
+                pricaeTakeProfitStopLoss = information.toStringPriceTakeProfitAndStopLoss();
+                comission = information.toStringComission();
             }
 
             if (this.type.equals(TOperationType.SELL)) {
@@ -145,7 +148,7 @@ public class TOperation {
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
                         + "buyInfo: " + pricaeTakeProfitStopLoss +  "\n"
-                        + "comission: " + String.format("%.2f", share.getLastShareComission()) + " " + share.getLastShareComissionCurrency() + "\n"
+                        + "comission: " + comission + "\n"
                         + "BB: " + share.getLastShareSMA() + " " + share.getLastShareBollingerUp() + " " + share.getLastShareBollingerDown() + "\n";
             }
         }

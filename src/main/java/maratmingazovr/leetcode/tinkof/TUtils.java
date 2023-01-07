@@ -110,9 +110,9 @@ public class TUtils {
                     val information = lastActiveLongShareInformationOptional.get();
                     bw.write(share.getId());
                     bw.write(",");
-                    bw.write(information.getPrice().toString());
+                    bw.write(information.toStringForSave());
                     bw.newLine();
-                    savedShares.add(share.getId() + ": " + information.getPrice() + " / ");
+                    savedShares.add(share.getId() + ": " + information.toStringForSave() + " / ");
                 }
             }
             log.info("savedShares: " + savedShares);

@@ -35,11 +35,11 @@ public class TShare {
 //    @NonNull
 //    Double lastShareStopLoss = 0.0;
 
-    @NonNull
-    Double lastShareComission = 0.0;
+//    @NonNull
+//    Double lastShareComission = 0.0;
 
-    @NonNull
-    String lastShareComissionCurrency = "";
+//    @NonNull
+//    String lastShareComissionCurrency = "";
 
     @NonNull
     String lastSharePosition;

@@ -53,9 +53,11 @@ public class AnalyzerService {
             }
             val shareId = share.get(0);
             val shareBuyPrice = Double.valueOf(share.get(1));
+            val shareComission = Double.valueOf(share.get(2));
+            val comissionCurrency = share.get(3);
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
-                    val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareBuyPrice);
+                    val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareBuyPrice, shareComission, comissionCurrency);
                     portfolioShare.setLastLongShareInformation(Optional.of(lastActiveLongShareInformation));
                     count++;
                 }
@@ -173,12 +175,10 @@ public class AnalyzerService {
             val bollingerUp = String.format("%.2f", candle.getBollingerUp());
             val bollingerDown = String.format("%.2f", candle.getBollingerDown());
 
-            val lastActiveLongShareInformation = new TLastActiveLongShareInformation(price);
+            val lastActiveLongShareInformation = new TLastActiveLongShareInformation(price, comission, comissionCurrency);
             share.setLastLongShareInformation(Optional.of(lastActiveLongShareInformation));
 
             share.setLastSharePosition("LONG");
-            share.setLastShareComission(comission);
-            share.setLastShareComissionCurrency(comissionCurrency);
             share.setLastShareSMA(sma);
             share.setLastShareBollingerUp(bollingerUp);
             share.setLastShareBollingerDown(bollingerDown);
