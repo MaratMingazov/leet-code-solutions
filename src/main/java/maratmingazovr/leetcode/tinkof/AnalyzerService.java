@@ -159,8 +159,6 @@ public class AnalyzerService {
 
             val lastActiveLongShareInformation = new TLastActiveLongShareInformation(price, commission, commissionCurrency);
             share.setLastLongShareInformation(lastActiveLongShareInformation);
-
-            share.setLastSharePosition("LONG");
             share.setLastShareSMA(sma);
             share.setLastShareBollingerUp(bollingerUp);
             share.setLastShareBollingerDown(bollingerDown);

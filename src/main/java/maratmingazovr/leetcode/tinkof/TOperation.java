@@ -132,7 +132,7 @@ public class TOperation {
             }
             if (this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
-                        + "position: " + share.getLastSharePosition() + "\n"
+                        + "position: " + "LONG" + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
                         + "buyInfo: " + pricaTakeProfitStopLoss +  "\n"
                         + "comission: " + commission + "\n"

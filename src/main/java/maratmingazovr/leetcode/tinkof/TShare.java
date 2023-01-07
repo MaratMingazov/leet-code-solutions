@@ -26,24 +26,6 @@ public class TShare {
     @NonNull
     String figi;
 
-//    @NonNull
-//    Double lastSharePrice = 0.0;
-
-//    @NonNull
-//    Double lastShareTakeProfit = 0.0;
-
-//    @NonNull
-//    Double lastShareStopLoss = 0.0;
-
-//    @NonNull
-//    Double lastShareComission = 0.0;
-
-//    @NonNull
-//    String lastShareComissionCurrency = "";
-
-    @NonNull
-    String lastSharePosition;
-
     @NonNull
     String lastShareSMA;
 
