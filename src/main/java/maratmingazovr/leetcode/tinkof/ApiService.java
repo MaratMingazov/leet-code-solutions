@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.Account;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
+import ru.tinkoff.piapi.contract.v1.LastPrice;
 import ru.tinkoff.piapi.contract.v1.MoneyValue;
 import ru.tinkoff.piapi.contract.v1.OrderDirection;
 import ru.tinkoff.piapi.contract.v1.OrderState;
@@ -27,6 +28,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -213,5 +215,10 @@ public class ApiService {
         val activeOrders = api.getOrdersService().getOrdersSync(accountId);
         log.info("Return active orders = " + activeOrders.size());
         return activeOrders;
+    }
+
+    @NonNull
+    public List<LastPrice> getLastPrices(@NonNull List<String> figis) {
+        return api.getMarketDataService().getLastPricesSync(figis);
     }
 }
