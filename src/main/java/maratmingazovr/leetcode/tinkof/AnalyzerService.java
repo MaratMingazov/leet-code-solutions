@@ -217,44 +217,7 @@ public class AnalyzerService {
     }
 
     private String generatePortfolioMessage(@NonNull TPortfolio portfolio) {
-        int totalCandlesCount = 0;
-        for (TShare share : portfolio.getShares()) {
-            val candles = share.getCandlesMap().values();
-            for (List<TCandle> candle : candles) {
-                totalCandlesCount += candle.size();
-            }
-        }
-
-
-        val activeShares = portfolio.getShares().stream().map(TShare::getActiveShare).collect(Collectors.toList());
-        double rubSharesSum = 0.0;
-        double usdSharesSum = 0.0;
-        for (TActiveLongShare activeShare : activeShares) {
-            if (activeShare.getCurrency().equals(TCurrency.RUB)) {
-                rubSharesSum += activeShare.getPrice() * activeShare.getCount();
-            }
-            if (activeShare.getCurrency().equals(TCurrency.USD)) {
-                usdSharesSum += activeShare.getPrice() * activeShare.getCount();
-            }
-        }
-
-        StringBuilder result = new StringBuilder()
-                .append("Balance:" + "\n")
-                .append("USD: " + String.format("%.2f", portfolio.getDollarBalance() + usdSharesSum) + "\n")
-                .append("RUB: " + String.format("%.2f", portfolio.getRubBalance() + rubSharesSum) + "\n")
-                .append("buyOperations: " + portfolio.getBuyOperationsCount() + "\n")
-                .append("sellOperations: " + portfolio.getSellOperationsCount() + "\n")
-                .append("candlesCount: " + totalCandlesCount + "\n");
-
-        result.append("SHARES: \n");
-        for (TActiveLongShare activeShare : activeShares) {
-            val count = activeShare.getCount();
-            val price = activeShare.getPrice();
-            val total = count * price;
-            val currency = activeShare.getCurrency().toString();
-            result.append(activeShare.getShareId() + ": " + count + " * " + price + " = " + total + " " + currency + "\n" );
-        }
-        return result.toString();
+        return portfolio.toStringMessage();
     }
 
     private synchronized void updateSharesFromApi(@NonNull CandleInterval interval) {
@@ -321,7 +284,7 @@ public class AnalyzerService {
 
     @NonNull
     private List<TShareToBuy> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
-                                               @NonNull CandleInterval interval) {
+                                                   @NonNull CandleInterval interval) {
         List<TShareToBuy> candlesToBuy = new ArrayList<>();
         if (portfolio.getDollarBalance() < 2000 || portfolio.getRubBalance() < 2000) {
             log.info("balance is low, will not buy");
@@ -366,21 +329,6 @@ public class AnalyzerService {
     }
 
     public String getCandlesMessage(@NonNull String shareId) {
-        StringBuilder result = new StringBuilder();
-        for (TShare share : portfolio.getShares()) {
-            if (share.getId().toLowerCase().equals(shareId)) {
-                val candles = share.getCandlesMap().get(CANDLE_INTERVAL_1_MIN);
-                for (TCandle candle : candles) {
-                    result
-                            .append(candle.getInstant()).append(" / ")
-                            .append(candle.getOpen()).append(" / ")
-                            .append(candle.getClose()).append(" / ")
-                            .append(candle.getSimpleMovingAverage()).append(" / ")
-                            .append(candle.getBollingerUp()).append(" / ")
-                            .append(candle.getBollingerDown()).append("\n");
-                }
-            }
-        }
-        return result.toString();
+        return portfolio.toStringCandles(shareId);
     }
 }

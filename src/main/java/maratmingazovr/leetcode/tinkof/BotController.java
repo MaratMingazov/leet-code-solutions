@@ -83,7 +83,7 @@ public class BotController implements TelegramMvcController {
             log.info("ask: " + data);
             val result =  analyzerService.getCandlesMessage(data.toLowerCase());
             log.info(result);
-            return result;
+            return "done";
         } catch (Exception e) {
             log.error(e);
             return "exception";

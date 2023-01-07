@@ -2,11 +2,17 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.Data;
 import lombok.NonNull;
+import lombok.val;
+import maratmingazovr.leetcode.tinkof.enums.TCurrency;
+import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_1_MIN;
 
 @Data
 public class TPortfolio {
@@ -67,4 +73,67 @@ public class TPortfolio {
             TUtils.calculateBollingerUpAndDown(share, interval);
         } );
     }
+
+    @NonNull
+    public String toStringMessage() {
+        int totalCandlesCount = 0;
+        for (TShare share : shares) {
+            val candles = share.getCandlesMap().values();
+            for (List<TCandle> candle : candles) {
+                totalCandlesCount += candle.size();
+            }
+        }
+
+        val activeShares = shares.stream().map(TShare::getActiveShare).collect(Collectors.toList());
+        double rubSharesSum = 0.0;
+        double usdSharesSum = 0.0;
+        for (TActiveLongShare activeShare : activeShares) {
+            if (activeShare.getCurrency().equals(TCurrency.RUB)) {
+                rubSharesSum += activeShare.getPrice() * activeShare.getCount();
+            }
+            if (activeShare.getCurrency().equals(TCurrency.USD)) {
+                usdSharesSum += activeShare.getPrice() * activeShare.getCount();
+            }
+        }
+
+        StringBuilder result = new StringBuilder()
+                .append("Balance:" + "\n")
+                .append("USD: " + TUtils.formatDouble(dollarBalance + usdSharesSum) + "\n")
+                .append("RUB: " + TUtils.formatDouble(rubBalance + rubSharesSum) + "\n")
+                .append("buyOperations: " + buyOperationsCount + "\n")
+                .append("sellOperations: " + sellOperationsCount + "\n")
+                .append("candlesCount: " + totalCandlesCount + "\n");
+
+        result.append("SHARES: \n");
+        for (TActiveLongShare activeShare : activeShares) {
+            val count = activeShare.getCount();
+            val price = activeShare.getPrice();
+            val total = count * price;
+            val currency = activeShare.getCurrency().toString();
+            result.append(activeShare.getShareId() + ": " + count + " * " + price + " = " + total + " " + currency + "\n" );
+        }
+        return result.toString();
+    }
+
+    @NonNull
+    public String toStringCandles(@NonNull String shareId) {
+        StringBuilder result = new StringBuilder();
+        for (TShare share : shares) {
+            if (share.getId().toLowerCase().equals(shareId)) {
+                val candles = share.getCandlesMap().get(CANDLE_INTERVAL_1_MIN);
+                for (TCandle candle : candles) {
+                    result
+                            .append(candle.getInstant()).append(" / ")
+                            .append(candle.getOpen()).append(" / ")
+                            .append(candle.getClose()).append(" / ")
+                            .append(candle.getSimpleMovingAverage()).append(" / ")
+                            .append(candle.getBollingerUp()).append(" / ")
+                            .append(candle.getBollingerDown()).append("\n");
+                }
+            }
+        }
+        return result.toString();
+    }
+
+
 }
