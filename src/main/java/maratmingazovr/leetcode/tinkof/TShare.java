@@ -57,7 +57,7 @@ public class TShare {
     String lastShareBollingerDown;
 
     @NonNull
-    Optional<TLastActiveLongShareInformation> lastLongShareInformation = Optional.empty();
+    TLastActiveLongShareInformation lastLongShareInformation = new TLastActiveLongShareInformation();
 
     public TShare(@NonNull String id,
                   @NonNull String figi) {

@@ -85,26 +85,18 @@ public class TOperation {
             val share = shareOpt.get();
             this.share = Optional.of(share);
             if (type.equals(TOperationType.BUY)) {
-                val lastActiveLongShareInformationOptional =  share.getLastLongShareInformation();
-                if (lastActiveLongShareInformationOptional.isPresent()) {
-                    val information = lastActiveLongShareInformationOptional.get();
-                    information.updatePrice(this.price);
-                } else {
-                    log.info("Exception. TOperation. Buy share. but lastActiveLongShare does not exists. share = " + share.getId() + " / price = " + this.price);
-                }
+                val lastActiveLongShareInformation =  share.getLastLongShareInformation();
+                lastActiveLongShareInformation.updatePrice(this.price);
             }
             if (type.equals(TOperationType.SELL)) {
-                val lastShareInformationOptional = share.getLastLongShareInformation();
-                if (lastShareInformationOptional.isPresent()) {
-                    val lastShareInformation = lastShareInformationOptional.get();
-                    val lastSharePrice = lastShareInformation.getPrice();
-                    if (this.price > lastSharePrice) {
-                        this.sellResult = TOperationSellResult.TAKE_PROFIT;
-                    } else {
-                        this.sellResult = TOperationSellResult.STOP_LOSS;
-                    }
-                } else {
+                val lastShareInformation = share.getLastLongShareInformation();
+                val lastActiveLongSharePrice = lastShareInformation.getPrice();
+                if (lastActiveLongSharePrice.equals(0.0)) {
                     this.sellResult = TOperationSellResult.OTHER;
+                } else if (this.price > lastActiveLongSharePrice) {
+                    this.sellResult = TOperationSellResult.TAKE_PROFIT;
+                } else {
+                    this.sellResult = TOperationSellResult.STOP_LOSS;
                 }
             }
         }
@@ -128,27 +120,22 @@ public class TOperation {
         val shareOptional = portfolio.findShareByFigi(this.figi);
         if (shareOptional.isPresent()) {
             val share = shareOptional.get();
-            String pricaeTakeProfitStopLoss = "-";
-            String comission = "-";
-            val lastLongShareInformationOptional = share.getLastLongShareInformation();
-            if (lastLongShareInformationOptional.isPresent()) {
-                val information = lastLongShareInformationOptional.get();
-                pricaeTakeProfitStopLoss = information.toStringPriceTakeProfitAndStopLoss();
-                comission = information.toStringComission();
-            }
+            val lastLongShareInformation = share.getLastLongShareInformation();
+            val pricaTakeProfitStopLoss = lastLongShareInformation.toStringPriceTakeProfitAndStopLoss();
+            val commission = lastLongShareInformation.toStringComission();
 
             if (this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
                         + "sellResult: " + sellResult + "\n"
-                        + "buyInfo: " + pricaeTakeProfitStopLoss +  "\n";
+                        + "buyInfo: " + pricaTakeProfitStopLoss +  "\n";
 
             }
             if (this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + share.getLastSharePosition() + "\n"
                         + "interval: " + share.getLastShareInterval() + "\n"
-                        + "buyInfo: " + pricaeTakeProfitStopLoss +  "\n"
-                        + "comission: " + comission + "\n"
+                        + "buyInfo: " + pricaTakeProfitStopLoss +  "\n"
+                        + "comission: " + commission + "\n"
                         + "BB: " + share.getLastShareSMA() + " " + share.getLastShareBollingerUp() + " " + share.getLastShareBollingerDown() + "\n";
             }
         }

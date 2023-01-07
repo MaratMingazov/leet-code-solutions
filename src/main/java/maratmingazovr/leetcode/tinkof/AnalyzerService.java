@@ -44,26 +44,7 @@ public class AnalyzerService {
         val accountId = apiService.getAccountFromApi();
         apiService.updatePortfolioFromApi(accountId, portfolio);
         log.info(getPortfolio());
-        String filename = "src/main/java/maratmingazovr/leetcode/tinkof/data.txt";
-        val shares = Util.loadCSV(filename);
-        int count = 0;
-        for (List<String> share : shares) {
-            if (share.size() < 2) {
-                continue;
-            }
-            val shareId = share.get(0);
-            val shareBuyPrice = Double.valueOf(share.get(1));
-            val shareComission = Double.valueOf(share.get(2));
-            val comissionCurrency = share.get(3);
-            for (TShare portfolioShare : portfolio.getShares()) {
-                if (portfolioShare.getId().equals(shareId)) {
-                    val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareBuyPrice, shareComission, comissionCurrency);
-                    portfolioShare.setLastLongShareInformation(Optional.of(lastActiveLongShareInformation));
-                    count++;
-                }
-            }
-        }
-        log.info("load shares = " + count);
+        TUtils.loadLastActiveLongShares(portfolio);
     }
 
     @Scheduled(cron = "3 0/1  * * * *") // every minute
@@ -167,16 +148,17 @@ public class AnalyzerService {
             val figi = share.getFigi();
             log.info("want to buy: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             val order = apiService.buyShareFromApi(accountId, figi, shareToBuy.getPriceToBuy());
-            val comission = TUtils.moneyValueToDouble(order.getExecutedCommission());
-            val comissionCurrency = order.getExecutedCommission().getCurrency();
+            val commission = TUtils.moneyValueToDouble(order.getExecutedCommission());
+            val comissionCurrencyString = order.getExecutedCommission().getCurrency();
+            val commissionCurrency = TCurrency.getFromString(comissionCurrencyString);
             //val price = TUtils.moneyValueToDouble(order.getExecutedOrderPrice());
             val price = shareToBuy.getPriceToBuy();
             val sma = String.format("%.2f", candle.getSimpleMovingAverage());
             val bollingerUp = String.format("%.2f", candle.getBollingerUp());
             val bollingerDown = String.format("%.2f", candle.getBollingerDown());
 
-            val lastActiveLongShareInformation = new TLastActiveLongShareInformation(price, comission, comissionCurrency);
-            share.setLastLongShareInformation(Optional.of(lastActiveLongShareInformation));
+            val lastActiveLongShareInformation = new TLastActiveLongShareInformation(price, commission, commissionCurrency);
+            share.setLastLongShareInformation(lastActiveLongShareInformation);
 
             share.setLastSharePosition("LONG");
             share.setLastShareSMA(sma);
@@ -190,7 +172,7 @@ public class AnalyzerService {
             //log.info(message);
             //botService.sendMassage(message);
         }
-        TUtils.saveLastShares(portfolio);
+        TUtils.saveLastActiveLongShares(portfolio);
     }
 
     public String getPortfolio() {
@@ -235,7 +217,7 @@ public class AnalyzerService {
             for (TOperation newOperation : newOperations) {
                 log.info(newOperation.getInstant() + " / " + newOperation.getShareId() + " / " + newOperation.getType() + " / " + newOperation.getPrice() + " / " + newOperation.getCurrency());
             }
-            TUtils.saveLastShares(portfolio);
+            TUtils.saveLastActiveLongShares(portfolio);
         }
 
         while(operations.size() > 100) {
@@ -247,14 +229,9 @@ public class AnalyzerService {
         List<TActiveShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
             for (TActiveShare activeShare : share.getActiveShares()) {
-                val lastActiveLongShareInformationOptional = share.getLastLongShareInformation();
-                double lastActiveLongShareTakeProfit = 0.0;
-                double lastActiveLongShareStopLoss = 0.0;
-                if (lastActiveLongShareInformationOptional.isPresent()) {
-                    val information = lastActiveLongShareInformationOptional.get();
-                    lastActiveLongShareTakeProfit = information.getTakeProfit();
-                    lastActiveLongShareStopLoss = information.getStopLoss();
-                }
+                val lastActiveLongShareInformation = share.getLastLongShareInformation();
+                val lastActiveLongShareTakeProfit = lastActiveLongShareInformation.getTakeProfit();
+                val lastActiveLongShareStopLoss = lastActiveLongShareInformation.getStopLoss();
                 if (activeShare.getPrice() > lastActiveLongShareTakeProfit || activeShare.getPrice() < lastActiveLongShareStopLoss) {
                     result.add(activeShare);
                 }

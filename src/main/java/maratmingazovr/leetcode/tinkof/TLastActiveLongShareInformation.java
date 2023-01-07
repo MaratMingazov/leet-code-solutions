@@ -21,14 +21,22 @@ public class TLastActiveLongShareInformation {
     Double comission;
 
     @NonNull
-    String comissionCurrency;
+    TCurrency commissionCurrency;
+
+    public TLastActiveLongShareInformation() {
+        this.price = 0.0;
+        this.takeProfit = 0.0;
+        this.stopLoss = 0.0;
+        this.comission = 0.0;
+        this.commissionCurrency = TCurrency.USD;
+    }
 
     public TLastActiveLongShareInformation(@NonNull Double price,
                                            @NonNull Double comission,
-                                           @NonNull String comissionCurrency) {
+                                           @NonNull TCurrency commissionCurrency) {
         updatePrice(price);
         this.comission = comission;
-        this.comissionCurrency = comissionCurrency;
+        this.commissionCurrency = commissionCurrency;
     }
 
 
@@ -39,7 +47,7 @@ public class TLastActiveLongShareInformation {
     }
 
     public String toStringComission() {
-        return TUtils.formatDouble(comission) + " / " + comissionCurrency;
+        return TUtils.formatDouble(comission) + " / " + commissionCurrency;
     }
 
     public void updatePrice(@NonNull Double price) {
@@ -50,7 +58,7 @@ public class TLastActiveLongShareInformation {
 
     @NonNull
     public String toStringForSave() {
-        return price + "," + comission + "," + comissionCurrency;
+        return price + "," + comission + "," + commissionCurrency;
     }
 
 

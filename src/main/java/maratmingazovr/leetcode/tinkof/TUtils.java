@@ -2,6 +2,7 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.NonNull;
 import lombok.val;
+import maratmingazovr.leetcode.neural_network.Util;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static ru.tinkoff.piapi.core.utils.MapperUtils.quotationToBigDecimal;
 
@@ -100,25 +102,44 @@ public class TUtils {
         return quotationToBigDecimal(quotation).doubleValue();
     }
 
-    public static void saveLastShares(@NonNull TPortfolio portfolio) {
+    public static void saveLastActiveLongShares(@NonNull TPortfolio portfolio) {
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
             List<String> savedShares = new ArrayList<>();
             val shares = portfolio.getShares();
             for (final TShare share : shares) {
-                val lastActiveLongShareInformationOptional = share.getLastLongShareInformation();
-                if (lastActiveLongShareInformationOptional.isPresent()) {
-                    val information = lastActiveLongShareInformationOptional.get();
-                    bw.write(share.getId());
-                    bw.write(",");
-                    bw.write(information.toStringForSave());
-                    bw.newLine();
-                    savedShares.add(share.getId() + ": " + information.toStringForSave() + " / ");
-                }
+                val lastActiveLongShareInformation = share.getLastLongShareInformation();
+                bw.write(share.getId());
+                bw.write(",");
+                bw.write(lastActiveLongShareInformation.toStringForSave());
+                bw.newLine();
+                savedShares.add(share.getId() + ": " + lastActiveLongShareInformation.toStringForSave() + " / ");
             }
             log.info("savedShares: " + savedShares);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void loadLastActiveLongShares(@NonNull TPortfolio portfolio) {
+        val shares = Util.loadCSV(FILENAME);
+        int count = 0;
+        for (List<String> share : shares) {
+            if (share.size() < 4) {
+                continue;
+            }
+            val shareId = share.get(0);
+            val shareBuyPrice = Double.valueOf(share.get(1));
+            val shareComission = Double.valueOf(share.get(2));
+            val commissionCurrency = TCurrency.getFromString(share.get(3));
+            for (TShare portfolioShare : portfolio.getShares()) {
+                if (portfolioShare.getId().equals(shareId)) {
+                    val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareBuyPrice, shareComission, commissionCurrency);
+                    portfolioShare.setLastLongShareInformation(lastActiveLongShareInformation);
+                    count++;
+                }
+            }
+        }
+        log.info("load shares = " + count);
     }
 
     @NonNull
