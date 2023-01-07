@@ -12,6 +12,7 @@ import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.HistoricCandle;
 import ru.tinkoff.piapi.contract.v1.MoneyValue;
 import ru.tinkoff.piapi.contract.v1.OrderDirection;
+import ru.tinkoff.piapi.contract.v1.OrderState;
 import ru.tinkoff.piapi.contract.v1.OrderType;
 import ru.tinkoff.piapi.contract.v1.PostOrderResponse;
 import ru.tinkoff.piapi.contract.v1.Quotation;
@@ -205,5 +206,12 @@ public class ApiService {
                             .getAllOperationsSync(accountId, from, Instant.now())
                 .stream().map(operation -> new TOperation(operation, portfolio))
                 .collect(Collectors.toList());
+    }
+
+    @NonNull
+    public synchronized List<OrderState> getActiveOrdersFromApi(@NonNull String accountId) {
+        val activeOrders = api.getOrdersService().getOrdersSync(accountId);
+        log.info("Return active orders = " + activeOrders.size());
+        return activeOrders;
     }
 }

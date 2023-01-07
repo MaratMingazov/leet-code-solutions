@@ -11,6 +11,7 @@ import maratmingazovr.leetcode.tinkof.long_share.TShareToBuyLong;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
+import ru.tinkoff.piapi.contract.v1.OrderState;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
@@ -56,6 +57,7 @@ public class AnalyzerService {
 
         updateOperations(accountId, portfolio);
         apiService.updatePortfolioFromApi(accountId, portfolio);
+        val activeOrders = apiService.getActiveOrdersFromApi(accountId);
 
 //        val interval = CandleInterval.CANDLE_INTERVAL_1_MIN;
         updateSharesFromApi(CANDLE_INTERVAL_1_MIN);
@@ -65,15 +67,15 @@ public class AnalyzerService {
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
         sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShareFigi()));
 
-        var candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_DAY);
+        var candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_DAY, activeOrders);
         if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_HOUR);
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_HOUR, activeOrders);
         }
         if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN);
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN, activeOrders);
         }
         if (candlesToBuyLong.isEmpty()) {
-            candlesToBuyLong = findCandlesToBuyLong(portfolio, CANDLE_INTERVAL_5_MIN);
+            candlesToBuyLong = findCandlesToBuyLong(portfolio, CANDLE_INTERVAL_5_MIN, activeOrders);
         }
         if (candlesToBuyLong.size() > 0) {
             log.info("candles to buy = " + candlesToBuyLong.size());
@@ -162,7 +164,6 @@ public class AnalyzerService {
             val lastOperation = operations.get(operations.size() - 1);
             from = lastOperation.getInstant().plus(1L, ChronoUnit.SECONDS);
         }
-        //log.info("Update operations from: " + from);
 
 
         val newOperations = apiService.getOperationsFromApi(accountId, from, portfolio);
@@ -283,7 +284,8 @@ public class AnalyzerService {
 
     @NonNull
     private List<TShareToBuyLong> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
-                                                       @NonNull CandleInterval interval) {
+                                                       @NonNull CandleInterval interval,
+                                                       @NonNull List<OrderState> activeOrders) {
         List<TShareToBuyLong> candlesToBuy = new ArrayList<>();
         if (portfolio.getDollarBalance() < 2000 || portfolio.getRubBalance() < 2000) {
             log.info("balance is low, will not buy");
@@ -294,6 +296,11 @@ public class AnalyzerService {
             if (activeShare.getCount() > 0.0) {
                 continue;
             }
+            val activeOrder = activeOrders.stream().filter(order -> order.getFigi().equals(share.getFigi())).findAny();
+            if (activeOrder.isPresent()) {
+                log.info("I can not but share, because have active order. " + share.getId());
+            }
+
             val minuteCandles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_1_MIN);
             if (minuteCandles.isEmpty()) {
                 continue;
