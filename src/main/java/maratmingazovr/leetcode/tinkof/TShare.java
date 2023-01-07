@@ -2,14 +2,14 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.Data;
 import lombok.NonNull;
-import lombok.val;
+import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
+import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShareInfo;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Data
 public class TShare {
@@ -18,7 +18,7 @@ public class TShare {
     Map<CandleInterval, List<TCandle>> candlesMap = new HashMap<>();
 
     @NonNull
-    List<TActiveShare> activeShares = new ArrayList<>();
+    List<TActiveLongShare> activeShares = new ArrayList<>();
 
     @NonNull
     String id;
@@ -28,8 +28,7 @@ public class TShare {
 
 
 
-    @NonNull
-    TLastActiveLongShareInformation lastLongShareInformation = new TLastActiveLongShareInformation();
+    @NonNull TActiveLongShareInfo activeLongShareInfo = new TActiveLongShareInfo();
 
     public TShare(@NonNull String id,
                   @NonNull String figi) {

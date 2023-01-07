@@ -3,6 +3,9 @@ package maratmingazovr.leetcode.tinkof;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.val;
+import maratmingazovr.leetcode.tinkof.enums.TCurrency;
+import maratmingazovr.leetcode.tinkof.enums.TOperationSellResult;
+import maratmingazovr.leetcode.tinkof.enums.TOperationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.tinkoff.piapi.contract.v1.Operation;
@@ -26,14 +29,12 @@ public class TOperation {
     @NonNull
     Instant instant;
 
-    @NonNull
-    TOperationType type;
+    @NonNull TOperationType type;
 
     @NonNull
     String typeString;
 
-    @NonNull
-    TCurrency currency;
+    @NonNull TCurrency currency;
 
     @NonNull
     Double price;
@@ -85,15 +86,14 @@ public class TOperation {
             val share = shareOpt.get();
             this.share = Optional.of(share);
             if (type.equals(TOperationType.BUY)) {
-                val lastActiveLongShareInformation =  share.getLastLongShareInformation();
-                lastActiveLongShareInformation.updatePrice(this.price);
+                val activeLongShareInfo =  share.getActiveLongShareInfo();
+                activeLongShareInfo.updatePrice(this.price);
             }
             if (type.equals(TOperationType.SELL)) {
-                val lastShareInformation = share.getLastLongShareInformation();
-                val lastActiveLongSharePrice = lastShareInformation.getPrice();
-                if (lastActiveLongSharePrice.equals(0.0)) {
+                val activeLongShareInfoPrice = share.getActiveLongShareInfo().getPrice();
+                if (activeLongShareInfoPrice.equals(0.0)) {
                     this.sellResult = TOperationSellResult.OTHER;
-                } else if (this.price > lastActiveLongSharePrice) {
+                } else if (this.price > activeLongShareInfoPrice) {
                     this.sellResult = TOperationSellResult.TAKE_PROFIT;
                 } else {
                     this.sellResult = TOperationSellResult.STOP_LOSS;
@@ -119,19 +119,19 @@ public class TOperation {
 
         val shareOptional = portfolio.findShareByFigi(this.figi);
         if (shareOptional.isPresent()) {
-            val lastLongShareInformation = shareOptional.get().getLastLongShareInformation();
+            val activeLongShareInfo = shareOptional.get().getActiveLongShareInfo();
             if (this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
                         + "sellResult: " + sellResult + "\n"
-                        + "buyInfo: " + lastLongShareInformation.toStringPriceTakeProfitAndStopLoss() +  "\n";
+                        + "buyInfo: " + activeLongShareInfo.toStringPriceTakeProfitAndStopLoss() +  "\n";
 
             }
             if (this.type.equals(TOperationType.BUY)) {
                 return "type: BUY \n"
                         + "position: " + "LONG" + "\n"
-                        + "interval: " + lastLongShareInformation.getInterval() + "\n"
-                        + "buyInfo: " + lastLongShareInformation.toStringPriceTakeProfitAndStopLoss() +  "\n"
-                        + "BB: " + lastLongShareInformation.toStringBB() + "\n";
+                        + "interval: " + activeLongShareInfo.getInterval() + "\n"
+                        + "buyInfo: " + activeLongShareInfo.toStringPriceTakeProfitAndStopLoss() +  "\n"
+                        + "BB: " + activeLongShareInfo.toStringBB() + "\n";
             }
         }
         return "";

@@ -1,4 +1,4 @@
-package maratmingazovr.leetcode.tinkof;
+package maratmingazovr.leetcode.tinkof.enums;
 
 import lombok.NonNull;
 

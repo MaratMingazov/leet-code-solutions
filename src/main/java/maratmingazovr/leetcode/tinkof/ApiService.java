@@ -3,6 +3,8 @@ package maratmingazovr.leetcode.tinkof;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import maratmingazovr.leetcode.tinkof.enums.TCurrency;
+import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.Account;
@@ -125,11 +127,11 @@ public class ApiService {
             }
             for (TShare share : portfolio.getShares()) {
                 if (figi.equals(share.getFigi())) {
-                    share.getActiveShares().add(new TActiveShare(share.getId(),
-                                                                 share.getFigi(),
-                                                                 currency,
-                                                                 price,
-                                                                 count));
+                    share.getActiveShares().add(new TActiveLongShare(share.getId(),
+                                                                     share.getFigi(),
+                                                                     currency,
+                                                                     price,
+                                                                     count));
                 }
             }
         }

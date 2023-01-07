@@ -3,6 +3,7 @@ package maratmingazovr.leetcode.tinkof;
 import lombok.NonNull;
 import lombok.val;
 import maratmingazovr.leetcode.neural_network.Util;
+import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShareInfo;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static ru.tinkoff.piapi.core.utils.MapperUtils.quotationToBigDecimal;
 
@@ -107,12 +107,10 @@ public class TUtils {
             List<String> savedShares = new ArrayList<>();
             val shares = portfolio.getShares();
             for (final TShare share : shares) {
-                val lastActiveLongShareInformation = share.getLastLongShareInformation();
-                bw.write(share.getId());
-                bw.write(",");
-                bw.write(lastActiveLongShareInformation.toStringForSave());
+                val activeLongShareInfo = share.getActiveLongShareInfo();
+                bw.write(activeLongShareInfo.toStringForSave());
                 bw.newLine();
-                savedShares.add(share.getId() + ": " + lastActiveLongShareInformation.toStringForSave() + " / ");
+                savedShares.add(activeLongShareInfo.toStringForSave());
             }
             log.info("savedShares: " + savedShares);
         } catch (IOException e) {
@@ -134,12 +132,13 @@ public class TUtils {
             val bollingerDown = Double.valueOf(share.get(4));
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
-                    val lastActiveLongShareInformation = new TLastActiveLongShareInformation(shareBuyPrice,
-                                                                                             simpleMovingAverage,
-                                                                                             bollingerUp,
-                                                                                             bollingerDown,
-                                                                                             CandleInterval.CANDLE_INTERVAL_UNSPECIFIED);
-                    portfolioShare.setLastLongShareInformation(lastActiveLongShareInformation);
+                    val lastActiveLongShareInformation = new TActiveLongShareInfo(shareId,
+                                                                                  shareBuyPrice,
+                                                                                  simpleMovingAverage,
+                                                                                  bollingerUp,
+                                                                                  bollingerDown,
+                                                                                  CandleInterval.CANDLE_INTERVAL_UNSPECIFIED);
+                    portfolioShare.setActiveLongShareInfo(lastActiveLongShareInformation);
                     count++;
                 }
             }

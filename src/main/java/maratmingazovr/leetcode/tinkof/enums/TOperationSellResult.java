@@ -1,4 +1,4 @@
-package maratmingazovr.leetcode.tinkof;
+package maratmingazovr.leetcode.tinkof.enums;
 
 public enum TOperationSellResult {
     TAKE_PROFIT,
