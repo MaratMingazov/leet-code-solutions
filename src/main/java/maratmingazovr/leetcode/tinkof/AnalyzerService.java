@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import maratmingazovr.leetcode.tinkof.enums.TCurrency;
 import maratmingazovr.leetcode.tinkof.enums.TOperationType;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShareInfo;
+import maratmingazovr.leetcode.tinkof.long_share.TShareToBuyLong;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
@@ -18,7 +18,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_1_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_5_MIN;
@@ -78,7 +77,7 @@ public class AnalyzerService {
         }
         if (candlesToBuyLong.size() > 0) {
             log.info("candles to buy = " + candlesToBuyLong.size());
-            for (TShareToBuy shareToBuy : candlesToBuyLong) {
+            for (TShareToBuyLong shareToBuy : candlesToBuyLong) {
                 log.info("want to buy: " + shareToBuy.getCandle().getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             }
             buySharesLong(accountId, candlesToBuyLong);
@@ -127,8 +126,8 @@ public class AnalyzerService {
     }
 
     private synchronized void buySharesLong(@NonNull String accountId,
-                                            @NonNull List<TShareToBuy> sharesToBuy) {
-        for (TShareToBuy shareToBuy : sharesToBuy) {
+                                            @NonNull List<TShareToBuyLong> sharesToBuy) {
+        for (TShareToBuyLong shareToBuy : sharesToBuy) {
             val candle = shareToBuy.getCandle();
             val activeShare = candle.getShare().getActiveShare();
             if(activeShare.getCount() > 0.0) {
@@ -283,9 +282,9 @@ public class AnalyzerService {
     }
 
     @NonNull
-    private List<TShareToBuy> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
-                                                   @NonNull CandleInterval interval) {
-        List<TShareToBuy> candlesToBuy = new ArrayList<>();
+    private List<TShareToBuyLong> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
+                                                       @NonNull CandleInterval interval) {
+        List<TShareToBuyLong> candlesToBuy = new ArrayList<>();
         if (portfolio.getDollarBalance() < 2000 || portfolio.getRubBalance() < 2000) {
             log.info("balance is low, will not buy");
             return candlesToBuy;
@@ -307,7 +306,7 @@ public class AnalyzerService {
     }
 
     @NonNull
-    private Optional<TShareToBuy> findCandleToBuyLong(@NonNull Double currentPrice, @NonNull List<TCandle> candles) {
+    private Optional<TShareToBuyLong> findCandleToBuyLong(@NonNull Double currentPrice, @NonNull List<TCandle> candles) {
         if (candles.isEmpty()) {
             // we have no candles to check
             return Optional.empty();
@@ -322,7 +321,7 @@ public class AnalyzerService {
         if (currentPrice < lastCandle.getBollingerDown()) {
             //log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
             if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp()) {
-                return Optional.of(new TShareToBuy(lastCandle, currentPrice));
+                return Optional.of(new TShareToBuyLong(lastCandle, currentPrice));
             }
         }
         return Optional.empty();
