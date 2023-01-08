@@ -149,22 +149,24 @@ public class TUtils {
         val shares = Util.loadCSV(FILENAME);
         int count = 0;
         for (List<String> share : shares) {
-            if (share.size() < 4) {
+            if (share.size() < 6) {
                 continue;
             }
             val shareId = share.get(0);
             val shareBuyPrice = Double.valueOf(share.get(1));
-            val simpleMovingAverage = Double.valueOf(share.get(2));
-            val bollingerUp = Double.valueOf(share.get(3));
-            val bollingerDown = Double.valueOf(share.get(4));
+            val shareSellPrice = Double.valueOf(share.get(2));
+            val simpleMovingAverage = Double.valueOf(share.get(3));
+            val bollingerUp = Double.valueOf(share.get(4));
+            val bollingerDown = Double.valueOf(share.get(5));
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
                     val activeShareInfo = new TActiveShareInfo(shareId,
-                                                                              shareBuyPrice,
-                                                                              simpleMovingAverage,
-                                                                              bollingerUp,
-                                                                              bollingerDown,
-                                                                              CandleInterval.CANDLE_INTERVAL_UNSPECIFIED);
+                                                               shareBuyPrice,
+                                                               shareSellPrice,
+                                                               simpleMovingAverage,
+                                                               bollingerUp,
+                                                               bollingerDown,
+                                                               CandleInterval.CANDLE_INTERVAL_UNSPECIFIED);
                     portfolioShare.setActiveShareInfo(activeShareInfo);
                     count++;
                 }

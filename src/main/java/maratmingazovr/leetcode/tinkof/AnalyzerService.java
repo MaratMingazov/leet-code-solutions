@@ -56,10 +56,12 @@ public class AnalyzerService {
         portfolio.updateOperations(newOperationsFromApi, botService);
         portfolio.updatePortfolio(portfolioUpdate);
 
+        log.info(portfolio.toStringMessage());
 
-        val sharesToSell = findActiveSharesToSellSandbox(portfolio);
-        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShareFigi()));
-        checkSharesToBuyLong(accountId, portfolio, activeOrders);
+
+//        val sharesToSell = findActiveSharesToSellSandboxLong(portfolio);
+//        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShareFigi()));
+//        checkSharesToBuyLong(accountId, portfolio, activeOrders);
 
     }
 
@@ -74,22 +76,22 @@ public class AnalyzerService {
 //        //        }
 //    }
 
-    @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
+    //@Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
         execute(CandleInterval.CANDLE_INTERVAL_5_MIN);
     }
 
-    @Scheduled(cron = "5 0/15  * * * *") // every 15 minutes
+    //@Scheduled(cron = "5 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
         execute(CandleInterval.CANDLE_INTERVAL_15_MIN);
     }
 
-    @Scheduled(cron = "5 0 0/1 * * *")
+    //@Scheduled(cron = "5 0 0/1 * * *")
     public void executeEvery1Hour() {
         execute(CandleInterval.CANDLE_INTERVAL_HOUR);
     }
 
-    @Scheduled(cron = "5 0 10 * * *") // every  day 10 o clock
+    //@Scheduled(cron = "5 0 10 * * *") // every  day 10 o clock
     public void executeEvery1Day() {
         execute(CandleInterval.CANDLE_INTERVAL_DAY);
     }
@@ -129,6 +131,7 @@ public class AnalyzerService {
             apiService.buyOrderLong(accountId, figi, shareToBuy.getPriceToBuy());
             val activeShareInfo = new TActiveShareInfo(share.getId(),
                                                            shareToBuy.getPriceToBuy(),
+                                                           0.0,
                                                            candle.getSimpleMovingAverage(),
                                                            candle.getBollingerUp(),
                                                            candle.getBollingerDown(),
@@ -144,7 +147,7 @@ public class AnalyzerService {
         return portfolio.toStringMessage();
     }
 
-    private List<TActiveShare> findActiveSharesToSellSandbox(@NonNull TPortfolio portfolio) {
+    private List<TActiveShare> findActiveSharesToSellSandboxLong(@NonNull TPortfolio portfolio) {
         List<TActiveShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
             val activeShare = share.getActiveShare();
@@ -152,8 +155,8 @@ public class AnalyzerService {
                 continue;
             }
             val info = share.getActiveShareInfo();
-            val takeProfit = info.getTakeProfit();
-            val stopLoss = info.getStopLoss();
+            val takeProfit = info.getBuyTakeProfit();
+            val stopLoss = info.getBuyStopLoss();
             if (activeShare.getPrice() > takeProfit || activeShare.getPrice() < stopLoss) {
                 result.add(activeShare);
             }

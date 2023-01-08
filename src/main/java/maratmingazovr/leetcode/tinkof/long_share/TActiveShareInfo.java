@@ -13,13 +13,24 @@ public class TActiveShareInfo {
     String shareId;
 
     @NonNull
-    Double price;
+    Double buyPrice;
+
+
 
     @NonNull
-    Double takeProfit;
+    Double buyTakeProfit;
 
     @NonNull
-    Double stopLoss;
+    Double buyStopLoss;
+
+    @NonNull
+    Double sellPrice;
+
+    @NonNull
+    Double sellTakeProfit;
+
+    @NonNull
+    Double sellStopLoss;
 
     @NonNull
     Double simpleMovingAverage;
@@ -35,9 +46,12 @@ public class TActiveShareInfo {
 
     public TActiveShareInfo() {
         this.shareId = "";
-        this.price = 0.0;
-        this.takeProfit = 0.0;
-        this.stopLoss = 0.0;
+        this.buyPrice = 0.0;
+        this.buyTakeProfit = 0.0;
+        this.buyStopLoss = 0.0;
+        this.sellPrice = 0.0;
+        this.sellTakeProfit = 0.0;
+        this.sellStopLoss = 0.0;
         this.simpleMovingAverage = 0.0;
         this.bollingerUp = 0.0;
         this.bollingerDown = 0.0;
@@ -45,13 +59,14 @@ public class TActiveShareInfo {
     }
 
     public TActiveShareInfo(@NonNull String shareId,
-                            @NonNull Double price,
+                            @NonNull Double buyPrice,
+                            @NonNull Double sellPrice,
                             @NonNull Double simpleMovingAverage,
                             @NonNull Double bollingerUp,
                             @NonNull Double bollingerDown,
                             @NonNull CandleInterval interval) {
         this.shareId = shareId;
-        updatePrice(price);
+        updateBuyPrice(buyPrice);
         this.simpleMovingAverage = simpleMovingAverage;
         this.bollingerUp = bollingerUp;
         this.bollingerDown = bollingerDown;
@@ -59,21 +74,33 @@ public class TActiveShareInfo {
     }
 
 
-    public String toStringPriceTakeProfitAndStopLoss() {
-        return TUtils.formatDouble(price) + " / "
-                + TUtils.formatDouble(takeProfit) + " / "
-                + TUtils.formatDouble(stopLoss);
+    public String toStringBuyPriceTakeProfitAndStopLoss() {
+        return TUtils.formatDouble(buyPrice) + " / "
+                + TUtils.formatDouble(buyTakeProfit) + " / "
+                + TUtils.formatDouble(buyStopLoss);
     }
 
-    public void updatePrice(@NonNull Double price) {
-        this.price = price;
-        this.takeProfit = price + price * TUtils.TAKE_PROFIT_PERCENT;
-        this.stopLoss = price - price * TUtils.STOP_LOSS_PERCENT;
+    public String toStringSellPriceTakeProfitAndStopLoss() {
+        return TUtils.formatDouble(sellPrice) + " / "
+                + TUtils.formatDouble(sellTakeProfit) + " / "
+                + TUtils.formatDouble(sellStopLoss);
+    }
+
+    public void updateBuyPrice(@NonNull Double buyPrice) {
+        this.buyPrice = buyPrice;
+        this.buyTakeProfit = buyPrice + buyPrice * TUtils.TAKE_PROFIT_PERCENT;
+        this.buyStopLoss = buyPrice - buyPrice * TUtils.STOP_LOSS_PERCENT;
+    }
+
+    public void updateSellPrice(@NonNull Double sellPrice) {
+        this.sellPrice = sellPrice;
+        this.sellTakeProfit = sellPrice - sellPrice * TUtils.TAKE_PROFIT_PERCENT;
+        this.sellStopLoss = sellPrice + sellPrice * TUtils.STOP_LOSS_PERCENT;
     }
 
     @NonNull
     public String toStringForSave() {
-        return shareId + "," + price + "," + simpleMovingAverage + "," + bollingerUp + "," + bollingerDown;
+        return shareId + "," + buyPrice + "," + sellPrice + "," + simpleMovingAverage + "," + bollingerUp + "," + bollingerDown;
     }
 
     public String toStringBB() {

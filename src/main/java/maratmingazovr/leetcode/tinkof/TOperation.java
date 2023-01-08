@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.val;
 import maratmingazovr.leetcode.tinkof.enums.TCurrency;
-import maratmingazovr.leetcode.tinkof.enums.TOperationSellResult;
 import maratmingazovr.leetcode.tinkof.enums.TOperationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,9 +53,7 @@ public class TOperation {
     @NonNull TPortfolio portfolio;
 
     @Nullable
-    Optional<TShare> share;
-
-    @NonNull TOperationSellResult sellResult;
+    Optional<TShare> shareOpt;
 
     private static Logger log = LoggerFactory.getLogger(TOperation.class);
 
@@ -74,30 +71,20 @@ public class TOperation {
         this.paymentCurrency = operation.getPayment().getCurrency();
         this.quantity = operation.getQuantity();
         this.portfolio = portfolio;
-        this.sellResult = TOperationSellResult.OTHER;
+        this.shareOpt = portfolio.findShareByFigi(this.figi);
 
         portfolio.getShares().stream()
                  .filter(share -> share.getFigi().equals(operation.getFigi()))
                  .map(TShare::getId).findAny()
                  .ifPresent(shareId -> this.shareId = shareId);
 
-        Optional<TShare> shareOpt = portfolio.getShares().stream().filter(share -> share.getFigi().equals(operation.getFigi())).findAny();
         if (shareOpt.isPresent()) {
-            val share = shareOpt.get();
-            this.share = Optional.of(share);
+            val activeShareInfo = shareOpt.get().getActiveShareInfo();
             if (type.equals(TOperationType.BUY)) {
-                val activeLongShareInfo =  share.getActiveShareInfo();
-                activeLongShareInfo.updatePrice(this.price);
+                activeShareInfo.updateBuyPrice(this.price);
             }
             if (type.equals(TOperationType.SELL)) {
-                val activeLongShareInfoPrice = share.getActiveShare().getPrice();
-                if (activeLongShareInfoPrice.equals(0.0)) {
-                    this.sellResult = TOperationSellResult.OTHER;
-                } else if (this.price > activeLongShareInfoPrice) {
-                    this.sellResult = TOperationSellResult.TAKE_PROFIT;
-                } else {
-                    this.sellResult = TOperationSellResult.STOP_LOSS;
-                }
+                activeShareInfo.updateSellPrice(this.price);
             }
         }
 
@@ -116,22 +103,48 @@ public class TOperation {
     }
 
     private String checkStopLossOrTakeProfit() {
+        if (this.shareOpt.isPresent()) {
+            val share = shareOpt.get();
+            val activeShare = share.getActiveShare();
+            val activeShareInfo = share.getActiveShareInfo();
 
-        val shareOptional = portfolio.findShareByFigi(this.figi);
-        if (shareOptional.isPresent()) {
-            val activeLongShareInfo = shareOptional.get().getActiveShareInfo();
-            if (this.type.equals(TOperationType.SELL)) {
-                return "type: SELL \n"
-                        + "sellResult: " + sellResult + "\n"
-                        + "buyInfo: " + activeLongShareInfo.toStringPriceTakeProfitAndStopLoss() +  "\n";
-
+            if (type.equals(TOperationType.SELL)) {
+                if (activeShare.getCount() < 0.0) {
+                    // мы купили short
+                    return "BUY SHORT \n"
+                            + "interval: " + activeShareInfo.getInterval() + "\n"
+                            + "buyInfo: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n"
+                            + "BB: " + activeShareInfo.toStringBB() + "\n";
+                } else {
+                    //мы закрыли long
+                    String takeProfitStopLoss = "";
+                    if (this.price >= activeShareInfo.getBuyTakeProfit()) {
+                        takeProfitStopLoss = "TAKE_PROFIT";
+                    } else {
+                        takeProfitStopLoss = "STOP_LOSS";
+                    }
+                    return "SELL LONG " + takeProfitStopLoss + "\n"
+                            + "buyInfo: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n";
+                }
             }
-            if (this.type.equals(TOperationType.BUY)) {
-                return "type: BUY \n"
-                        + "position: " + "LONG" + "\n"
-                        + "interval: " + activeLongShareInfo.getInterval() + "\n"
-                        + "buyInfo: " + activeLongShareInfo.toStringPriceTakeProfitAndStopLoss() +  "\n"
-                        + "BB: " + activeLongShareInfo.toStringBB() + "\n";
+            if (type.equals(TOperationType.BUY)) {
+                if (activeShare.getCount() > 0.0) {
+                    // мы купили long
+                    return "BUY LONG \n"
+                            + "interval: " + activeShareInfo.getInterval() + "\n"
+                            + "buyInfo: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n"
+                            + "BB: " + activeShareInfo.toStringBB() + "\n";
+                } else {
+                    //мы закрыли short
+                    String takeProfitStopLoss = "";
+                    if (this.price <= activeShareInfo.getSellTakeProfit()) {
+                        takeProfitStopLoss = "TAKE_PROFIT";
+                    } else {
+                        takeProfitStopLoss = "STOP_LOSS";
+                    }
+                    return "SELL SHORT " + takeProfitStopLoss + "\n"
+                            + "buyInfo: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n";
+                }
             }
         }
         return "";

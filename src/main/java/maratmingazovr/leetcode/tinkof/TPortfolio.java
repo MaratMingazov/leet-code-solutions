@@ -163,9 +163,6 @@ public class TPortfolio {
         for (Position position : positions) {
             val figi = position.getFigi();
             double count = position.getQuantity().doubleValue();
-            if (count <= 0) {
-                continue;
-            }
             val price = position.getCurrentPrice().getValue().doubleValue();
             val currencyString = position.getCurrentPrice().getCurrency();
             val currency = TCurrency.getFromString(currencyString);
