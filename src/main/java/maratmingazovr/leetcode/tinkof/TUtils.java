@@ -131,7 +131,7 @@ public class TUtils {
             val candle = candles.get(i);
             val change = candle.getClose() - previousCandle.getClose();
             val upWardMove = change > 0 ? change : 0.0;
-            val downWardMove = change < 0 ? change : 0.0;
+            val downWardMove = change < 0 ? Math.abs(change) : 0.0;
             candle.setUpWardMove(upWardMove);
             candle.setDownWardMove(downWardMove);
         }
