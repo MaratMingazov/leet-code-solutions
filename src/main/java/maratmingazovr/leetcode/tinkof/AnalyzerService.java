@@ -332,6 +332,7 @@ public class AnalyzerService {
             val activeOrder = activeOrders.stream().filter(order -> order.getFigi().equals(share.getFigi())).findAny();
             if (activeOrder.isPresent()) {
                 log.info("I can not but share long, because have active order. " + share.getId());
+                continue;
             }
 
             val candles = share.getCandlesMap().get(interval);
@@ -362,6 +363,7 @@ public class AnalyzerService {
             val activeOrder = activeOrders.stream().filter(order -> order.getFigi().equals(share.getFigi())).findAny();
             if (activeOrder.isPresent()) {
                 log.info("I can not buy share short, because have active order. " + share.getId());
+                continue;
             }
 
             val candles = share.getCandlesMap().get(interval);
