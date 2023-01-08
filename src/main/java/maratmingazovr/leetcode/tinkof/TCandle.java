@@ -95,6 +95,7 @@ public class TCandle {
                 + "vol: " + volume + "\n"
                 + "time: " + instant + "\n"
                 + "bb: " + TUtils.formatDouble(simpleMovingAverage) + " / " + TUtils.formatDouble(bollingerUp) + " / " + TUtils.formatDouble(bollingerDown) + "\n"
+                + "rsi: " + TUtils.formatDouble(rsi) + " / " + TUtils.formatDouble(previousExtremumRSI) + "\n"
                 + "interval: " + interval + "\n"
                 + "candles: " + m1Candles + " / " + m5Candles + " / " + m15Candles + " / " + m60Candles + " / " + m24Candles + "\n";
     }
