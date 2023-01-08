@@ -136,7 +136,7 @@ public class TUtils {
             candle.setDownWardMove(downWardMove);
         }
 
-        for (int i = 0; i < candles.size(); i++) {
+        for (int i = 1; i < candles.size(); i++) {
             if (i + RSI_PERIOD <= candles.size()) {
                 double sumUpWard = 0.0;
                 double sumDownWard = 0.0;
