@@ -6,7 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveShare;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveShareInfo;
-import maratmingazovr.leetcode.tinkof.long_share.TShareToBuyLong;
+import maratmingazovr.leetcode.tinkof.long_share.TShareToBuy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
@@ -63,6 +63,7 @@ public class AnalyzerService {
         sharesToSellShort.forEach(activeShare -> apiService.buyShareFromApiSanddox(accountId, activeShare.getShareFigi()));
 
         checkSharesToBuyLong(accountId, portfolio, activeOrders);
+        checkSharesToBuyShort(accountId, portfolio, activeOrders);
 
     }
 
@@ -119,8 +120,8 @@ public class AnalyzerService {
     }
 
     private synchronized void buySharesLong(@NonNull String accountId,
-                                            @NonNull List<TShareToBuyLong> sharesToBuy) {
-        for (TShareToBuyLong shareToBuy : sharesToBuy) {
+                                            @NonNull List<TShareToBuy> sharesToBuy) {
+        for (TShareToBuy shareToBuy : sharesToBuy) {
             val candle = shareToBuy.getCandle();
             val activeShare = candle.getShare().getActiveShare();
             if(activeShare.getCount() != 0.0) {
@@ -137,6 +138,32 @@ public class AnalyzerService {
                                                            candle.getBollingerUp(),
                                                            candle.getBollingerDown(),
                                                            candle.getInterval());
+            share.setActiveShareInfo(activeShareInfo);
+            //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
+            //val takeProfit = apiService.takeProfitOrder(accountId, figi, orderPrice);
+        }
+        TUtils.saveLastActiveLongShares(portfolio);
+    }
+
+    private synchronized void buySharesShort(@NonNull String accountId,
+                                            @NonNull List<TShareToBuy> sharesToBuy) {
+        for (TShareToBuy shareToBuy : sharesToBuy) {
+            val candle = shareToBuy.getCandle();
+            val activeShare = candle.getShare().getActiveShare();
+            if(activeShare.getCount() != 0.0) {
+                continue;
+            }
+            val share = candle.getShare();
+            val figi = share.getFigi();
+            log.info("want to buy short: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
+            apiService.buyOrderShort(accountId, figi, shareToBuy.getPriceToBuy());
+            val activeShareInfo = new TActiveShareInfo(share.getId(),
+                                                       0.0,
+                                                       shareToBuy.getPriceToBuy(),
+                                                       candle.getSimpleMovingAverage(),
+                                                       candle.getBollingerUp(),
+                                                       candle.getBollingerDown(),
+                                                       candle.getInterval());
             share.setActiveShareInfo(activeShareInfo);
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
             //val takeProfit = apiService.takeProfitOrder(accountId, figi, orderPrice);
@@ -262,11 +289,29 @@ public class AnalyzerService {
         }
     }
 
+    private void checkSharesToBuyShort(@NonNull String accountId,
+                                      @NonNull TPortfolio portfolio,
+                                      @NonNull List<OrderState> activeOrders) {
+        var candlesToBuyShort = findCandlesToBuyShort(portfolio, CandleInterval.CANDLE_INTERVAL_DAY, activeOrders);
+        if (candlesToBuyShort.isEmpty()) {
+            candlesToBuyShort = findCandlesToBuyShort(portfolio, CandleInterval.CANDLE_INTERVAL_HOUR, activeOrders);
+        }
+        if (candlesToBuyShort.isEmpty()) {
+            candlesToBuyShort = findCandlesToBuyShort(portfolio, CandleInterval.CANDLE_INTERVAL_15_MIN, activeOrders);
+        }
+        if (candlesToBuyShort.isEmpty()) {
+            candlesToBuyShort = findCandlesToBuyShort(portfolio, CANDLE_INTERVAL_5_MIN, activeOrders);
+        }
+        if (candlesToBuyShort.size() > 0) {
+            buySharesShort(accountId, candlesToBuyShort);
+        }
+    }
+
     @NonNull
-    private List<TShareToBuyLong> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
-                                                       @NonNull CandleInterval interval,
-                                                       @NonNull List<OrderState> activeOrders) {
-        List<TShareToBuyLong> candlesToBuy = new ArrayList<>();
+    private List<TShareToBuy> findCandlesToBuyLong(@NonNull TPortfolio portfolio,
+                                                   @NonNull CandleInterval interval,
+                                                   @NonNull List<OrderState> activeOrders) {
+        List<TShareToBuy> candlesToBuy = new ArrayList<>();
         if (portfolio.getDollarBalance() < 2000 || portfolio.getRubBalance() < 2000) {
             log.info("balance is low, will not buy");
             return candlesToBuy;
@@ -278,7 +323,7 @@ public class AnalyzerService {
             }
             val activeOrder = activeOrders.stream().filter(order -> order.getFigi().equals(share.getFigi())).findAny();
             if (activeOrder.isPresent()) {
-                log.info("I can not but share, because have active order. " + share.getId());
+                log.info("I can not but share long, because have active order. " + share.getId());
             }
 
             val candles = share.getCandlesMap().get(interval);
@@ -293,7 +338,37 @@ public class AnalyzerService {
     }
 
     @NonNull
-    private Optional<TShareToBuyLong> findCandleToBuyLong(@NonNull Double currentPrice, @NonNull List<TCandle> candles) {
+    private List<TShareToBuy> findCandlesToBuyShort(@NonNull TPortfolio portfolio,
+                                                   @NonNull CandleInterval interval,
+                                                   @NonNull List<OrderState> activeOrders) {
+        List<TShareToBuy> candlesToBuy = new ArrayList<>();
+        if (portfolio.getDollarBalance() < 2000 || portfolio.getRubBalance() < 2000) {
+            log.info("balance is low, will not buy");
+            return candlesToBuy;
+        }
+        for (TShare share : portfolio.getShares()) {
+            val activeShare = share.getActiveShare();
+            if (activeShare.getCount() != 0.0) {
+                continue;
+            }
+            val activeOrder = activeOrders.stream().filter(order -> order.getFigi().equals(share.getFigi())).findAny();
+            if (activeOrder.isPresent()) {
+                log.info("I can not buy share short, because have active order. " + share.getId());
+            }
+
+            val candles = share.getCandlesMap().get(interval);
+            if (candles.isEmpty()) {
+                continue;
+            }
+            val currentPrice = candles.get(candles.size() - 1).getOpen();
+            val candleToBuyOpt = findCandleToBuyShort(currentPrice, share.getCandlesMap().get(interval));
+            candleToBuyOpt.ifPresent(candlesToBuy::add);
+        }
+        return candlesToBuy;
+    }
+
+    @NonNull
+    private Optional<TShareToBuy> findCandleToBuyLong(@NonNull Double currentPrice, @NonNull List<TCandle> candles) {
         if (candles.isEmpty()) {
             // we have no candles to check
             return Optional.empty();
@@ -306,9 +381,34 @@ public class AnalyzerService {
             return Optional.empty();
         }
         if (currentPrice < lastCandle.getBollingerDown()) {
-            log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
+            log.info("long candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
             if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp()) {
-                return Optional.of(new TShareToBuyLong(lastCandle, currentPrice));
+                // значит цена тейк профита не выходит за вернюю границу
+                return Optional.of(new TShareToBuy(lastCandle, currentPrice));
+            }
+        }
+        return Optional.empty();
+    }
+
+    @NonNull
+    private Optional<TShareToBuy> findCandleToBuyShort(@NonNull Double currentPrice,
+                                                       @NonNull List<TCandle> candles) {
+        if (candles.isEmpty()) {
+            // we have no candles to check
+            return Optional.empty();
+        }
+        val lastCandle = candles.get(candles.size() - 1);
+        if (lastCandle.getBollingerDown() == null) {
+            return Optional.empty();
+        }
+        if (lastCandle.getBollingerUp() == null) {
+            return Optional.empty();
+        }
+        if (currentPrice > lastCandle.getBollingerUp()) {
+            log.info("short candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerUp() + " check: " + (currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerDown());
+            if ((currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) > lastCandle.getBollingerDown()) {
+                // значит цена тейк профита не выходит за нижнюю границу
+                return Optional.of(new TShareToBuy(lastCandle, currentPrice));
             }
         }
         return Optional.empty();
