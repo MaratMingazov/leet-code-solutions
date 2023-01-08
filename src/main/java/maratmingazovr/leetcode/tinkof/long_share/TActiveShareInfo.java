@@ -67,6 +67,7 @@ public class TActiveShareInfo {
                             @NonNull CandleInterval interval) {
         this.shareId = shareId;
         updateBuyPrice(buyPrice);
+        updateSellPrice(sellPrice);
         this.simpleMovingAverage = simpleMovingAverage;
         this.bollingerUp = bollingerUp;
         this.bollingerDown = bollingerDown;

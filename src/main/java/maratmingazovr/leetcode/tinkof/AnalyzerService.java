@@ -56,12 +56,13 @@ public class AnalyzerService {
         portfolio.updateLastPrices(lastPrices);
         portfolio.updateOperations(newOperationsFromApi, botService);
 
-        log.info(portfolio.toStringMessage());
 
+        val sharesToSellLong = findActiveSharesToSellSandboxLong(portfolio);
+        sharesToSellLong.forEach(activeShare -> apiService.sellShareFromApiSanddox(accountId, activeShare.getShareFigi()));
+        val sharesToSellShort = findActiveSharesToSellSandboxShort(portfolio);
+        sharesToSellShort.forEach(activeShare -> apiService.buyShareFromApiSanddox(accountId, activeShare.getShareFigi()));
 
-//        val sharesToSell = findActiveSharesToSellSandboxLong(portfolio);
-//        sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShareFigi()));
-//        checkSharesToBuyLong(accountId, portfolio, activeOrders);
+        checkSharesToBuyLong(accountId, portfolio, activeOrders);
 
     }
 
@@ -122,12 +123,12 @@ public class AnalyzerService {
         for (TShareToBuyLong shareToBuy : sharesToBuy) {
             val candle = shareToBuy.getCandle();
             val activeShare = candle.getShare().getActiveShare();
-            if(activeShare.getCount() > 0.0) {
+            if(activeShare.getCount() != 0.0) {
                 continue;
             }
             val share = candle.getShare();
             val figi = share.getFigi();
-            log.info("want to buy: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
+            log.info("want to buy long: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             apiService.buyOrderLong(accountId, figi, shareToBuy.getPriceToBuy());
             val activeShareInfo = new TActiveShareInfo(share.getId(),
                                                            shareToBuy.getPriceToBuy(),
@@ -151,13 +152,30 @@ public class AnalyzerService {
         List<TActiveShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
             val activeShare = share.getActiveShare();
-            if (activeShare.getCount() == 0) {
+            if (activeShare.getCount() <= 0) {
                 continue;
             }
             val info = share.getActiveShareInfo();
             val takeProfit = info.getBuyTakeProfit();
             val stopLoss = info.getBuyStopLoss();
-            if (activeShare.getPrice() > takeProfit || activeShare.getPrice() < stopLoss) {
+            if (activeShare.getPrice() >= takeProfit || activeShare.getPrice() <= stopLoss) {
+                result.add(activeShare);
+            }
+        }
+        return result;
+    }
+
+    private List<TActiveShare> findActiveSharesToSellSandboxShort(@NonNull TPortfolio portfolio) {
+        List<TActiveShare> result = new ArrayList<>();
+        for (TShare share : portfolio.getShares()) {
+            val activeShare = share.getActiveShare();
+            if (activeShare.getCount() >= 0) {
+                continue;
+            }
+            val info = share.getActiveShareInfo();
+            val takeProfit = info.getSellTakeProfit();
+            val stopLoss = info.getSellStopLoss();
+            if (activeShare.getPrice() <= takeProfit || activeShare.getPrice() >= stopLoss) {
                 result.add(activeShare);
             }
         }
@@ -255,7 +273,7 @@ public class AnalyzerService {
         }
         for (TShare share : portfolio.getShares()) {
             val activeShare = share.getActiveShare();
-            if (activeShare.getCount() > 0.0) {
+            if (activeShare.getCount() != 0.0) {
                 continue;
             }
             val activeOrder = activeOrders.stream().filter(order -> order.getFigi().equals(share.getFigi())).findAny();
@@ -263,11 +281,11 @@ public class AnalyzerService {
                 log.info("I can not but share, because have active order. " + share.getId());
             }
 
-            val minuteCandles = share.getCandlesMap().get(CandleInterval.CANDLE_INTERVAL_1_MIN);
-            if (minuteCandles.isEmpty()) {
+            val candles = share.getCandlesMap().get(interval);
+            if (candles.isEmpty()) {
                 continue;
             }
-            val currentPrice = minuteCandles.get(minuteCandles.size() - 1).getClose();
+            val currentPrice = candles.get(candles.size() - 1).getClose();
             val candleToBuyOpt = findCandleToBuyLong(currentPrice, share.getCandlesMap().get(interval));
             candleToBuyOpt.ifPresent(candlesToBuy::add);
         }
@@ -288,7 +306,7 @@ public class AnalyzerService {
             return Optional.empty();
         }
         if (currentPrice < lastCandle.getBollingerDown()) {
-            //log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
+            log.info(lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
             if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) < lastCandle.getBollingerUp()) {
                 return Optional.of(new TShareToBuyLong(lastCandle, currentPrice));
             }

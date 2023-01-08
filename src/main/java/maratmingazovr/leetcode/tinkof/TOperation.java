@@ -118,7 +118,7 @@ public class TOperation {
                 } else {
                     //мы закрыли long
                     String takeProfitStopLoss = "";
-                    if (this.price >= activeShareInfo.getBuyTakeProfit()) {
+                    if (this.price >= activeShareInfo.getBuyPrice()) {
                         takeProfitStopLoss = "TAKE_PROFIT";
                     } else {
                         takeProfitStopLoss = "STOP_LOSS";
@@ -137,7 +137,7 @@ public class TOperation {
                 } else {
                     //мы закрыли short
                     String takeProfitStopLoss = "";
-                    if (this.price <= activeShareInfo.getSellTakeProfit()) {
+                    if (this.price <= activeShareInfo.getSellPrice()) {
                         takeProfitStopLoss = "TAKE_PROFIT";
                     } else {
                         takeProfitStopLoss = "STOP_LOSS";

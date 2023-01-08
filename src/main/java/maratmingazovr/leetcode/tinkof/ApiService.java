@@ -175,8 +175,8 @@ public class ApiService {
     }
 
     @NonNull
-    public PostOrderResponse sellShareFromApi(@NonNull String accountId,
-                                              @NonNull String shareFigi) {
+    public PostOrderResponse sellShareFromApiSanddox(@NonNull String accountId,
+                                                     @NonNull String shareFigi) {
         Quotation lastPrice = api.getMarketDataService().getLastPricesSync(List.of(shareFigi)).get(0).getPrice();
 
         //Выставляем заявку на продажу по рыночной цене
@@ -184,6 +184,21 @@ public class ApiService {
                                                     1,
                                                     lastPrice,
                                                     OrderDirection.ORDER_DIRECTION_SELL,
+                                                    accountId,
+                                                    OrderType.ORDER_TYPE_MARKET,
+                                                    UUID.randomUUID().toString());
+    }
+
+    @NonNull
+    public PostOrderResponse buyShareFromApiSanddox(@NonNull String accountId,
+                                                     @NonNull String shareFigi) {
+        Quotation lastPrice = api.getMarketDataService().getLastPricesSync(List.of(shareFigi)).get(0).getPrice();
+
+        //Выставляем заявку на покупку по рыночной цене
+        return api.getOrdersService().postOrderSync(shareFigi,
+                                                    1,
+                                                    lastPrice,
+                                                    OrderDirection.ORDER_DIRECTION_BUY,
                                                     accountId,
                                                     OrderType.ORDER_TYPE_MARKET,
                                                     UUID.randomUUID().toString());
