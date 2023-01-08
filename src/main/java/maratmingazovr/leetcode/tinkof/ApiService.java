@@ -2,9 +2,6 @@ package maratmingazovr.leetcode.tinkof;
 
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import lombok.val;
-import maratmingazovr.leetcode.tinkof.enums.TCurrency;
-import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.Account;
@@ -18,19 +15,14 @@ import ru.tinkoff.piapi.contract.v1.OrderState;
 import ru.tinkoff.piapi.contract.v1.OrderType;
 import ru.tinkoff.piapi.contract.v1.PostOrderResponse;
 import ru.tinkoff.piapi.contract.v1.Quotation;
-import ru.tinkoff.piapi.contract.v1.StopOrder;
 import ru.tinkoff.piapi.contract.v1.StopOrderDirection;
 import ru.tinkoff.piapi.contract.v1.StopOrderType;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.models.Portfolio;
-import ru.tinkoff.piapi.core.models.Position;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -67,45 +59,90 @@ public class ApiService {
 
     @NonNull
     public List<TCandle> getCandlesFromApi(@NonNull TShare share,
-                                               @NonNull Instant from,
-                                               @NonNull CandleInterval interval) {
+                                           @NonNull Instant from,
+                                           @NonNull CandleInterval interval) {
         List<HistoricCandle> candles = api.getMarketDataService().getCandlesSync(share.getFigi(), from, Instant.now(), interval);
         return candles.stream().map(hCandle -> new TCandle(hCandle, share, interval)).collect(Collectors.toList());
     }
 
-    @NonNull
-    public PostOrderResponse sendByLimitLongOrder(@NonNull String accountId,
-                                             @NonNull String shareFigi,
-                                             @NonNull Double price) {
-
-        val value = BigDecimal.valueOf(price);
-        Quotation quotationPrice = Quotation.newBuilder()
-                                       .setUnits(value.longValue() )
-                                       .setNano(value.remainder(BigDecimal.ONE).multiply(BigDecimal.valueOf(1_000_000_000)).intValue())
-                                       .build();
-
-        return api.getOrdersService().postOrderSync(shareFigi,
-                                                    1,
-                                                    quotationPrice,
-                                                    OrderDirection.ORDER_DIRECTION_BUY,
-                                                    accountId,
-                                                    OrderType.ORDER_TYPE_LIMIT,
-                                                    UUID.randomUUID().toString());
+    public void buyOrderLong(@NonNull String accountId,
+                                          @NonNull String shareFigi,
+                                          @NonNull Double price) {
+        api.getOrdersService().postOrderSync(shareFigi,
+                                             1,
+                                             TUtils.DoubleToQuotation(price),
+                                             OrderDirection.ORDER_DIRECTION_BUY,
+                                             accountId,
+                                             OrderType.ORDER_TYPE_LIMIT,
+                                             UUID.randomUUID().toString());
     }
 
-    @NonNull
-    public PostOrderResponse sellShareFromApi(@NonNull String accountId,
-                                              @NonNull String shareFigi) {
-        Quotation lastPrice = api.getMarketDataService().getLastPricesSync(List.of(shareFigi)).get(0).getPrice();
+    public void buyOrderShort(@NonNull String accountId,
+                                           @NonNull String shareFigi,
+                                           @NonNull Double price) {
+        api.getOrdersService().postOrderSync(shareFigi,
+                                             1,
+                                             TUtils.DoubleToQuotation(price),
+                                             OrderDirection.ORDER_DIRECTION_SELL,
+                                             accountId,
+                                             OrderType.ORDER_TYPE_LIMIT,
+                                             UUID.randomUUID().toString());
+    }
 
-        //Выставляем заявку на продажу по рыночной цене
-        return api.getOrdersService().postOrderSync(shareFigi,
-                                                    1,
-                                                    lastPrice,
-                                                    OrderDirection.ORDER_DIRECTION_SELL,
-                                                    accountId,
-                                                    OrderType.ORDER_TYPE_MARKET,
-                                                    UUID.randomUUID().toString());
+    public void takeProfitOrderShort(@NonNull String accountId,
+                                     @NonNull String shareFigi,
+                                     @NonNull Double currentPrice,
+                                     @NonNull Double takeProfitPrice) {
+        api.getStopOrdersService()
+           .postStopOrderGoodTillCancelSync(shareFigi,
+                                          1,
+                                          TUtils.DoubleToQuotation(takeProfitPrice),
+                                          TUtils.DoubleToQuotation(currentPrice),
+                                          StopOrderDirection.STOP_ORDER_DIRECTION_BUY,
+                                          accountId,
+                                          StopOrderType.STOP_ORDER_TYPE_TAKE_PROFIT);
+    }
+
+    public void takeProfitOrderLong(@NonNull String accountId,
+                                     @NonNull String shareFigi,
+                                     @NonNull Double currentPrice,
+                                     @NonNull Double takeProfitPrice) {
+        api.getStopOrdersService()
+           .postStopOrderGoodTillCancelSync(shareFigi,
+                                            1,
+                                            TUtils.DoubleToQuotation(takeProfitPrice),
+                                            TUtils.DoubleToQuotation(currentPrice),
+                                            StopOrderDirection.STOP_ORDER_DIRECTION_SELL,
+                                            accountId,
+                                            StopOrderType.STOP_ORDER_TYPE_TAKE_PROFIT);
+    }
+
+    public void stopLossOrderShort(@NonNull String accountId,
+                                   @NonNull String shareFigi,
+                                   @NonNull Double currentPrice,
+                                   @NonNull Double takeProfitPrice) {
+        api.getStopOrdersService()
+           .postStopOrderGoodTillCancelSync(shareFigi,
+                                            1,
+                                            TUtils.DoubleToQuotation(takeProfitPrice),
+                                            TUtils.DoubleToQuotation(currentPrice),
+                                            StopOrderDirection.STOP_ORDER_DIRECTION_SELL,
+                                            accountId,
+                                            StopOrderType.STOP_ORDER_TYPE_STOP_LOSS);
+    }
+
+    public void stopLossOrderLong(@NonNull String accountId,
+                                  @NonNull String shareFigi,
+                                  @NonNull Double currentPrice,
+                                  @NonNull Double takeProfitPrice) {
+        api.getStopOrdersService()
+           .postStopOrderGoodTillCancelSync(shareFigi,
+                                            1,
+                                            TUtils.DoubleToQuotation(takeProfitPrice),
+                                            TUtils.DoubleToQuotation(currentPrice),
+                                            StopOrderDirection.STOP_ORDER_DIRECTION_BUY,
+                                            accountId,
+                                            StopOrderType.STOP_ORDER_TYPE_STOP_LOSS);
     }
 
     public synchronized Portfolio updatePortfolioFromApi(@NonNull String accountId) {
@@ -122,57 +159,6 @@ public class ApiService {
     }
 
     @NonNull
-    public  StopOrder stopLossOrder(@NonNull String accountId,
-                                     @NonNull String figi,
-                                     @NonNull MoneyValue sharePrice) {
-
-        var stopPrice = Quotation.newBuilder()
-                                 .setUnits(sharePrice.getUnits() - sharePrice.getUnits() * 100 / 5)
-                                 .setNano(sharePrice.getNano() - sharePrice.getNano() * 100 / 5)
-                                 .build();
-
-        var stopOrderId = api.getStopOrdersService()
-                             .postStopOrderGoodTillDateSync(figi,
-                                                            1,
-                                                            stopPrice,
-                                                            stopPrice,
-                                                            StopOrderDirection.STOP_ORDER_DIRECTION_SELL,
-                                                            accountId,
-                                                            StopOrderType.STOP_ORDER_TYPE_STOP_LOSS,
-                                                            Instant.now().plus(30, ChronoUnit.DAYS));
-
-
-        //Получаем список стоп-заявок и смотрим, что наша заявка в ней есть
-        var stopOrders = api.getStopOrdersService().getStopOrdersSync(accountId);
-        return stopOrders.stream().filter(el -> el.getStopOrderId().equals(stopOrderId)).findAny().orElseThrow();
-    }
-
-    @NonNull
-    public  StopOrder takeProfitOrder(@NonNull String accountId,
-                                       @NonNull String figi,
-                                       @NonNull MoneyValue sharePrice) {
-
-        var stopPrice = Quotation.newBuilder()
-                                 .setUnits(sharePrice.getUnits() + sharePrice.getUnits() * 100 / 5)
-                                 .setNano(sharePrice.getNano() + sharePrice.getNano() * 100 / 5)
-                                 .build();
-
-        var stopOrderId = api.getStopOrdersService()
-                             .postStopOrderGoodTillDateSync(figi,
-                                                            1,
-                                                            stopPrice,
-                                                            stopPrice,
-                                                            StopOrderDirection.STOP_ORDER_DIRECTION_SELL,
-                                                            accountId,
-                                                            StopOrderType.STOP_ORDER_TYPE_TAKE_PROFIT,
-                                                            Instant.now().plus(1, ChronoUnit.YEARS));
-
-        //Получаем список стоп-заявок и смотрим, что наша заявка в ней есть
-        var stopOrders = api.getStopOrdersService().getStopOrdersSync(accountId);
-        return stopOrders.stream().filter(el -> el.getStopOrderId().equals(stopOrderId)).findAny().orElseThrow();
-    }
-
-    @NonNull
     public List<Operation> getOperationsFromApi(@NonNull String accountId,
                                                 @NonNull Instant from) {
         return api.getOperationsService().getAllOperationsSync(accountId, from, Instant.now());
@@ -180,13 +166,26 @@ public class ApiService {
 
     @NonNull
     public synchronized List<OrderState> getActiveOrdersFromApi(@NonNull String accountId) {
-        val activeOrders = api.getOrdersService().getOrdersSync(accountId);
-        log.info("Return active orders = " + activeOrders.size());
-        return activeOrders;
+        return api.getOrdersService().getOrdersSync(accountId);
     }
 
     @NonNull
     public List<LastPrice> getLastPrices(@NonNull List<String> figis) {
         return api.getMarketDataService().getLastPricesSync(figis);
+    }
+
+    @NonNull
+    public PostOrderResponse sellShareFromApi(@NonNull String accountId,
+                                              @NonNull String shareFigi) {
+        Quotation lastPrice = api.getMarketDataService().getLastPricesSync(List.of(shareFigi)).get(0).getPrice();
+
+        //Выставляем заявку на продажу по рыночной цене
+        return api.getOrdersService().postOrderSync(shareFigi,
+                                                    1,
+                                                    lastPrice,
+                                                    OrderDirection.ORDER_DIRECTION_SELL,
+                                                    accountId,
+                                                    OrderType.ORDER_TYPE_MARKET,
+                                                    UUID.randomUUID().toString());
     }
 }

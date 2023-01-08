@@ -15,6 +15,7 @@ import ru.tinkoff.piapi.contract.v1.Quotation;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -109,6 +110,17 @@ public class TUtils {
         val quotation = Quotation.newBuilder().setUnits(value.getUnits()).setNano(value.getNano()).build();
         return quotationToBigDecimal(quotation).doubleValue();
     }
+
+    @NonNull
+    public static Quotation DoubleToQuotation(@NonNull Double value) {
+        val valueDecimal = BigDecimal.valueOf(value);
+        return Quotation.newBuilder()
+                        .setUnits(valueDecimal.longValue() )
+                        .setNano(valueDecimal.remainder(BigDecimal.ONE).multiply(BigDecimal.valueOf(1_000_000_000)).intValue())
+                        .build();
+    }
+
+
 
     @NonNull
     public static Instant timeStampToInstant(@NonNull Timestamp timestamp) {
