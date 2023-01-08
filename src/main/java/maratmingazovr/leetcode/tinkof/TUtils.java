@@ -29,7 +29,9 @@ import static ru.tinkoff.piapi.core.utils.MapperUtils.quotationToBigDecimal;
 public class TUtils {
 
     private static final Integer SIMPLE_MOVING_AVERAGE_SIZE = 20;
-    private static final Double BB_MULTIPLICATOR = 2.0;
+
+    private static final Integer RSI_PERIOD = 20;
+
 
     public static final Double TAKE_PROFIT_PERCENT = 0.02;
     public static final Double STOP_LOSS_PERCENT = 0.02;
@@ -93,10 +95,86 @@ public class TUtils {
                 }
                 val stdDev = Math.sqrt(sum / SIMPLE_MOVING_AVERAGE_SIZE);
                 val candle = candles.get(i + SIMPLE_MOVING_AVERAGE_SIZE - 1);
-                val bollingerUp = candle.getSimpleMovingAverage() + stdDev * BB_MULTIPLICATOR;
-                val bollingerDown = candle.getSimpleMovingAverage() - stdDev * BB_MULTIPLICATOR;
+                val bollingerUp = candle.getSimpleMovingAverage() + stdDev * share.getBbMultiplicatorUp();
+                val bollingerDown = candle.getSimpleMovingAverage() - stdDev * share.getBbMultiplicatorDown();
                 candle.setBollingerUp(bollingerUp);
                 candle.setBollingerDown(bollingerDown);
+            }
+        }
+    }
+
+    public static void calculateRSI(@NonNull List<TCandle> candles1Day,
+                                    @NonNull List<TCandle> candles) {
+        for (TCandle candle : candles) {
+            val candleInstant = candle.getInstant().truncatedTo(ChronoUnit.DAYS);
+            for (TCandle candle1Day : candles1Day) {
+                if (candle1Day.getInstant().equals(candleInstant)) {
+                    candle.setRsi(candle1Day.getRsi());
+                }
+            }
+        }
+    }
+
+    public static void calculateRSI(@NonNull TShare share,
+                                    @NonNull CandleInterval interval) {
+        val candles = share.getCandlesMap().get(interval);
+        if (candles.size() < RSI_PERIOD) {
+            return;
+        }
+        val lastCandle = candles.get(candles.size()-1);
+        if (lastCandle.getRsi() != null) {
+            // we already calculated all values
+            return;
+        }
+        for (int i = 1; i < candles.size(); i++) {
+            val previousCandle = candles.get(i-1);
+            val candle = candles.get(i);
+            val change = candle.getClose() - previousCandle.getClose();
+            val upWardMove = change > 0 ? change : 0.0;
+            val downWardMove = change < 0 ? change : 0.0;
+            candle.setUpWardMove(upWardMove);
+            candle.setDownWardMove(downWardMove);
+        }
+
+        for (int i = 0; i < candles.size(); i++) {
+            if (i + RSI_PERIOD <= candles.size()) {
+                double sumUpWard = 0.0;
+                double sumDownWard = 0.0;
+                for (int j = 0; j < RSI_PERIOD; j++) {
+                    val candle = candles.get(i+j);
+                    sumUpWard += candle.getUpWardMove();
+                    sumDownWard += candle.getDownWardMove();
+                }
+                val upWardAverage = sumUpWard / RSI_PERIOD;
+                val downWardAverage = sumDownWard / RSI_PERIOD;
+                val сandle = candles.get(i + RSI_PERIOD - 1);
+                сandle.setUpWardMoveAverage(upWardAverage);
+                сandle.setDownWardMoveAverage(downWardAverage);
+            }
+        }
+        for (int i = 1; i < candles.size(); i++) {
+            val previousCandle = candles.get(i-1);
+            val candle = candles.get(i);
+            if (previousCandle.getUpWardMoveAverage() == null) {
+                // we can not calculate because we have not value
+                continue;
+            }
+            val k = 2/(SIMPLE_MOVING_AVERAGE_SIZE + 1);
+            val previousUpWardMoveAverage = previousCandle.getUpWardMoveAverage();
+            val previousDownWardMoveAverage = previousCandle.getDownWardMoveAverage();
+            val upWardMoveAverage = (candle.getUpWardMove() - previousUpWardMoveAverage) * k + previousUpWardMoveAverage;
+            val downWardMoveAverage = (candle.getDownWardMove() - previousDownWardMoveAverage) * k + previousDownWardMoveAverage;
+            val relativeStrenght = upWardMoveAverage + downWardMoveAverage;
+            val rsi = 100 - 100 / (relativeStrenght + 1);
+
+            candle.setUpWardMoveAverage(upWardMoveAverage);
+            candle.setDownWardMoveAverage(downWardMoveAverage);
+            candle.setRsi(rsi);
+
+            if (rsi > 70.0 || rsi < 30.0) {
+                candle.setPreviousExtremumRSI(rsi);
+            } else {
+                candle.setPreviousExtremumRSI(previousCandle.getPreviousExtremumRSI());
             }
         }
     }
@@ -152,7 +230,7 @@ public class TUtils {
         val shares = Util.loadCSV(FILENAME);
         int count = 0;
         for (List<String> share : shares) {
-            if (share.size() < 6) {
+            if (share.size() < 8) {
                 continue;
             }
             val shareId = share.get(0);
@@ -161,6 +239,8 @@ public class TUtils {
             val simpleMovingAverage = Double.valueOf(share.get(3));
             val bollingerUp = Double.valueOf(share.get(4));
             val bollingerDown = Double.valueOf(share.get(5));
+            val rsi = Double.valueOf(share.get(6));
+            val rsiPrev = Double.valueOf(share.get(7));
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
                     val activeShareInfo = new TActiveShareInfo(shareId,
@@ -169,6 +249,8 @@ public class TUtils {
                                                                simpleMovingAverage,
                                                                bollingerUp,
                                                                bollingerDown,
+                                                               rsi,
+                                                               rsiPrev,
                                                                CandleInterval.CANDLE_INTERVAL_UNSPECIFIED);
                     portfolioShare.setActiveShareInfo(activeShareInfo);
                     count++;

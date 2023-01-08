@@ -88,6 +88,14 @@ public class TPortfolio {
         getShares().forEach(share -> {
             TUtils.calculateSimpleMovingAverage(share, interval);
             TUtils.calculateBollingerUpAndDown(share, interval);
+
+            if (interval.equals(CANDLE_INTERVAL_DAY)) {
+                TUtils.calculateRSI(share, interval);
+            } else {
+                val candles1Day = share.getCandlesMap().get(CANDLE_INTERVAL_DAY);
+                val candles = share.getCandlesMap().get(interval);
+                TUtils.calculateRSI(candles1Day, candles);
+            }
         } );
     }
 

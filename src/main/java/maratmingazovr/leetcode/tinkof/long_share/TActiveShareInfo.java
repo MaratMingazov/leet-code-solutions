@@ -42,6 +42,12 @@ public class TActiveShareInfo {
     Double bollingerDown;
 
     @NonNull
+    Double rsi;
+
+    @NonNull
+    Double rsiPrev;
+
+    @NonNull
     CandleInterval interval;
 
     public TActiveShareInfo() {
@@ -55,6 +61,8 @@ public class TActiveShareInfo {
         this.simpleMovingAverage = 0.0;
         this.bollingerUp = 0.0;
         this.bollingerDown = 0.0;
+        this.rsi = 0.0;
+        this.rsiPrev = 0.0;
         this.interval = CandleInterval.CANDLE_INTERVAL_UNSPECIFIED;
     }
 
@@ -64,6 +72,8 @@ public class TActiveShareInfo {
                             @NonNull Double simpleMovingAverage,
                             @NonNull Double bollingerUp,
                             @NonNull Double bollingerDown,
+                            @NonNull Double rsi,
+                            @NonNull Double rsiPrev,
                             @NonNull CandleInterval interval) {
         this.shareId = shareId;
         updateBuyPrice(buyPrice);
@@ -71,6 +81,8 @@ public class TActiveShareInfo {
         this.simpleMovingAverage = simpleMovingAverage;
         this.bollingerUp = bollingerUp;
         this.bollingerDown = bollingerDown;
+        this.rsi = rsi;
+        this.rsiPrev = rsiPrev;
         this.interval = interval;
     }
 
@@ -101,7 +113,14 @@ public class TActiveShareInfo {
 
     @NonNull
     public String toStringForSave() {
-        return shareId + "," + buyPrice + "," + sellPrice + "," + simpleMovingAverage + "," + bollingerUp + "," + bollingerDown;
+        return shareId + ","
+                + buyPrice + ","
+                + sellPrice + ","
+                + simpleMovingAverage + ","
+                + bollingerUp + ","
+                + bollingerDown + ","
+                + rsi + ","
+                + rsiPrev;
     }
 
     public String toStringBB() {

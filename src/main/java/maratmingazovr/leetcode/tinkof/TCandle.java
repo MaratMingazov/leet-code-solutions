@@ -27,18 +27,44 @@ public class TCandle {
     @NonNull
     Instant instant;
 
+
+
+    //////// BB ////////
     @Nullable
     Double simpleMovingAverage;
     @Nullable
     Double bollingerUp;
     @Nullable
     Double bollingerDown;
+    //////// BB ////////
 
 
     @NonNull
     TShare share;
     @NonNull
     CandleInterval interval;
+
+
+    //////// RSI ////////
+
+    @Nullable
+    Double upWardMove;
+
+    @Nullable
+    Double downWardMove;
+
+    @Nullable
+    Double rsi;
+
+    @Nullable
+    Double previousExtremumRSI;
+
+    @Nullable
+    Double upWardMoveAverage;
+
+    @Nullable
+    Double downWardMoveAverage;
+    //////// RSI ////////
 
     public TCandle(@NonNull HistoricCandle candle,
                    @NonNull TShare share,

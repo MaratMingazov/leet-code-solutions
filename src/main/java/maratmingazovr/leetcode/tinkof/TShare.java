@@ -23,14 +23,25 @@ public class TShare {
     @NonNull
     String figi;
 
-    @NonNull TActiveShare activeShare = new TActiveShare();
+    @NonNull
+    TActiveShare activeShare = new TActiveShare();
 
-    @NonNull TActiveShareInfo activeShareInfo = new TActiveShareInfo();
+    @NonNull
+    TActiveShareInfo activeShareInfo = new TActiveShareInfo();
+
+    @NonNull
+    Double bbMultiplicatorUp;
+
+    @NonNull
+    Double bbMultiplicatorDown;
 
     public TShare(@NonNull String id,
                   @NonNull String figi) {
         this.id = id;
         this.figi = figi;
+
+        this.bbMultiplicatorUp = 1.5;
+        this.bbMultiplicatorDown = 2.5;
 
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_1_MIN, new ArrayList<>());
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_5_MIN, new ArrayList<>());

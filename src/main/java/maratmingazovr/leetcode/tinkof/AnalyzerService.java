@@ -137,6 +137,8 @@ public class AnalyzerService {
                                                            candle.getSimpleMovingAverage(),
                                                            candle.getBollingerUp(),
                                                            candle.getBollingerDown(),
+                                                           candle.getRsi(),
+                                                           candle.getPreviousExtremumRSI(),
                                                            candle.getInterval());
             share.setActiveShareInfo(activeShareInfo);
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
@@ -163,6 +165,8 @@ public class AnalyzerService {
                                                        candle.getSimpleMovingAverage(),
                                                        candle.getBollingerUp(),
                                                        candle.getBollingerDown(),
+                                                       candle.getRsi(),
+                                                       candle.getPreviousExtremumRSI(),
                                                        candle.getInterval());
             share.setActiveShareInfo(activeShareInfo);
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
