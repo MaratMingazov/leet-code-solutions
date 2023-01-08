@@ -248,40 +248,43 @@ public class TPortfolio {
                     val activeShare = share.getActiveShare();
                     activeShare.setPrice(TUtils.QuotationToDouble(lastPrice.getPrice()));
                     activeShare.setUpdateTime(TUtils.timeStampToInstant(lastPrice.getTime()));
+
+
+
+                    Double price = TUtils.QuotationToDouble(lastPrice.getPrice());
+                    Instant instant = TUtils.timeStampToInstant(lastPrice.getTime());
+                    updateLastCandle(CANDLE_INTERVAL_1_MIN, instant.truncatedTo(ChronoUnit.MINUTES), price, share);
+                    updateLastCandle(CANDLE_INTERVAL_5_MIN, TUtils.getTruncatedTo5Min(instant), price, share);
+                    updateLastCandle(CANDLE_INTERVAL_15_MIN, TUtils.getTruncatedTo15Min(instant), price, share);
+                    updateLastCandle(CANDLE_INTERVAL_HOUR, instant.truncatedTo(ChronoUnit.HOURS), price, share);
+                    updateLastCandle(CANDLE_INTERVAL_DAY, instant.truncatedTo(ChronoUnit.DAYS), price, share);
+
                 }
             }
-
-            Double price = TUtils.QuotationToDouble(lastPrice.getPrice());
-            Instant instant = TUtils.timeStampToInstant(lastPrice.getTime());
-            updateLastCandle(CANDLE_INTERVAL_1_MIN, instant.truncatedTo(ChronoUnit.MINUTES), price);
-            updateLastCandle(CANDLE_INTERVAL_5_MIN, TUtils.getTruncatedTo5Min(instant), price);
-            updateLastCandle(CANDLE_INTERVAL_15_MIN, TUtils.getTruncatedTo15Min(instant), price);
-            updateLastCandle(CANDLE_INTERVAL_HOUR, instant.truncatedTo(ChronoUnit.HOURS), price);
-            updateLastCandle(CANDLE_INTERVAL_DAY, instant.truncatedTo(ChronoUnit.DAYS), price);
         }
     }
 
     private void updateLastCandle(@NonNull CandleInterval interval,
                                   @NonNull Instant instant,
-                                  @NonNull Double price) {
-        for (TShare share : shares) {
-            val candles = share.getCandlesMap().get(interval);
-            if (candles.isEmpty()) {
-                continue;
+                                  @NonNull Double price,
+                                  @NonNull TShare share) {
+
+        val candles = share.getCandlesMap().get(interval);
+        if (candles.isEmpty()) {
+            return;
+        }
+        val lastCandle = candles.get(candles.size() - 1);
+        var lastCandleInstant = lastCandle.getInstant();
+        if (interval.equals(CANDLE_INTERVAL_DAY)) {
+            lastCandleInstant = lastCandleInstant.truncatedTo(ChronoUnit.DAYS);
+        }
+        if (lastCandleInstant.equals(instant)) {
+            lastCandle.setClose(price);
+            if (lastCandle.getHigh() < price) {
+                lastCandle.setHigh(price);
             }
-            val lastCandle = candles.get(candles.size() - 1);
-            var lastCandleInstant = lastCandle.getInstant();
-            if (interval.equals(CANDLE_INTERVAL_DAY)) {
-                lastCandleInstant = lastCandleInstant.truncatedTo(ChronoUnit.DAYS);
-            }
-            if (lastCandleInstant.equals(instant)) {
-                lastCandle.setClose(price);
-                if (lastCandle.getHigh() < price) {
-                    lastCandle.setHigh(price);
-                }
-                if (lastCandle.getLow() > price) {
-                    lastCandle.setLow(price);
-                }
+            if (lastCandle.getLow() > price) {
+                lastCandle.setLow(price);
             }
         }
     }
