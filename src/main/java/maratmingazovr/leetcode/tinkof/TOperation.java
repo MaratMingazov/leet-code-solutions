@@ -86,11 +86,11 @@ public class TOperation {
             val share = shareOpt.get();
             this.share = Optional.of(share);
             if (type.equals(TOperationType.BUY)) {
-                val activeLongShareInfo =  share.getActiveLongShareInfo();
+                val activeLongShareInfo =  share.getActiveShareInfo();
                 activeLongShareInfo.updatePrice(this.price);
             }
             if (type.equals(TOperationType.SELL)) {
-                val activeLongShareInfoPrice = share.getActiveLongShareInfo().getPrice();
+                val activeLongShareInfoPrice = share.getActiveShare().getPrice();
                 if (activeLongShareInfoPrice.equals(0.0)) {
                     this.sellResult = TOperationSellResult.OTHER;
                 } else if (this.price > activeLongShareInfoPrice) {
@@ -119,7 +119,7 @@ public class TOperation {
 
         val shareOptional = portfolio.findShareByFigi(this.figi);
         if (shareOptional.isPresent()) {
-            val activeLongShareInfo = shareOptional.get().getActiveLongShareInfo();
+            val activeLongShareInfo = shareOptional.get().getActiveShareInfo();
             if (this.type.equals(TOperationType.SELL)) {
                 return "type: SELL \n"
                         + "sellResult: " + sellResult + "\n"

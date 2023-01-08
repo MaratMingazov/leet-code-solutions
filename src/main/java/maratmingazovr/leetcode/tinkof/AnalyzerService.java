@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
-import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShareInfo;
+import maratmingazovr.leetcode.tinkof.long_share.TActiveShare;
+import maratmingazovr.leetcode.tinkof.long_share.TActiveShareInfo;
 import maratmingazovr.leetcode.tinkof.long_share.TShareToBuyLong;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -119,7 +119,7 @@ public class AnalyzerService {
                                             @NonNull List<TShareToBuyLong> sharesToBuy) {
         for (TShareToBuyLong shareToBuy : sharesToBuy) {
             val candle = shareToBuy.getCandle();
-            val activeShare = candle.getShare().getActiveLongShare();
+            val activeShare = candle.getShare().getActiveShare();
             if(activeShare.getCount() > 0.0) {
                 continue;
             }
@@ -127,13 +127,13 @@ public class AnalyzerService {
             val figi = share.getFigi();
             log.info("want to buy: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             apiService.buyOrderLong(accountId, figi, shareToBuy.getPriceToBuy());
-            val activeLongShareInfo = new TActiveLongShareInfo(share.getId(),
-                                                               shareToBuy.getPriceToBuy(),
-                                                               candle.getSimpleMovingAverage(),
-                                                               candle.getBollingerUp(),
-                                                               candle.getBollingerDown(),
-                                                               candle.getInterval());
-            share.setActiveLongShareInfo(activeLongShareInfo);
+            val activeShareInfo = new TActiveShareInfo(share.getId(),
+                                                           shareToBuy.getPriceToBuy(),
+                                                           candle.getSimpleMovingAverage(),
+                                                           candle.getBollingerUp(),
+                                                           candle.getBollingerDown(),
+                                                           candle.getInterval());
+            share.setActiveShareInfo(activeShareInfo);
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
             //val takeProfit = apiService.takeProfitOrder(accountId, figi, orderPrice);
         }
@@ -144,14 +144,14 @@ public class AnalyzerService {
         return portfolio.toStringMessage();
     }
 
-    private List<TActiveLongShare> findActiveSharesToSellSandbox(@NonNull TPortfolio portfolio) {
-        List<TActiveLongShare> result = new ArrayList<>();
+    private List<TActiveShare> findActiveSharesToSellSandbox(@NonNull TPortfolio portfolio) {
+        List<TActiveShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
-            val activeShare = share.getActiveLongShare();
+            val activeShare = share.getActiveShare();
             if (activeShare.getCount() == 0) {
                 continue;
             }
-            val info = share.getActiveLongShareInfo();
+            val info = share.getActiveShareInfo();
             val takeProfit = info.getTakeProfit();
             val stopLoss = info.getStopLoss();
             if (activeShare.getPrice() > takeProfit || activeShare.getPrice() < stopLoss) {
@@ -251,7 +251,7 @@ public class AnalyzerService {
             return candlesToBuy;
         }
         for (TShare share : portfolio.getShares()) {
-            val activeShare = share.getActiveLongShare();
+            val activeShare = share.getActiveShare();
             if (activeShare.getCount() > 0.0) {
                 continue;
             }

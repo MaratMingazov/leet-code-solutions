@@ -7,7 +7,7 @@ import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 
 @Data
-public class TActiveLongShareInfo {
+public class TActiveShareInfo {
 
     @NonNull
     String shareId;
@@ -33,7 +33,7 @@ public class TActiveLongShareInfo {
     @NonNull
     CandleInterval interval;
 
-    public TActiveLongShareInfo() {
+    public TActiveShareInfo() {
         this.shareId = "";
         this.price = 0.0;
         this.takeProfit = 0.0;
@@ -44,12 +44,12 @@ public class TActiveLongShareInfo {
         this.interval = CandleInterval.CANDLE_INTERVAL_UNSPECIFIED;
     }
 
-    public TActiveLongShareInfo(@NonNull String shareId,
-                                @NonNull Double price,
-                                @NonNull Double simpleMovingAverage,
-                                @NonNull Double bollingerUp,
-                                @NonNull Double bollingerDown,
-                                @NonNull CandleInterval interval) {
+    public TActiveShareInfo(@NonNull String shareId,
+                            @NonNull Double price,
+                            @NonNull Double simpleMovingAverage,
+                            @NonNull Double bollingerUp,
+                            @NonNull Double bollingerDown,
+                            @NonNull CandleInterval interval) {
         this.shareId = shareId;
         updatePrice(price);
         this.simpleMovingAverage = simpleMovingAverage;

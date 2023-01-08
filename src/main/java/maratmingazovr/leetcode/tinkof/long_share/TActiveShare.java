@@ -1,6 +1,5 @@
 package maratmingazovr.leetcode.tinkof.long_share;
 
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.Data;
 import lombok.NonNull;
 import maratmingazovr.leetcode.tinkof.enums.TCurrency;
@@ -8,7 +7,7 @@ import maratmingazovr.leetcode.tinkof.enums.TCurrency;
 import java.time.Instant;
 
 @Data
-public class TActiveLongShare {
+public class TActiveShare {
 
     @NonNull
     String shareId;
@@ -28,12 +27,12 @@ public class TActiveLongShare {
     @NonNull Instant updateTime;
 
 
-    public TActiveLongShare(@NonNull String shareId,
-                            @NonNull String shareFigi,
-                            @NonNull TCurrency currency,
-                            @NonNull Double price,
-                            @NonNull Double count,
-                            @NonNull Instant updateTime) {
+    public TActiveShare(@NonNull String shareId,
+                        @NonNull String shareFigi,
+                        @NonNull TCurrency currency,
+                        @NonNull Double price,
+                        @NonNull Double count,
+                        @NonNull Instant updateTime) {
         this.shareId = shareId;
         this.shareFigi = shareFigi;
         this.price = price;
@@ -42,7 +41,7 @@ public class TActiveLongShare {
         this.updateTime = updateTime;
     }
 
-    public TActiveLongShare() {
+    public TActiveShare() {
         this.shareId = "";
         this.shareFigi = "";
         this.price = 0.0;

@@ -5,24 +5,17 @@ import lombok.NonNull;
 import lombok.val;
 import maratmingazovr.leetcode.tinkof.enums.TCurrency;
 import maratmingazovr.leetcode.tinkof.enums.TOperationType;
-import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
+import maratmingazovr.leetcode.tinkof.long_share.TActiveShare;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.convert.DurationUnit;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.LastPrice;
 import ru.tinkoff.piapi.contract.v1.Operation;
-import ru.tinkoff.piapi.contract.v1.Quotation;
 import ru.tinkoff.piapi.core.models.Portfolio;
 import ru.tinkoff.piapi.core.models.Position;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -108,10 +101,10 @@ public class TPortfolio {
             }
         }
 
-        val activeShares = shares.stream().map(TShare::getActiveLongShare).collect(Collectors.toList());
+        val activeShares = shares.stream().map(TShare::getActiveShare).collect(Collectors.toList());
         double rubSharesSum = 0.0;
         double usdSharesSum = 0.0;
-        for (TActiveLongShare activeShare : activeShares) {
+        for (TActiveShare activeShare : activeShares) {
             if (activeShare.getCurrency().equals(TCurrency.RUB)) {
                 rubSharesSum += activeShare.getPrice() * activeShare.getCount();
             }
@@ -129,7 +122,7 @@ public class TPortfolio {
                 .append("candlesCount: " + totalCandlesCount + "\n");
 
         result.append("SHARES: \n");
-        for (TActiveLongShare activeShare : activeShares) {
+        for (TActiveShare activeShare : activeShares) {
             if (activeShare.getCount() == 0.0) {
                 continue;
             }
@@ -165,7 +158,7 @@ public class TPortfolio {
     public void updatePortfolio(@NonNull Portfolio portfolio) {
         val positions = portfolio.getPositions();
         for (TShare share : shares) {
-            share.setActiveLongShare(new TActiveLongShare());
+            share.setActiveShare(new TActiveShare());
         }
         for (Position position : positions) {
             val figi = position.getFigi();
@@ -184,7 +177,7 @@ public class TPortfolio {
             }
             for (TShare share : shares) {
                 if (figi.equals(share.getFigi())) {
-                    share.setActiveLongShare(new TActiveLongShare(share.getId(),
+                    share.setActiveShare(new TActiveShare(share.getId(),
                                                               share.getFigi(),
                                                               currency,
                                                               price,
@@ -245,7 +238,7 @@ public class TPortfolio {
         for (LastPrice lastPrice : lastPrices) {
             for (TShare share : shares) {
                 if (share.getFigi().equals(lastPrice.getFigi())) {
-                    val activeShare = share.getActiveLongShare();
+                    val activeShare = share.getActiveShare();
                     activeShare.setPrice(TUtils.QuotationToDouble(lastPrice.getPrice()));
                     activeShare.setUpdateTime(TUtils.timeStampToInstant(lastPrice.getTime()));
                 }
