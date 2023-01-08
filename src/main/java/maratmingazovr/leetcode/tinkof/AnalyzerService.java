@@ -39,10 +39,16 @@ public class AnalyzerService {
     @PostConstruct
     public void init() {
         TUtils.loadLastActiveLongShares(portfolio);
+        execute();
+        log.info(portfolio.toStringMessage());
     }
 
     @Scheduled(cron = "0/10 * * * * *")
     public void executePrices() {
+        execute();
+    }
+
+    private void execute() {
         val accountId = apiService.getAccountFromApi();
         val figis = portfolio.getShares().stream().map(TShare::getFigi).collect(Collectors.toList());
         val from = portfolio.getLastOperationDate();
@@ -64,7 +70,6 @@ public class AnalyzerService {
 
         checkSharesToBuyLong(accountId, portfolio, activeOrders);
         checkSharesToBuyShort(accountId, portfolio, activeOrders);
-
     }
 
 //    //@Scheduled(cron = "3 0/1  * * * *") // every minute
