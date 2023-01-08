@@ -8,20 +8,31 @@ import maratmingazovr.leetcode.tinkof.enums.TOperationType;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveLongShare;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.convert.DurationUnit;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 import ru.tinkoff.piapi.contract.v1.LastPrice;
 import ru.tinkoff.piapi.contract.v1.Operation;
+import ru.tinkoff.piapi.contract.v1.Quotation;
 import ru.tinkoff.piapi.core.models.Portfolio;
 import ru.tinkoff.piapi.core.models.Position;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_15_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_1_MIN;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_5_MIN;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_DAY;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_HOUR;
 
 @Data
 public class TPortfolio {
@@ -48,6 +59,8 @@ public class TPortfolio {
     private String dollarBalanceFigi = "BBG0013HGFT4";
     @NonNull
     private String rubBalanceFigi = "RUB000UTSTOM";
+
+    private String euroBalanceFigi = "BBG0013HJJ31";
 
     private static Logger log = LoggerFactory.getLogger(TUtils.class);
 
@@ -235,6 +248,35 @@ public class TPortfolio {
                     val activeShare = share.getActiveLongShare();
                     activeShare.setPrice(TUtils.QuotationToDouble(lastPrice.getPrice()));
                     activeShare.setUpdateTime(TUtils.timeStampToInstant(lastPrice.getTime()));
+                }
+            }
+
+            Double price = TUtils.QuotationToDouble(lastPrice.getPrice());
+            Instant instant = TUtils.timeStampToInstant(lastPrice.getTime());
+            updateLastCandle(CANDLE_INTERVAL_1_MIN, instant.truncatedTo(ChronoUnit.MINUTES), price);
+            updateLastCandle(CANDLE_INTERVAL_5_MIN, TUtils.getTruncatedTo5Min(instant), price);
+            updateLastCandle(CANDLE_INTERVAL_15_MIN, TUtils.getTruncatedTo15Min(instant), price);
+            updateLastCandle(CANDLE_INTERVAL_HOUR, instant.truncatedTo(ChronoUnit.HOURS), price);
+            updateLastCandle(CANDLE_INTERVAL_DAY, instant.truncatedTo(ChronoUnit.DAYS), price);
+        }
+    }
+
+    private void updateLastCandle(@NonNull CandleInterval interval,
+                                  @NonNull Instant instant,
+                                  @NonNull Double price) {
+        for (TShare share : shares) {
+            val candles = share.getCandlesMap().get(interval);
+            if (candles.isEmpty()) {
+                continue;
+            }
+            val lastCandle = candles.get(candles.size() - 1);
+            if (lastCandle.getInstant().equals(instant)) {
+                lastCandle.setClose(price);
+                if (lastCandle.getHigh() < price) {
+                    lastCandle.setHigh(price);
+                }
+                if (lastCandle.getLow() > price) {
+                    lastCandle.setLow(price);
                 }
             }
         }

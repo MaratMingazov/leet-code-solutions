@@ -52,6 +52,10 @@ public class AnalyzerService {
         val portfolioUpdate =  apiService.updatePortfolioFromApi(accountId);
         val activeOrders = apiService.getActiveOrdersFromApi(accountId);
 
+        portfolio.updateLastPrices(lastPrices);
+        portfolio.updateOperations(newOperationsFromApi, botService);
+        portfolio.updatePortfolio(portfolioUpdate);
+
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
         sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShareFigi()));
