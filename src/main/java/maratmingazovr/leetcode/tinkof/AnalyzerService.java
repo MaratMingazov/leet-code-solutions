@@ -52,9 +52,6 @@ public class AnalyzerService {
         val portfolioUpdate =  apiService.updatePortfolioFromApi(accountId);
         val activeOrders = apiService.getActiveOrdersFromApi(accountId);
 
-        portfolio.updatePortfolio(portfolioUpdate);
-        portfolio.updateOperations(newOperationsFromApi, botService);
-        portfolio.updateLastPrices(lastPrices);
 
         val sharesToSell = findActiveSharesToSellSandbox(portfolio);
         sharesToSell.forEach(activeShare -> apiService.sellShareFromApi(accountId, activeShare.getShareFigi()));
@@ -125,7 +122,7 @@ public class AnalyzerService {
             val share = candle.getShare();
             val figi = share.getFigi();
             log.info("want to buy: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
-            apiService.sendByLimitLongOrder(accountId, figi, shareToBuy.getPriceToBuy());
+            apiService.buyOrderLong(accountId, figi, shareToBuy.getPriceToBuy());
             val activeLongShareInfo = new TActiveLongShareInfo(share.getId(),
                                                                shareToBuy.getPriceToBuy(),
                                                                candle.getSimpleMovingAverage(),
