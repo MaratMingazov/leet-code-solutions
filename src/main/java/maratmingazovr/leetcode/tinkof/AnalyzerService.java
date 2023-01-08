@@ -52,9 +52,9 @@ public class AnalyzerService {
         val portfolioUpdate =  apiService.updatePortfolioFromApi(accountId);
         val activeOrders = apiService.getActiveOrdersFromApi(accountId);
 
+        portfolio.updatePortfolio(portfolioUpdate);
         portfolio.updateLastPrices(lastPrices);
         portfolio.updateOperations(newOperationsFromApi, botService);
-        portfolio.updatePortfolio(portfolioUpdate);
 
         log.info(portfolio.toStringMessage());
 

@@ -208,12 +208,14 @@ public class TPortfolio {
         if (operations.isEmpty()) {
             operations.addAll(newOperations);
             operations.forEach(operation -> botService.sendMassage(operation.toString()));
+            operations.forEach(operation -> log.info(operation.toString()));
         } else {
             val lastOperation = operations.get(operations.size() - 1);
             for (TOperation newOperation : newOperations) {
                 if (newOperation.getInstant().isAfter(lastOperation.getInstant())) {
                     operations.add(newOperation);
                     botService.sendMassage(newOperation.toString());
+                    log.info(newOperation.toString());
                 }
             }
         }

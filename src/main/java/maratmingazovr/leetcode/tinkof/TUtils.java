@@ -135,6 +135,9 @@ public class TUtils {
             val shares = portfolio.getShares();
             for (final TShare share : shares) {
                 val activeShareInfo = share.getActiveShareInfo();
+                if (activeShareInfo.getBuyPrice().equals(0.0) && activeShareInfo.getSellPrice().equals(0.0)) {
+                    continue;
+                }
                 bw.write(activeShareInfo.toStringForSave());
                 bw.newLine();
                 savedShares.add(activeShareInfo.toStringForSave());
