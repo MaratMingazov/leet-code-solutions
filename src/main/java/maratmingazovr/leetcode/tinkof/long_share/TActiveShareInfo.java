@@ -11,9 +11,6 @@ import ru.tinkoff.piapi.contract.v1.CandleInterval;
 public class TActiveShareInfo {
 
     @NonNull
-    String shareId;
-
-    @NonNull
     Double buyPrice;
 
 
@@ -52,7 +49,6 @@ public class TActiveShareInfo {
     CandleInterval interval;
 
     public TActiveShareInfo() {
-        this.shareId = "";
         this.buyPrice = 0.0;
         this.buyTakeProfit = 0.0;
         this.buyStopLoss = 0.0;
@@ -67,8 +63,7 @@ public class TActiveShareInfo {
         this.interval = CandleInterval.CANDLE_INTERVAL_UNSPECIFIED;
     }
 
-    public TActiveShareInfo(@NonNull String shareId,
-                            @NonNull Double buyPrice,
+    public TActiveShareInfo(@NonNull Double buyPrice,
                             @NonNull Double sellPrice,
                             @NonNull Double simpleMovingAverage,
                             @NonNull Double bollingerUp,
@@ -76,7 +71,6 @@ public class TActiveShareInfo {
                             @Nullable Double rsi,
                             @Nullable Double rsiPrev,
                             @NonNull CandleInterval interval) {
-        this.shareId = shareId;
         updateBuyPrice(buyPrice);
         updateSellPrice(sellPrice);
         this.simpleMovingAverage = simpleMovingAverage;
@@ -114,8 +108,7 @@ public class TActiveShareInfo {
 
     @NonNull
     public String toStringForSave() {
-        return shareId + ","
-                + buyPrice + ","
+        return buyPrice + ","
                 + sellPrice + ","
                 + simpleMovingAverage + ","
                 + bollingerUp + ","

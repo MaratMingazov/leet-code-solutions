@@ -137,15 +137,14 @@ public class AnalyzerService {
             val figi = share.getFigi();
             log.info("want to buy long: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             apiService.buyOrderLong(accountId, figi, shareToBuy.getPriceToBuy());
-            val activeShareInfo = new TActiveShareInfo(share.getId(),
-                                                           shareToBuy.getPriceToBuy(),
-                                                           0.0,
-                                                           candle.getSimpleMovingAverage(),
-                                                           candle.getBollingerUp(),
-                                                           candle.getBollingerDown(),
-                                                           candle.getRsi(),
-                                                           candle.getPreviousExtremumRSI(),
-                                                           candle.getInterval());
+            val activeShareInfo = new TActiveShareInfo(shareToBuy.getPriceToBuy(),
+                                                       0.0,
+                                                       candle.getSimpleMovingAverage(),
+                                                       candle.getBollingerUp(),
+                                                       candle.getBollingerDown(),
+                                                       candle.getRsi(),
+                                                       candle.getPreviousExtremumRSI(),
+                                                       candle.getInterval());
             share.setActiveShareInfo(activeShareInfo);
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
             //val takeProfit = apiService.takeProfitOrder(accountId, figi, orderPrice);
@@ -154,7 +153,7 @@ public class AnalyzerService {
     }
 
     private synchronized void buySharesShort(@NonNull String accountId,
-                                            @NonNull List<TShareToBuy> sharesToBuy) {
+                                             @NonNull List<TShareToBuy> sharesToBuy) {
         for (TShareToBuy shareToBuy : sharesToBuy) {
             val candle = shareToBuy.getCandle();
             val activeShare = candle.getShare().getActiveShare();
@@ -165,8 +164,7 @@ public class AnalyzerService {
             val figi = share.getFigi();
             log.info("want to buy short: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             apiService.buyOrderShort(accountId, figi, shareToBuy.getPriceToBuy());
-            val activeShareInfo = new TActiveShareInfo(share.getId(),
-                                                       0.0,
+            val activeShareInfo = new TActiveShareInfo(0.0,
                                                        shareToBuy.getPriceToBuy(),
                                                        candle.getSimpleMovingAverage(),
                                                        candle.getBollingerUp(),

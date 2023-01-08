@@ -216,6 +216,8 @@ public class TUtils {
                 if (activeShareInfo.getBuyPrice().equals(0.0) && activeShareInfo.getSellPrice().equals(0.0)) {
                     continue;
                 }
+                bw.write(share.getId());
+                bw.write(",");
                 bw.write(activeShareInfo.toStringForSave());
                 bw.newLine();
                 savedShares.add(activeShareInfo.toStringForSave());
@@ -243,8 +245,7 @@ public class TUtils {
             val rsiPrev = Double.valueOf(share.get(7));
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
-                    val activeShareInfo = new TActiveShareInfo(shareId,
-                                                               shareBuyPrice,
+                    val activeShareInfo = new TActiveShareInfo(shareBuyPrice,
                                                                shareSellPrice,
                                                                simpleMovingAverage,
                                                                bollingerUp,
