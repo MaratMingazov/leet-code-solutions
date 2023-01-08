@@ -3,6 +3,7 @@ package maratmingazovr.leetcode.tinkof.long_share;
 import lombok.Data;
 import lombok.NonNull;
 import maratmingazovr.leetcode.tinkof.TUtils;
+import org.jetbrains.annotations.Nullable;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 
@@ -72,8 +73,8 @@ public class TActiveShareInfo {
                             @NonNull Double simpleMovingAverage,
                             @NonNull Double bollingerUp,
                             @NonNull Double bollingerDown,
-                            @NonNull Double rsi,
-                            @NonNull Double rsiPrev,
+                            @Nullable Double rsi,
+                            @Nullable Double rsiPrev,
                             @NonNull CandleInterval interval) {
         this.shareId = shareId;
         updateBuyPrice(buyPrice);
@@ -81,8 +82,8 @@ public class TActiveShareInfo {
         this.simpleMovingAverage = simpleMovingAverage;
         this.bollingerUp = bollingerUp;
         this.bollingerDown = bollingerDown;
-        this.rsi = rsi;
-        this.rsiPrev = rsiPrev;
+        this.rsi = rsi == null ? 0.0 : rsi;
+        this.rsiPrev = rsiPrev == null ? 0.0 : rsiPrev;
         this.interval = interval;
     }
 
