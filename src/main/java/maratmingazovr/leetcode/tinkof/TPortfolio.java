@@ -270,7 +270,11 @@ public class TPortfolio {
                 continue;
             }
             val lastCandle = candles.get(candles.size() - 1);
-            if (lastCandle.getInstant().equals(instant)) {
+            var lastCandleInstant = lastCandle.getInstant();
+            if (interval.equals(CANDLE_INTERVAL_DAY)) {
+                lastCandleInstant = lastCandleInstant.truncatedTo(ChronoUnit.DAYS);
+            }
+            if (lastCandleInstant.equals(instant)) {
                 lastCandle.setClose(price);
                 if (lastCandle.getHigh() < price) {
                     lastCandle.setHigh(price);

@@ -108,7 +108,8 @@ public class TUtils {
         for (TCandle candle : candles) {
             val candleInstant = candle.getInstant().truncatedTo(ChronoUnit.DAYS);
             for (TCandle candle1Day : candles1Day) {
-                if (candle1Day.getInstant().equals(candleInstant)) {
+                val candle1DayInstant = candle1Day.getInstant().truncatedTo(ChronoUnit.DAYS);
+                if (candle1DayInstant.equals(candleInstant)) {
                     candle.setRsi(candle1Day.getRsi());
                 }
             }
