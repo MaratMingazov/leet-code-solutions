@@ -160,7 +160,7 @@ public class TUtils {
                 // we can not calculate because we have not value
                 continue;
             }
-            val k = 2/(SIMPLE_MOVING_AVERAGE_SIZE + 1);
+            val k = 2/((double)RSI_PERIOD + 1);
             val previousUpWardMoveAverage = previousCandle.getUpWardMoveAverage();
             val previousDownWardMoveAverage = previousCandle.getDownWardMoveAverage();
             val upWardMoveAverage = (candle.getUpWardMove() - previousUpWardMoveAverage) * k + previousUpWardMoveAverage;
