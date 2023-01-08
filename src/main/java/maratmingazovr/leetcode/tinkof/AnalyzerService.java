@@ -41,6 +41,7 @@ public class AnalyzerService {
         TUtils.loadLastActiveLongShares(portfolio);
         execute();
         log.info(portfolio.toStringMessage());
+        execute(CandleInterval.CANDLE_INTERVAL_DAY);
     }
 
     @Scheduled(cron = "0/10 * * * * *")
