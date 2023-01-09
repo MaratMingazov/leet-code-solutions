@@ -10,7 +10,12 @@ import maratmingazovr.leetcode.tinkof.long_share.TShareToBuy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
+import ru.tinkoff.piapi.contract.v1.MarketDataResponse;
 import ru.tinkoff.piapi.contract.v1.OrderState;
+import ru.tinkoff.piapi.contract.v1.SubscriptionInterval;
+import ru.tinkoff.piapi.contract.v1.SubscriptionStatus;
+import ru.tinkoff.piapi.core.InvestApi;
+import ru.tinkoff.piapi.core.stream.StreamProcessor;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
@@ -18,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_5_MIN;
@@ -42,6 +48,8 @@ public class AnalyzerService {
         execute();
         log.info(portfolio.toStringMessage());
         execute(CandleInterval.CANDLE_INTERVAL_DAY);
+        marketDataStream(apiService.api, List.of("BBG004730N88, BBG000B9XRY4"));
+
     }
 
     @Scheduled(cron = "0/10 * * * * *")
@@ -426,5 +434,43 @@ public class AnalyzerService {
 
     public String getCandlesMessage(@NonNull String shareId) {
         return portfolio.toStringCandles(shareId);
+    }
+
+    private void marketDataStream(@NonNull InvestApi api,
+                                  @NonNull List<String> figis) {
+
+        //Описываем, что делать с приходящими в стриме данными
+        StreamProcessor<MarketDataResponse> processor = response -> {
+            if (response.hasTradingStatus()) {
+                log.info("Новые данные по статусам: {}", response);
+            } else if (response.hasCandle()) {
+                log.info("Новые данные по свечам: {}", response);
+            } else if (response.hasTrade()) {
+                log.info("Новые данные по сделкам: {}", response);
+            } else if (response.hasSubscribeCandlesResponse()) {
+                var successCount = response.getSubscribeCandlesResponse().getCandlesSubscriptionsList().stream().filter(el -> el.getSubscriptionStatus().equals(SubscriptionStatus.SUBSCRIPTION_STATUS_SUCCESS)).count();
+                var errorCount = response.getSubscribeTradesResponse().getTradeSubscriptionsList().stream().filter(el -> !el.getSubscriptionStatus().equals(SubscriptionStatus.SUBSCRIPTION_STATUS_SUCCESS)).count();
+                log.info("удачных подписок на свечи: {}", successCount);
+                log.info("неудачных подписок на свечи: {}", errorCount);
+            }
+        };
+        Consumer<Throwable> onErrorCallback = error -> log.error(error.toString());
+
+        //Подписка на список инструментов. Не блокирующий вызов
+        //При необходимости обработки ошибок (реконнект по вине сервера или клиента), рекомендуется сделать onErrorCallback
+        api.getMarketDataStreamService().newStream("candles_stream", processor, onErrorCallback).subscribeCandles(figis);
+
+
+        //Для стримов стаканов и свечей есть перегруженные методы с дефолтными значениями
+        //глубина стакана = 10, интервал свечи = 1 минута
+        api.getMarketDataStreamService().getStreamById("candles_stream").subscribeCandles(figis, SubscriptionInterval.SUBSCRIPTION_INTERVAL_FIVE_MINUTES);
+
+
+        //        //Каждый marketdata стрим может отдавать информацию максимум по 300 инструментам
+        //        //Если нужно подписаться на большее количество, есть 2 варианта:
+        //        // - открыть новый стрим
+        //        api.getMarketDataStreamService().newStream("new_stream", processor, onErrorCallback).subscribeCandles(randomFigi);
+        //        // - отписаться от инструментов в существующем стриме, освободив место под новые
+        //        api.getMarketDataStreamService().getStreamById("new_stream").unsubscribeCandles(randomFigi);
     }
 }

@@ -7,11 +7,17 @@ import maratmingazovr.leetcode.tinkof.enums.TCurrency;
 import maratmingazovr.leetcode.tinkof.enums.TOperationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.tinkoff.piapi.contract.v1.CandleSubscription;
+import ru.tinkoff.piapi.contract.v1.MarketDataResponse;
 import ru.tinkoff.piapi.contract.v1.Operation;
+import ru.tinkoff.piapi.contract.v1.SubscriptionStatus;
+import ru.tinkoff.piapi.core.InvestApi;
+import ru.tinkoff.piapi.core.stream.StreamProcessor;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Data
 public class TOperation {
