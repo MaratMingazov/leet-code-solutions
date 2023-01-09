@@ -84,22 +84,22 @@ public class AnalyzerService {
 //        //        }
 //    }
 
-    @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
+    @Scheduled(cron = "20 0/5  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
         execute(CandleInterval.CANDLE_INTERVAL_5_MIN);
     }
 
-    @Scheduled(cron = "5 0/15  * * * *") // every 15 minutes
+    @Scheduled(cron = "35 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
         execute(CandleInterval.CANDLE_INTERVAL_15_MIN);
     }
 
-    @Scheduled(cron = "5 0 0/1 * * *")
+    @Scheduled(cron = "0 2 0/1 * * *")
     public void executeEvery1Hour() {
         execute(CandleInterval.CANDLE_INTERVAL_HOUR);
     }
 
-    @Scheduled(cron = "5 0 10 * * *") // every  day 10 o clock
+    @Scheduled(cron = "0 2 10 * * *") // every  day 10 o clock
     public void executeEvery1Day() {
         execute(CandleInterval.CANDLE_INTERVAL_DAY);
     }

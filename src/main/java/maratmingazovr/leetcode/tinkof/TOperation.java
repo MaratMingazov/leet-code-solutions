@@ -111,10 +111,11 @@ public class TOperation {
             if (type.equals(TOperationType.SELL)) {
                 if (activeShare.getCount() < 0.0) {
                     // мы купили short
-                    return "BUY SHORT \n"
+                    return "ENTER SHORT \n"
                             + "interval: " + activeShareInfo.getInterval() + "\n"
                             + "buyInfo: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n"
-                            + "BB: " + activeShareInfo.toStringBB() + "\n";
+                            + "BB: " + activeShareInfo.toStringBB()
+                            + "RSI" + activeShareInfo.toStringRSI() + "\n";
                 } else {
                     //мы закрыли long
                     String takeProfitStopLoss = "";
@@ -123,17 +124,18 @@ public class TOperation {
                     } else {
                         takeProfitStopLoss = "STOP_LOSS";
                     }
-                    return "SELL LONG " + takeProfitStopLoss + "\n"
+                    return "EXIT LONG " + takeProfitStopLoss + "\n"
                             + "buyInfo: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n";
                 }
             }
             if (type.equals(TOperationType.BUY)) {
                 if (activeShare.getCount() > 0.0) {
                     // мы купили long
-                    return "BUY LONG \n"
+                    return "ENTER LONG \n"
                             + "interval: " + activeShareInfo.getInterval() + "\n"
                             + "buyInfo: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n"
-                            + "BB: " + activeShareInfo.toStringBB() + "\n";
+                            + "BB: " + activeShareInfo.toStringBB() + "\n"
+                            + "RSI" + activeShareInfo.toStringRSI() + "\n";
                 } else {
                     //мы закрыли short
                     String takeProfitStopLoss = "";
@@ -142,7 +144,7 @@ public class TOperation {
                     } else {
                         takeProfitStopLoss = "STOP_LOSS";
                     }
-                    return "SELL SHORT " + takeProfitStopLoss + "\n"
+                    return "EXIT SHORT " + takeProfitStopLoss + "\n"
                             + "buyInfo: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n";
                 }
             }

@@ -123,5 +123,10 @@ public class TActiveShareInfo {
                 + TUtils.formatDouble(bollingerDown);
     }
 
+    public String toStringRSI() {
+        return TUtils.formatDouble(rsi) + " / "
+                + TUtils.formatDouble(rsiPrev);
+    }
+
 
 }
