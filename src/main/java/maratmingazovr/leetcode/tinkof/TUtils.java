@@ -111,6 +111,7 @@ public class TUtils {
                 val candle1DayInstant = candle1Day.getInstant().truncatedTo(ChronoUnit.DAYS);
                 if (candle1DayInstant.equals(candleInstant)) {
                     candle.setRsi(candle1Day.getRsi());
+                    candle.setPreviousExtremumRSI(candle1Day.getPreviousExtremumRSI());
                 }
             }
         }
