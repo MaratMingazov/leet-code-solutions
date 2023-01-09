@@ -105,7 +105,7 @@ public class AnalyzerService {
         execute(CandleInterval.CANDLE_INTERVAL_15_MIN);
     }
 
-    @Scheduled(cron = "0 2 0/1 * * *")
+    @Scheduled(cron = "0 5 0/1 * * *")
     public void executeEvery1Hour() {
         execute(CandleInterval.CANDLE_INTERVAL_HOUR);
     }
