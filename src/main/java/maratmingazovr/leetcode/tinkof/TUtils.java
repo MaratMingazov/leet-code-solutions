@@ -51,12 +51,15 @@ public class TUtils {
         if (candles.size() < SIMPLE_MOVING_AVERAGE_SIZE) {
             return;
         }
-//        val lastCandle = candles.get(candles.size()-1);
-//        if (lastCandle.getSimpleMovingAverage() != null) {
-//            return;
-//        }
 
-        for (int i = 0; i < candles.size(); i++) {
+        int firstIndex = 0;
+        val lastCandle = candles.get(candles.size()-1);
+        if (lastCandle.getSimpleMovingAverage() != null) {
+            // we need to recalculate last candle only
+            firstIndex = candles.size() - SIMPLE_MOVING_AVERAGE_SIZE;
+        }
+
+        for (int i = firstIndex; i < candles.size(); i++) {
             if (i + SIMPLE_MOVING_AVERAGE_SIZE <= candles.size()) {
                 double sum = 0.0;
                 for (int j = 0; j < SIMPLE_MOVING_AVERAGE_SIZE; j++) {
@@ -76,13 +79,15 @@ public class TUtils {
         if (candles.size() < SIMPLE_MOVING_AVERAGE_SIZE) {
             return;
         }
-//        val lastCandle = candles.get(candles.size()-1);
-//        if (lastCandle.getBollingerUp() != null) {
-//            // we already calculated all values
-//            return;
-//        }
 
-        for (int i = 0; i < candles.size(); i++) {
+        int firstIndex = 0;
+        val lastCandle = candles.get(candles.size()-1);
+        if (lastCandle.getSimpleMovingAverage() != null) {
+            // we need to recalculate last candle only
+            firstIndex = candles.size() - SIMPLE_MOVING_AVERAGE_SIZE;
+        }
+
+        for (int i = firstIndex; i < candles.size(); i++) {
             if (candles.get(i).getSimpleMovingAverage() == null) {
                 // we can not calculate because we have not SMA value
                 continue;
@@ -123,12 +128,18 @@ public class TUtils {
         if (candles.size() < RSI_PERIOD) {
             return;
         }
-//        val lastCandle = candles.get(candles.size()-1);
-//        if (lastCandle.getRsi() != null) {
-//            // we already calculated all values
-//            return;
-//        }
-        for (int i = 1; i < candles.size(); i++) {
+
+        int firstIndex = 1;
+        val lastCandle = candles.get(candles.size()-1);
+        if (lastCandle.getSimpleMovingAverage() != null) {
+            // we need to recalculate last candle only
+            firstIndex = candles.size() - RSI_PERIOD;
+            if (firstIndex == 0) {
+                firstIndex = 1;
+            }
+        }
+
+        for (int i = firstIndex; i < candles.size(); i++) {
             val previousCandle = candles.get(i-1);
             val candle = candles.get(i);
             val change = candle.getClose() - previousCandle.getClose();
@@ -138,7 +149,7 @@ public class TUtils {
             candle.setDownWardMove(downWardMove);
         }
 
-        for (int i = 1; i < candles.size(); i++) {
+        for (int i = firstIndex; i < candles.size(); i++) {
             if (i + RSI_PERIOD <= candles.size()) {
                 double sumUpWard = 0.0;
                 double sumDownWard = 0.0;
@@ -154,7 +165,7 @@ public class TUtils {
                 сandle.setDownWardMoveAverage(downWardAverage);
             }
         }
-        for (int i = 1; i < candles.size(); i++) {
+        for (int i = firstIndex; i < candles.size(); i++) {
             val previousCandle = candles.get(i-1);
             val candle = candles.get(i);
             if (previousCandle.getUpWardMoveAverage() == null) {

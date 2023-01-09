@@ -131,7 +131,7 @@ public class TOperation {
                         takeProfitStopLoss = "STOP_LOSS";
                     }
                     return "EXIT LONG " + takeProfitStopLoss + "\n"
-                            + "buyInfo: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n";
+                            + "price: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n";
                 }
             }
             if (type.equals(TOperationType.BUY)) {
@@ -151,7 +151,7 @@ public class TOperation {
                         takeProfitStopLoss = "STOP_LOSS";
                     }
                     return "EXIT SHORT " + takeProfitStopLoss + "\n"
-                            + "buyInfo: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n";
+                            + "price: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n";
                 }
             }
         }

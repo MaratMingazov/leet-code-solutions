@@ -70,8 +70,12 @@ public class AnalyzerService {
         val sharesToSellShort = findActiveSharesToSellSandboxShort(portfolio);
         sharesToSellShort.forEach(activeShare -> apiService.buyShareFromApiSanddox(accountId, activeShare.getShareFigi()));
 
-        checkSharesToBuyLong(accountId, portfolio, activeOrders);
-        checkSharesToBuyShort(accountId, portfolio, activeOrders);
+        val candlesToBuyLong = checkSharesToBuyLong(accountId, portfolio, activeOrders);
+        if (candlesToBuyLong.size() > 0) {
+            buySharesLong(accountId, candlesToBuyLong);
+        } else {
+            checkSharesToBuyShort(accountId, portfolio, activeOrders);
+        }
     }
 
 //    //@Scheduled(cron = "3 0/1  * * * *") // every minute
@@ -290,7 +294,7 @@ public class AnalyzerService {
     }
 
 
-    private void checkSharesToBuyLong(@NonNull String accountId,
+    private List<TShareToBuy> checkSharesToBuyLong(@NonNull String accountId,
                                       @NonNull TPortfolio portfolio,
                                       @NonNull List<OrderState> activeOrders) {
         var candlesToBuyLong = findCandlesToBuyLong(portfolio, CandleInterval.CANDLE_INTERVAL_DAY, activeOrders);
@@ -303,9 +307,7 @@ public class AnalyzerService {
         if (candlesToBuyLong.isEmpty()) {
             candlesToBuyLong = findCandlesToBuyLong(portfolio, CANDLE_INTERVAL_5_MIN, activeOrders);
         }
-        if (candlesToBuyLong.size() > 0) {
-            buySharesLong(accountId, candlesToBuyLong);
-        }
+        return candlesToBuyLong;
     }
 
     private void checkSharesToBuyShort(@NonNull String accountId,
