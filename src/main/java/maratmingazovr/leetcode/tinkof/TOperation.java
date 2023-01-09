@@ -119,8 +119,8 @@ public class TOperation {
                     // мы купили short
                     return "ENTER SHORT \n"
                             + "interval: " + activeShareInfo.getInterval() + "\n"
-                            + "buyInfo: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n"
-                            + "BB: " + activeShareInfo.toStringBB()
+                            + "price: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n"
+                            + "BB: " + activeShareInfo.toStringBB() + "\n"
                             + "RSI" + activeShareInfo.toStringRSI() + "\n";
                 } else {
                     //мы закрыли long
@@ -139,7 +139,7 @@ public class TOperation {
                     // мы купили long
                     return "ENTER LONG \n"
                             + "interval: " + activeShareInfo.getInterval() + "\n"
-                            + "buyInfo: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n"
+                            + "price: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n"
                             + "BB: " + activeShareInfo.toStringBB() + "\n"
                             + "RSI" + activeShareInfo.toStringRSI() + "\n";
                 } else {
