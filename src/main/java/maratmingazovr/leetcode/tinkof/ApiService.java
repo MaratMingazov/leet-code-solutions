@@ -73,7 +73,7 @@ public class ApiService {
                                              TUtils.DoubleToQuotation(price),
                                              OrderDirection.ORDER_DIRECTION_BUY,
                                              accountId,
-                                             OrderType.ORDER_TYPE_LIMIT,
+                                             OrderType.ORDER_TYPE_MARKET,
                                              UUID.randomUUID().toString());
     }
 
@@ -85,7 +85,7 @@ public class ApiService {
                                              TUtils.DoubleToQuotation(price),
                                              OrderDirection.ORDER_DIRECTION_SELL,
                                              accountId,
-                                             OrderType.ORDER_TYPE_LIMIT,
+                                             OrderType.ORDER_TYPE_MARKET,
                                              UUID.randomUUID().toString());
     }
 

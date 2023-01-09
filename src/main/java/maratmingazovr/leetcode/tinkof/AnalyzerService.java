@@ -10,12 +10,7 @@ import maratmingazovr.leetcode.tinkof.long_share.TShareToBuy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
-import ru.tinkoff.piapi.contract.v1.MarketDataResponse;
 import ru.tinkoff.piapi.contract.v1.OrderState;
-import ru.tinkoff.piapi.contract.v1.SubscriptionInterval;
-import ru.tinkoff.piapi.contract.v1.SubscriptionStatus;
-import ru.tinkoff.piapi.core.InvestApi;
-import ru.tinkoff.piapi.core.stream.StreamProcessor;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
@@ -23,7 +18,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_5_MIN;
@@ -438,7 +432,7 @@ public class AnalyzerService {
             return Optional.empty();
         }
         if (currentPrice > lastCandle.getBollingerUp()) {
-            log.info("short candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerUp() + " check: " + (currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerDown());
+            log.info("short candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " > " + lastCandle.getBollingerUp() + " check: " + (currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerDown());
             if ((currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) > lastCandle.getBollingerDown()) {
                 // значит цена тейк профита не выходит за нижнюю границу
                 return Optional.of(new TShareToBuy(lastCandle, currentPrice));
