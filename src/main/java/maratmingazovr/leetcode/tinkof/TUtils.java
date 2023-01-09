@@ -272,44 +272,46 @@ public class TUtils {
     @NonNull
     public static Instant getTruncatedTo5Min(@NonNull Instant instant) {
         int hourMinute = instant.atZone(ZoneOffset.UTC).getMinute();
+        val result = instant.truncatedTo(ChronoUnit.HOURS);
         if (hourMinute < 5) {
-            return instant;
+            return result;
         } else if(hourMinute < 10) {
-            return instant.plus(5L, ChronoUnit.MINUTES);
+            return result.plus(5L, ChronoUnit.MINUTES);
         } else if(hourMinute < 15) {
-            return instant.plus(10L, ChronoUnit.MINUTES);
+            return result.plus(10L, ChronoUnit.MINUTES);
         } else if(hourMinute < 20) {
-            return instant.plus(15L, ChronoUnit.MINUTES);
+            return result.plus(15L, ChronoUnit.MINUTES);
         } else if(hourMinute < 25) {
-            return instant.plus(20L, ChronoUnit.MINUTES);
+            return result.plus(20L, ChronoUnit.MINUTES);
         } else if(hourMinute < 30) {
-            return instant.plus(25L, ChronoUnit.MINUTES);
+            return result.plus(25L, ChronoUnit.MINUTES);
         } else if(hourMinute < 35) {
-            return instant.plus(30L, ChronoUnit.MINUTES);
+            return result.plus(30L, ChronoUnit.MINUTES);
         } else if(hourMinute < 40) {
-            return instant.plus(35L, ChronoUnit.MINUTES);
+            return result.plus(35L, ChronoUnit.MINUTES);
         } else if(hourMinute < 45) {
-            return instant.plus(40L, ChronoUnit.MINUTES);
+            return result.plus(40L, ChronoUnit.MINUTES);
         } else if(hourMinute < 50) {
-            return instant.plus(45L, ChronoUnit.MINUTES);
+            return result.plus(45L, ChronoUnit.MINUTES);
         } else if(hourMinute < 55) {
-            return instant.plus(50L, ChronoUnit.MINUTES);
+            return result.plus(50L, ChronoUnit.MINUTES);
         } else {
-            return instant.plus(55L, ChronoUnit.MINUTES);
+            return result.plus(55L, ChronoUnit.MINUTES);
         }
     }
 
     @NonNull
     public static Instant getTruncatedTo15Min(@NonNull Instant instant) {
         int hourMinute = instant.atZone(ZoneOffset.UTC).getMinute();
+        val result = instant.truncatedTo(ChronoUnit.HOURS);
         if (hourMinute < 15) {
-            return instant;
+            return result;
         } else if(hourMinute < 30) {
-            return instant.plus(15L, ChronoUnit.MINUTES);
+            return result.plus(15L, ChronoUnit.MINUTES);
         } else if(hourMinute < 45) {
-            return instant.plus(30L, ChronoUnit.MINUTES);
+            return result.plus(30L, ChronoUnit.MINUTES);
         } else {
-            return instant.plus(45L, ChronoUnit.MINUTES);
+            return result.plus(45L, ChronoUnit.MINUTES);
         }
     }
 }
