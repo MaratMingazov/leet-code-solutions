@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NonNull;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveShare;
 import maratmingazovr.leetcode.tinkof.long_share.TActiveShareInfo;
+import org.jetbrains.annotations.Nullable;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
 import java.util.ArrayList;
@@ -30,6 +31,9 @@ public class TShare {
     TActiveShareInfo activeShareInfo = new TActiveShareInfo();
 
     @NonNull
+    Double actualPrice;
+
+    @NonNull
     Double bbMultiplicatorUp;
 
     @NonNull
@@ -42,6 +46,7 @@ public class TShare {
 
         this.bbMultiplicatorUp = 1.5;
         this.bbMultiplicatorDown = 2.5;
+        this.actualPrice = 0.0;
 
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_1_MIN, new ArrayList<>());
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_5_MIN, new ArrayList<>());

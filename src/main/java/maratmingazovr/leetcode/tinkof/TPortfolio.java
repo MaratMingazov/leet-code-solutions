@@ -245,6 +245,7 @@ public class TPortfolio {
         for (LastPrice lastPrice : lastPrices) {
             for (TShare share : shares) {
                 if (share.getFigi().equals(lastPrice.getFigi())) {
+                    share.setActualPrice(TUtils.QuotationToDouble(lastPrice.getPrice()));
                     val activeShare = share.getActiveShare();
                     activeShare.setPrice(TUtils.QuotationToDouble(lastPrice.getPrice()));
                     activeShare.setUpdateTime(TUtils.timeStampToInstant(lastPrice.getTime()));

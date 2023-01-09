@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @Service
 public class ApiService {
 
-    public final InvestApi api;
+    private final InvestApi api;
 
     private String accountId;
 

@@ -48,7 +48,6 @@ public class AnalyzerService {
         execute();
         log.info(portfolio.toStringMessage());
         execute(CandleInterval.CANDLE_INTERVAL_DAY);
-        marketDataStream(apiService.api, List.of("BBG004730N88, BBG000B9XRY4"));
 
     }
 
@@ -347,7 +346,10 @@ public class AnalyzerService {
             if (candles.isEmpty()) {
                 continue;
             }
-            val currentPrice = candles.get(candles.size() - 1).getClose();
+            val currentPrice = share.getActualPrice();
+            if (currentPrice <= 0.0) {
+                continue;
+            }
             val candleToBuyOpt = findCandleToBuyLong(currentPrice, share.getCandlesMap().get(interval));
             candleToBuyOpt.ifPresent(candlesToBuy::add);
         }
@@ -378,7 +380,10 @@ public class AnalyzerService {
             if (candles.isEmpty()) {
                 continue;
             }
-            val currentPrice = candles.get(candles.size() - 1).getOpen();
+            val currentPrice = share.getActualPrice();
+            if (currentPrice <= 0.0) {
+                continue;
+            }
             val candleToBuyOpt = findCandleToBuyShort(currentPrice, share.getCandlesMap().get(interval));
             candleToBuyOpt.ifPresent(candlesToBuy::add);
         }
@@ -434,43 +439,5 @@ public class AnalyzerService {
 
     public String getCandlesMessage(@NonNull String shareId) {
         return portfolio.toStringCandles(shareId);
-    }
-
-    private void marketDataStream(@NonNull InvestApi api,
-                                  @NonNull List<String> figis) {
-
-        //Описываем, что делать с приходящими в стриме данными
-        StreamProcessor<MarketDataResponse> processor = response -> {
-            if (response.hasTradingStatus()) {
-                log.info("Новые данные по статусам: {}", response);
-            } else if (response.hasCandle()) {
-                log.info("Новые данные по свечам: {}", response);
-            } else if (response.hasTrade()) {
-                log.info("Новые данные по сделкам: {}", response);
-            } else if (response.hasSubscribeCandlesResponse()) {
-                var successCount = response.getSubscribeCandlesResponse().getCandlesSubscriptionsList().stream().filter(el -> el.getSubscriptionStatus().equals(SubscriptionStatus.SUBSCRIPTION_STATUS_SUCCESS)).count();
-                var errorCount = response.getSubscribeTradesResponse().getTradeSubscriptionsList().stream().filter(el -> !el.getSubscriptionStatus().equals(SubscriptionStatus.SUBSCRIPTION_STATUS_SUCCESS)).count();
-                log.info("удачных подписок на свечи: {}", successCount);
-                log.info("неудачных подписок на свечи: {}", errorCount);
-            }
-        };
-        Consumer<Throwable> onErrorCallback = error -> log.error(error.toString());
-
-        //Подписка на список инструментов. Не блокирующий вызов
-        //При необходимости обработки ошибок (реконнект по вине сервера или клиента), рекомендуется сделать onErrorCallback
-        api.getMarketDataStreamService().newStream("candles_stream", processor, onErrorCallback).subscribeCandles(figis);
-
-
-        //Для стримов стаканов и свечей есть перегруженные методы с дефолтными значениями
-        //глубина стакана = 10, интервал свечи = 1 минута
-        api.getMarketDataStreamService().getStreamById("candles_stream").subscribeCandles(figis, SubscriptionInterval.SUBSCRIPTION_INTERVAL_FIVE_MINUTES);
-
-
-        //        //Каждый marketdata стрим может отдавать информацию максимум по 300 инструментам
-        //        //Если нужно подписаться на большее количество, есть 2 варианта:
-        //        // - открыть новый стрим
-        //        api.getMarketDataStreamService().newStream("new_stream", processor, onErrorCallback).subscribeCandles(randomFigi);
-        //        // - отписаться от инструментов в существующем стриме, освободив место под новые
-        //        api.getMarketDataStreamService().getStreamById("new_stream").unsubscribeCandles(randomFigi);
     }
 }
