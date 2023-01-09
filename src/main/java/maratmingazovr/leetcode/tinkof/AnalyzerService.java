@@ -245,10 +245,10 @@ public class AnalyzerService {
                 defaultFrom = Instant.now().minus(periodsCount * 5, ChronoUnit.MINUTES);
                 break;
             case CANDLE_INTERVAL_15_MIN:
-                defaultFrom = Instant.now().minus(  20, ChronoUnit.HOURS);
+                defaultFrom = Instant.now().minus(  23, ChronoUnit.HOURS);
                 break;
             case CANDLE_INTERVAL_HOUR:
-                defaultFrom = Instant.now().minus(2, ChronoUnit.DAYS);
+                defaultFrom = Instant.now().minus(10, ChronoUnit.DAYS);
                 break;
             case CANDLE_INTERVAL_DAY:
                 defaultFrom = Instant.now().minus(41, ChronoUnit.DAYS);
