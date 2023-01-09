@@ -122,11 +122,11 @@ public class TUtils {
         if (candles.size() < RSI_PERIOD) {
             return;
         }
-        val lastCandle = candles.get(candles.size()-1);
-        if (lastCandle.getRsi() != null) {
-            // we already calculated all values
-            return;
-        }
+//        val lastCandle = candles.get(candles.size()-1);
+//        if (lastCandle.getRsi() != null) {
+//            // we already calculated all values
+//            return;
+//        }
         for (int i = 1; i < candles.size(); i++) {
             val previousCandle = candles.get(i-1);
             val candle = candles.get(i);
