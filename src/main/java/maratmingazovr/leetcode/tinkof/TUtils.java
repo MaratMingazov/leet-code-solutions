@@ -51,10 +51,10 @@ public class TUtils {
         if (candles.size() < SIMPLE_MOVING_AVERAGE_SIZE) {
             return;
         }
-        val lastCandle = candles.get(candles.size()-1);
-        if (lastCandle.getSimpleMovingAverage() != null) {
-            return;
-        }
+//        val lastCandle = candles.get(candles.size()-1);
+//        if (lastCandle.getSimpleMovingAverage() != null) {
+//            return;
+//        }
 
         for (int i = 0; i < candles.size(); i++) {
             if (i + SIMPLE_MOVING_AVERAGE_SIZE <= candles.size()) {
@@ -76,11 +76,11 @@ public class TUtils {
         if (candles.size() < SIMPLE_MOVING_AVERAGE_SIZE) {
             return;
         }
-        val lastCandle = candles.get(candles.size()-1);
-        if (lastCandle.getBollingerUp() != null) {
-            // we already calculated all values
-            return;
-        }
+//        val lastCandle = candles.get(candles.size()-1);
+//        if (lastCandle.getBollingerUp() != null) {
+//            // we already calculated all values
+//            return;
+//        }
 
         for (int i = 0; i < candles.size(); i++) {
             if (candles.get(i).getSimpleMovingAverage() == null) {

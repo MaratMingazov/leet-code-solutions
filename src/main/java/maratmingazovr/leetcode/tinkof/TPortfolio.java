@@ -254,6 +254,8 @@ public class TPortfolio {
 
                     Double price = TUtils.QuotationToDouble(lastPrice.getPrice());
                     Instant instant = TUtils.timeStampToInstant(lastPrice.getTime());
+
+                    log.info(share.getId() + " / " + instant + " / " + TUtils.getTruncatedTo5Min(instant) + " / " + TUtils.getTruncatedTo15Min(instant) + " / " + instant.truncatedTo(ChronoUnit.HOURS) + " / " + price);
                     updateLastCandle(CANDLE_INTERVAL_1_MIN, instant.truncatedTo(ChronoUnit.MINUTES), price, share);
                     updateLastCandle(CANDLE_INTERVAL_5_MIN, TUtils.getTruncatedTo5Min(instant), price, share);
                     updateLastCandle(CANDLE_INTERVAL_15_MIN, TUtils.getTruncatedTo15Min(instant), price, share);
