@@ -91,13 +91,23 @@ public class AnalyzerService {
 //        //        }
 //    }
 
-    @Scheduled(cron = "20 0/5  * * * *") // every 5 minutes
+    @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
+        try {
+            Thread.sleep(1000 * 60);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         execute(CandleInterval.CANDLE_INTERVAL_5_MIN);
     }
 
-    @Scheduled(cron = "35 0/15  * * * *") // every 15 minutes
+    @Scheduled(cron = "10 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
+        try {
+            Thread.sleep(1000 * 60 * 2);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         execute(CandleInterval.CANDLE_INTERVAL_15_MIN);
     }
 
