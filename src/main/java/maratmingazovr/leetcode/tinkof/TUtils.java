@@ -131,7 +131,7 @@ public class TUtils {
 
         int firstIndex = 1;
         val lastCandle = candles.get(candles.size()-1);
-        if (lastCandle.getSimpleMovingAverage() != null) {
+        if (lastCandle.getRsi() != null) {
             // we need to recalculate last candle only
             firstIndex = candles.size() - RSI_PERIOD;
             if (firstIndex == 0) {
