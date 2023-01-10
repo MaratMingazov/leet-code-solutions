@@ -65,10 +65,14 @@ public class AnalyzerService {
         portfolio.updateOperations(newOperationsFromApi, botService);
 
 
-        val sharesToSellLong = findActiveSharesToSellSandboxLong(portfolio);
-        sharesToSellLong.forEach(activeShare -> apiService.sellShareFromApiSanddox(accountId, activeShare.getShareFigi()));
-        val sharesToSellShort = findActiveSharesToSellSandboxShort(portfolio);
-        sharesToSellShort.forEach(activeShare -> apiService.buyShareFromApiSanddox(accountId, activeShare.getShareFigi()));
+        val sharesToExitLong = findActiveSharesToExitLong(portfolio);
+        sharesToExitLong.forEach(activeShare -> apiService.sellShareFromApiSanddox(accountId, activeShare.getShareFigi()));
+        val sharesToExitShort = findActiveSharesToExitShort(portfolio);
+        sharesToExitShort.forEach(activeShare -> apiService.buyShareFromApiSanddox(accountId, activeShare.getShareFigi()));
+
+        if (!sharesToExitLong.isEmpty() || !sharesToExitShort.isEmpty()) {
+            return;
+        }
 
         val candlesToBuyLong = checkSharesToBuyLong(accountId, portfolio, activeOrders);
         if (candlesToBuyLong.size() > 0) {
@@ -198,7 +202,7 @@ public class AnalyzerService {
         return portfolio.toStringMessage();
     }
 
-    private List<TActiveShare> findActiveSharesToSellSandboxLong(@NonNull TPortfolio portfolio) {
+    private List<TActiveShare> findActiveSharesToExitLong(@NonNull TPortfolio portfolio) {
         List<TActiveShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
             val activeShare = share.getActiveShare();
@@ -209,13 +213,14 @@ public class AnalyzerService {
             val takeProfit = info.getBuyTakeProfit();
             val stopLoss = info.getBuyStopLoss();
             if (activeShare.getPrice() >= takeProfit || activeShare.getPrice() <= stopLoss) {
+                log.info("Want to exit long: " + share.getId() + " / " + activeShare.getPrice() + " / " + takeProfit + " / " + stopLoss);
                 result.add(activeShare);
             }
         }
         return result;
     }
 
-    private List<TActiveShare> findActiveSharesToSellSandboxShort(@NonNull TPortfolio portfolio) {
+    private List<TActiveShare> findActiveSharesToExitShort(@NonNull TPortfolio portfolio) {
         List<TActiveShare> result = new ArrayList<>();
         for (TShare share : portfolio.getShares()) {
             val activeShare = share.getActiveShare();
@@ -226,6 +231,7 @@ public class AnalyzerService {
             val takeProfit = info.getSellTakeProfit();
             val stopLoss = info.getSellStopLoss();
             if (activeShare.getPrice() <= takeProfit || activeShare.getPrice() >= stopLoss) {
+                log.info("Want to exit short: " + share.getId() + " / " + activeShare.getPrice() + " / " + takeProfit + " / " + stopLoss);
                 result.add(activeShare);
             }
         }
