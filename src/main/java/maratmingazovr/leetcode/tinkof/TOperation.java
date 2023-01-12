@@ -7,17 +7,11 @@ import maratmingazovr.leetcode.tinkof.enums.TCurrency;
 import maratmingazovr.leetcode.tinkof.enums.TOperationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.tinkoff.piapi.contract.v1.CandleSubscription;
-import ru.tinkoff.piapi.contract.v1.MarketDataResponse;
 import ru.tinkoff.piapi.contract.v1.Operation;
-import ru.tinkoff.piapi.contract.v1.SubscriptionStatus;
-import ru.tinkoff.piapi.core.InvestApi;
-import ru.tinkoff.piapi.core.stream.StreamProcessor;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @Data
 public class TOperation {
@@ -101,7 +95,7 @@ public class TOperation {
         val type = checkStopLossOrTakeProfit();
         return "Operation: \n"
                 + type
-                + "date: " + TUtils.TIME_FORMATTER.format(instant) + "\n"
+                + "date: " + TUtils.formatInstant(instant) + "\n"
                 + "share: " + shareId + "\n"
                 + "type: " + this.typeString  + "\n"
                 + "currency: " + currency + "\n"
@@ -121,7 +115,7 @@ public class TOperation {
                             + "interval: " + activeShareInfo.getInterval() + "\n"
                             + "price: " + activeShareInfo.toStringSellPriceTakeProfitAndStopLoss() +  "\n"
                             + "BB: " + activeShareInfo.toStringBB() + "\n"
-                            + "RSI: " + activeShareInfo.toStringRSI() + "\n";
+                            + "RSI: \n" + activeShareInfo.toStringRSI() + "\n";
                 } else {
                     //мы закрыли long
                     String takeProfitStopLoss = "";
@@ -141,7 +135,7 @@ public class TOperation {
                             + "interval: " + activeShareInfo.getInterval() + "\n"
                             + "price: " + activeShareInfo.toStringBuyPriceTakeProfitAndStopLoss() +  "\n"
                             + "BB: " + activeShareInfo.toStringBB() + "\n"
-                            + "RSI: " + activeShareInfo.toStringRSI() + "\n";
+                            + "RSI: \n" + activeShareInfo.toStringRSI() + "\n";
                 } else {
                     //мы закрыли short
                     String takeProfitStopLoss = "";

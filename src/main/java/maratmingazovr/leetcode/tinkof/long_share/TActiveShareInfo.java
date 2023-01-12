@@ -6,6 +6,8 @@ import maratmingazovr.leetcode.tinkof.TUtils;
 import org.jetbrains.annotations.Nullable;
 import ru.tinkoff.piapi.contract.v1.CandleInterval;
 
+import java.time.Instant;
+
 
 @Data
 public class TActiveShareInfo {
@@ -39,11 +41,23 @@ public class TActiveShareInfo {
     @NonNull
     Double bollingerDown;
 
-    @NonNull
-    Double rsi;
+    @Nullable
+    Double todayRSI;
 
-    @NonNull
-    Double rsiPrev;
+    @Nullable
+    Instant todayRSIInstant;
+
+    @Nullable
+    Double yesterdayRSI;
+
+    @Nullable
+    Instant yesterdayRSIInstant;
+
+    @Nullable
+    Double lastRSI;
+
+    @Nullable
+    Instant lastRSIInstant;
 
     @NonNull
     CandleInterval interval;
@@ -58,8 +72,12 @@ public class TActiveShareInfo {
         this.simpleMovingAverage = 0.0;
         this.bollingerUp = 0.0;
         this.bollingerDown = 0.0;
-        this.rsi = 0.0;
-        this.rsiPrev = 0.0;
+        this.todayRSI = 0.0;
+        this.yesterdayRSI = 0.0;
+        this.lastRSI = 0.0;
+        this.todayRSIInstant = Instant.now();
+        this.yesterdayRSIInstant = Instant.now();
+        this.lastRSIInstant = Instant.now();
         this.interval = CandleInterval.CANDLE_INTERVAL_UNSPECIFIED;
     }
 
@@ -68,16 +86,24 @@ public class TActiveShareInfo {
                             @NonNull Double simpleMovingAverage,
                             @NonNull Double bollingerUp,
                             @NonNull Double bollingerDown,
-                            @Nullable Double rsi,
-                            @Nullable Double rsiPrev,
+                            @Nullable Double todayRSI,
+                            @Nullable Double yesterdayRSI,
+                            @Nullable Double lastRSI,
+                            @Nullable Instant todayRSIInstant,
+                            @Nullable Instant yesterdayRSIInstant,
+                            @Nullable Instant lastRSIInstant,
                             @NonNull CandleInterval interval) {
         updateBuyPrice(buyPrice);
         updateSellPrice(sellPrice);
         this.simpleMovingAverage = simpleMovingAverage;
         this.bollingerUp = bollingerUp;
         this.bollingerDown = bollingerDown;
-        this.rsi = rsi == null ? 0.0 : rsi;
-        this.rsiPrev = rsiPrev == null ? 0.0 : rsiPrev;
+        this.todayRSI = todayRSI == null ? 0.0 : todayRSI;
+        this.yesterdayRSI = yesterdayRSI == null ? 0.0 : yesterdayRSI;
+        this.lastRSI = lastRSI == null ? 0.0 : lastRSI;
+        this.todayRSIInstant = todayRSIInstant == null ? Instant.now() : todayRSIInstant;
+        this.yesterdayRSIInstant = yesterdayRSIInstant == null ? Instant.now() : yesterdayRSIInstant;
+        this.lastRSIInstant = lastRSIInstant == null ? Instant.now() : lastRSIInstant;
         this.interval = interval;
     }
 
@@ -108,13 +134,7 @@ public class TActiveShareInfo {
 
     @NonNull
     public String toStringForSave() {
-        return buyPrice + ","
-                + sellPrice + ","
-                + simpleMovingAverage + ","
-                + bollingerUp + ","
-                + bollingerDown + ","
-                + rsi + ","
-                + rsiPrev;
+        return buyPrice + "," + sellPrice;
     }
 
     public String toStringBB() {
@@ -124,8 +144,9 @@ public class TActiveShareInfo {
     }
 
     public String toStringRSI() {
-        return TUtils.formatDouble(rsi) + " / "
-                + TUtils.formatDouble(rsiPrev);
+        return TUtils.formatDouble(todayRSI) + " / " + TUtils.formatInstant(todayRSIInstant) + "\n"
+                + TUtils.formatDouble(yesterdayRSI) + " / " + TUtils.formatInstant(yesterdayRSIInstant) + "\n"
+                + TUtils.formatDouble(lastRSI) + " / " + TUtils.formatInstant(lastRSIInstant);
     }
 
 

@@ -54,10 +54,22 @@ public class TCandle {
     Double downWardMove;
 
     @Nullable
-    Double rsi;
+    Double todayRSI;
 
     @Nullable
-    Double previousExtremumRSI;
+    Instant todayRSIInstant;
+
+    @Nullable
+    Double yesterdayRSI;
+
+    @Nullable
+    Instant yesterdayRSIInstant;
+
+    @Nullable
+    Double lastRSI;
+
+    @Nullable
+    Instant lastRSIInstant;
 
     @Nullable
     Double upWardMoveAverage;
@@ -95,9 +107,15 @@ public class TCandle {
                 + "vol: " + volume + "\n"
                 + "time: " + instant + "\n"
                 + "bb: " + TUtils.formatDouble(simpleMovingAverage) + " / " + TUtils.formatDouble(bollingerUp) + " / " + TUtils.formatDouble(bollingerDown) + "\n"
-                + "rsi: " + TUtils.formatDouble(rsi) + " / " + TUtils.formatDouble(previousExtremumRSI) + "\n"
+                + "rsi: \n" + toStringRSI() + "\n"
                 + "interval: " + interval + "\n"
                 + "candles: " + m1Candles + " / " + m5Candles + " / " + m15Candles + " / " + m60Candles + " / " + m24Candles + "\n";
+    }
+
+    public String toStringRSI() {
+        return TUtils.formatDouble(todayRSI) + " / " + TUtils.formatInstant(todayRSIInstant) + "\n"
+                + TUtils.formatDouble(yesterdayRSI) + " / " + TUtils.formatInstant(yesterdayRSIInstant) + "\n"
+                + TUtils.formatDouble(lastRSI) + " / " + TUtils.formatInstant(lastRSIInstant);
     }
 
 

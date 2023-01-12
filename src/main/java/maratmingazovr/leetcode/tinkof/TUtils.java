@@ -40,7 +40,7 @@ public class TUtils {
 
     private static Logger log = LoggerFactory.getLogger(TUtils.class);
 
-    public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter
             .ofPattern("dd.MM.yyyy:hh:mm")
             .withZone(ZoneId.systemDefault());
 
@@ -115,8 +115,12 @@ public class TUtils {
             for (TCandle candle1Day : candles1Day) {
                 val candle1DayInstant = candle1Day.getInstant().truncatedTo(ChronoUnit.DAYS);
                 if (candle1DayInstant.equals(candleInstant)) {
-                    candle.setRsi(candle1Day.getRsi());
-                    candle.setPreviousExtremumRSI(candle1Day.getPreviousExtremumRSI());
+                    candle.setTodayRSI(candle1Day.getTodayRSI());
+                    candle.setYesterdayRSI(candle1Day.getYesterdayRSI());
+                    candle.setLastRSI(candle1Day.getLastRSI());
+                    candle.setTodayRSIInstant(candle1Day.getTodayRSIInstant());
+                    candle.setYesterdayRSIInstant(candle1Day.getYesterdayRSIInstant());
+                    candle.setLastRSIInstant(candle1Day.getLastRSIInstant());
                 }
             }
         }
@@ -131,14 +135,13 @@ public class TUtils {
 
         int firstIndex = 1;
         val lastCandle = candles.get(candles.size()-1);
-        if (lastCandle.getRsi() != null) {
+        if (lastCandle.getTodayRSI() != null) {
             // we need to recalculate last candle only
             firstIndex = candles.size() - RSI_PERIOD;
             if (firstIndex == 0) {
                 firstIndex = 1;
             }
         }
-
         for (int i = firstIndex; i < candles.size(); i++) {
             val previousCandle = candles.get(i-1);
             val candle = candles.get(i);
@@ -160,9 +163,9 @@ public class TUtils {
                 }
                 val upWardAverage = sumUpWard / RSI_PERIOD;
                 val downWardAverage = sumDownWard / RSI_PERIOD;
-                val сandle = candles.get(i + RSI_PERIOD - 1);
-                сandle.setUpWardMoveAverage(upWardAverage);
-                сandle.setDownWardMoveAverage(downWardAverage);
+                val candle = candles.get(i + RSI_PERIOD - 1);
+                candle.setUpWardMoveAverage(upWardAverage);
+                candle.setDownWardMoveAverage(downWardAverage);
             }
         }
         for (int i = firstIndex; i < candles.size(); i++) {
@@ -177,17 +180,22 @@ public class TUtils {
             val previousDownWardMoveAverage = previousCandle.getDownWardMoveAverage();
             val upWardMoveAverage = (candle.getUpWardMove() - previousUpWardMoveAverage) * k + previousUpWardMoveAverage;
             val downWardMoveAverage = (candle.getDownWardMove() - previousDownWardMoveAverage) * k + previousDownWardMoveAverage;
-            val relativeStrenght = upWardMoveAverage + downWardMoveAverage;
+            val relativeStrenght = upWardMoveAverage / downWardMoveAverage;
             val rsi = 100 - 100 / (relativeStrenght + 1);
 
             candle.setUpWardMoveAverage(upWardMoveAverage);
             candle.setDownWardMoveAverage(downWardMoveAverage);
-            candle.setRsi(rsi);
+            candle.setTodayRSI(rsi);
+            candle.setTodayRSIInstant(candle.getInstant());
+            candle.setYesterdayRSI(previousCandle.getYesterdayRSI());
+            candle.setYesterdayRSIInstant(previousCandle.getYesterdayRSIInstant());
 
             if (rsi > 70.0 || rsi < 30.0) {
-                candle.setPreviousExtremumRSI(rsi);
+                candle.setLastRSI(rsi);
+                candle.setLastRSIInstant(candle.getInstant());
             } else {
-                candle.setPreviousExtremumRSI(previousCandle.getPreviousExtremumRSI());
+                candle.setLastRSI(previousCandle.getLastRSI());
+                candle.setLastRSIInstant(previousCandle.getLastRSIInstant());
             }
         }
     }
@@ -245,26 +253,20 @@ public class TUtils {
         val shares = Util.loadCSV(FILENAME);
         int count = 0;
         for (List<String> share : shares) {
-            if (share.size() < 8) {
+            if (share.size() < 3) {
                 continue;
             }
             val shareId = share.get(0);
             val shareBuyPrice = Double.valueOf(share.get(1));
             val shareSellPrice = Double.valueOf(share.get(2));
-            val simpleMovingAverage = Double.valueOf(share.get(3));
-            val bollingerUp = Double.valueOf(share.get(4));
-            val bollingerDown = Double.valueOf(share.get(5));
-            val rsi = Double.valueOf(share.get(6));
-            val rsiPrev = Double.valueOf(share.get(7));
             for (TShare portfolioShare : portfolio.getShares()) {
                 if (portfolioShare.getId().equals(shareId)) {
                     val activeShareInfo = new TActiveShareInfo(shareBuyPrice,
                                                                shareSellPrice,
-                                                               simpleMovingAverage,
-                                                               bollingerUp,
-                                                               bollingerDown,
-                                                               rsi,
-                                                               rsiPrev,
+                                                               0.0,
+                                                               0.0,
+                                                               0.0,
+                                                               0.0,0.0,0.0, Instant.now(),Instant.now(),Instant.now(),
                                                                CandleInterval.CANDLE_INTERVAL_UNSPECIFIED);
                     portfolioShare.setActiveShareInfo(activeShareInfo);
                     count++;
@@ -325,5 +327,11 @@ public class TUtils {
         } else {
             return result.plus(45L, ChronoUnit.MINUTES);
         }
+    }
+
+    public static String formatInstant(@Nullable Instant instant) {
+        return instant == null
+                ? ""
+                : TIME_FORMATTER.format(instant);
     }
 }

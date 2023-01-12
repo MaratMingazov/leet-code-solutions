@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_15_MIN;
 import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_5_MIN;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_DAY;
+import static ru.tinkoff.piapi.contract.v1.CandleInterval.CANDLE_INTERVAL_HOUR;
 
 @Log4j2
 @Service
@@ -63,6 +66,10 @@ public class AnalyzerService {
         portfolio.updatePortfolio(portfolioUpdate);
         portfolio.updateLastPrices(lastPrices);
         portfolio.updateOperations(newOperationsFromApi, botService);
+        portfolio.calculateMetrics(CANDLE_INTERVAL_DAY);
+        portfolio.calculateMetrics(CANDLE_INTERVAL_HOUR);
+        portfolio.calculateMetrics(CANDLE_INTERVAL_15_MIN);
+        portfolio.calculateMetrics(CANDLE_INTERVAL_5_MIN);
 
 
         val sharesToExitLong = findActiveSharesToExitLong(portfolio);
@@ -126,7 +133,6 @@ public class AnalyzerService {
     private synchronized void execute(@NonNull CandleInterval interval) {
         log.info("start: " + interval);
         updateSharesFromApi(interval);
-        portfolio.calculateMetrics(interval);
         log.info("finish: " + interval);
     }
 
@@ -161,8 +167,12 @@ public class AnalyzerService {
                                                        candle.getSimpleMovingAverage(),
                                                        candle.getBollingerUp(),
                                                        candle.getBollingerDown(),
-                                                       candle.getRsi(),
-                                                       candle.getPreviousExtremumRSI(),
+                                                       candle.getTodayRSI(),
+                                                       candle.getYesterdayRSI(),
+                                                       candle.getLastRSI(),
+                                                       candle.getTodayRSIInstant(),
+                                                       candle.getYesterdayRSIInstant(),
+                                                       candle.getLastRSIInstant(),
                                                        candle.getInterval());
             share.setActiveShareInfo(activeShareInfo);
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
@@ -188,8 +198,12 @@ public class AnalyzerService {
                                                        candle.getSimpleMovingAverage(),
                                                        candle.getBollingerUp(),
                                                        candle.getBollingerDown(),
-                                                       candle.getRsi(),
-                                                       candle.getPreviousExtremumRSI(),
+                                                       candle.getTodayRSI(),
+                                                       candle.getYesterdayRSI(),
+                                                       candle.getLastRSI(),
+                                                       candle.getTodayRSIInstant(),
+                                                       candle.getYesterdayRSIInstant(),
+                                                       candle.getLastRSIInstant(),
                                                        candle.getInterval());
             share.setActiveShareInfo(activeShareInfo);
             //val stopLoss = apiService.stopLossOrder(accountId, figi, orderPrice);
