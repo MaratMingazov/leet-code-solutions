@@ -104,6 +104,7 @@ public class TUtils {
                 val bollingerDown = candle.getSimpleMovingAverage() - stdDev * share.getBbMultiplicatorDown();
                 candle.setBollingerUp(bollingerUp);
                 candle.setBollingerDown(bollingerDown);
+                candle.setStdDev(stdDev);
             }
         }
     }

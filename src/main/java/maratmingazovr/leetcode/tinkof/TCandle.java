@@ -36,6 +36,9 @@ public class TCandle {
     Double bollingerUp;
     @Nullable
     Double bollingerDown;
+
+    @Nullable
+    Double stdDev;
     //////// BB ////////
 
 

@@ -44,7 +44,7 @@ public class TShare {
         this.id = id;
         this.figi = figi;
 
-        this.bbMultiplicatorUp = 1.5;
+        this.bbMultiplicatorUp = 2.5;
         this.bbMultiplicatorDown = 2.5;
         this.actualPrice = 0.0;
 
