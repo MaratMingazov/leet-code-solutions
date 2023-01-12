@@ -188,8 +188,8 @@ public class TUtils {
             candle.setDownWardMoveAverage(downWardMoveAverage);
             candle.setTodayRSI(rsi);
             candle.setTodayRSIInstant(candle.getInstant());
-            candle.setYesterdayRSI(previousCandle.getYesterdayRSI());
-            candle.setYesterdayRSIInstant(previousCandle.getYesterdayRSIInstant());
+            candle.setYesterdayRSI(previousCandle.getTodayRSI());
+            candle.setYesterdayRSIInstant(previousCandle.getTodayRSIInstant());
 
             if (rsi > 70.0 || rsi < 30.0) {
                 candle.setLastRSI(rsi);
