@@ -136,7 +136,7 @@ public class TPortfolio {
             }
             val count = activeShare.getCount();
             val price = activeShare.getPrice();
-            val total = count * price;
+            val total = TUtils.formatDouble(count * price);
             val currency = activeShare.getCurrency().toString();
             result.append(activeShare.getShareId() + ": " + count + " * " + price + " = " + total + " " + currency + "\n" );
         }
