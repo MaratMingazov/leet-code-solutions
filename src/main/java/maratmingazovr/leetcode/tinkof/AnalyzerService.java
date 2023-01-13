@@ -191,7 +191,7 @@ public class AnalyzerService {
             }
             val share = candle.getShare();
             val figi = share.getFigi();
-            log.info("want to buy short: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
+            log.info("want to enter short: " + candle.getShare().getId() + " / " + shareToBuy.getPriceToBuy());
             apiService.buyOrderShort(accountId, figi, shareToBuy.getPriceToBuy());
             val activeShareInfo = new TActiveShareInfo(0.0,
                                                        shareToBuy.getPriceToBuy(),
