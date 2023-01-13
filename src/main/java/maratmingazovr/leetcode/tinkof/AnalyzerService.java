@@ -58,9 +58,10 @@ public class AnalyzerService {
     @EventListener(ApplicationReadyEvent.class)
     public void afterStart() {
         while(true) {
-            execute();
             try {
-                Thread.sleep(9000);
+                Thread.sleep(4500);
+                execute();
+                Thread.sleep(4500);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
