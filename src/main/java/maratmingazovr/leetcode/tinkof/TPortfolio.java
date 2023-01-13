@@ -216,14 +216,12 @@ public class TPortfolio {
         if (operations.isEmpty()) {
             operations.addAll(newOperations);
             operations.forEach(operation -> botService.sendMassage(operation.toString()));
-            operations.forEach(operation -> log.info(operation.toString()));
         } else {
             val lastOperation = operations.get(operations.size() - 1);
             for (TOperation newOperation : newOperations) {
                 if (newOperation.getInstant().isAfter(lastOperation.getInstant())) {
                     operations.add(newOperation);
                     botService.sendMassage(newOperation.toString());
-                    log.info(newOperation.toString());
                 }
             }
         }
@@ -255,7 +253,6 @@ public class TPortfolio {
                     Double price = TUtils.QuotationToDouble(lastPrice.getPrice());
                     Instant instant = TUtils.timeStampToInstant(lastPrice.getTime());
 
-                    //log.info(share.getId() + " / " + instant + " / " + TUtils.getTruncatedTo5Min(instant) + " / " + TUtils.getTruncatedTo15Min(instant) + " / " + instant.truncatedTo(ChronoUnit.HOURS) + " / " + price);
                     updateLastCandle(CANDLE_INTERVAL_1_MIN, instant.truncatedTo(ChronoUnit.MINUTES), price, share);
                     updateLastCandle(CANDLE_INTERVAL_5_MIN, TUtils.getTruncatedTo5Min(instant), price, share);
                     updateLastCandle(CANDLE_INTERVAL_15_MIN, TUtils.getTruncatedTo15Min(instant), price, share);
