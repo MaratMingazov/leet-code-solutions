@@ -33,7 +33,7 @@ public class TUtils {
     private static final Integer RSI_PERIOD = 20;
 
 
-    public static final Double TAKE_PROFIT_PERCENT = 0.02;
+    public static final Double TAKE_PROFIT_PERCENT = 0.03;
     public static final Double STOP_LOSS_PERCENT = 0.02;
 
     private static final String FILENAME = "src/main/java/maratmingazovr/leetcode/tinkof/data.txt";
