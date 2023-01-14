@@ -63,7 +63,7 @@ public class AnalyzerService {
                 execute();
                 Thread.sleep(4500);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                log.info(e.getMessage());
             }
         }
     }
