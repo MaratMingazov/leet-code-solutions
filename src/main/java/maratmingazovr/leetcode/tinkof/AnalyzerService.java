@@ -62,7 +62,7 @@ public class AnalyzerService {
                 Thread.sleep(4500);
                 execute();
                 Thread.sleep(4500);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
