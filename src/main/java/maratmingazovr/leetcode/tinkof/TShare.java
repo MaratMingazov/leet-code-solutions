@@ -44,8 +44,8 @@ public class TShare {
         this.id = id;
         this.figi = figi;
 
-        this.bbMultiplicatorUp = 3.0;
-        this.bbMultiplicatorDown = 3.0;
+        this.bbMultiplicatorUp = 2.0;
+        this.bbMultiplicatorDown = 2.0;
         this.actualPrice = 0.0;
 
         candlesMap.put(CandleInterval.CANDLE_INTERVAL_1_MIN, new ArrayList<>());
