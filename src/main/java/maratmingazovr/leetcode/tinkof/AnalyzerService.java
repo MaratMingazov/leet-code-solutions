@@ -59,9 +59,9 @@ public class AnalyzerService {
     public void afterStart() {
         while(true) {
             try {
-                Thread.sleep(4500);
+                Thread.sleep(7500);
                 execute();
-                Thread.sleep(4500);
+                Thread.sleep(7500);
             } catch (Exception e) {
                 log.info(e.getMessage());
             }
