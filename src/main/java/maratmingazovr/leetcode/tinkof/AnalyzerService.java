@@ -115,7 +115,7 @@ public class AnalyzerService {
 //        //        }
 //    }
 
-    @Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
+    //@Scheduled(cron = "5 0/5  * * * *") // every 5 minutes
     public void executeEvery5Minutes() {
         try {
             Thread.sleep(1000 * 60);
@@ -125,7 +125,7 @@ public class AnalyzerService {
         execute(CandleInterval.CANDLE_INTERVAL_5_MIN);
     }
 
-    @Scheduled(cron = "10 0/15  * * * *") // every 15 minutes
+    //@Scheduled(cron = "10 0/15  * * * *") // every 15 minutes
     public void executeEvery15Minutes() {
         try {
             Thread.sleep(1000 * 60 * 2);
