@@ -445,8 +445,8 @@ public class AnalyzerService {
             return Optional.empty();
         }
         if (currentPrice < lastCandle.getBollingerDown()) {
-            //log.info("long candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
-            if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) <= lastCandle.getSimpleMovingAverage() + lastCandle.getStdDev()) {
+            log.info("long candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerUp());
+            if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) <= lastCandle.getSimpleMovingAverage()) {
                 // значит цена тейк профита не выходит за вернюю границу
                 return Optional.of(new TShareToBuy(lastCandle, currentPrice));
             }
@@ -469,8 +469,8 @@ public class AnalyzerService {
             return Optional.empty();
         }
         if (currentPrice > lastCandle.getBollingerUp()) {
-            //log.info("short candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " > " + lastCandle.getBollingerUp() + " check: " + (currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerDown());
-            if ((currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) >= lastCandle.getSimpleMovingAverage() - lastCandle.getStdDev()) {
+            log.info("short candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " > " + lastCandle.getBollingerUp() + " check: " + (currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getBollingerDown());
+            if ((currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) >= lastCandle.getSimpleMovingAverage()) {
                 // значит цена тейк профита не выходит за нижнюю границу
                 return Optional.of(new TShareToBuy(lastCandle, currentPrice));
             }
