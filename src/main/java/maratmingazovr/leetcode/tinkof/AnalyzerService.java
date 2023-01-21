@@ -446,10 +446,10 @@ public class AnalyzerService {
         }
         if (currentPrice < lastCandle.getBollingerDown()) {
             log.info("long candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " < " + lastCandle.getBollingerDown() + " check: " + (currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getSimpleMovingAverage());
-            if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) <= lastCandle.getSimpleMovingAverage()) {
+            //if ((currentPrice + currentPrice * TUtils.TAKE_PROFIT_PERCENT) <= lastCandle.getSimpleMovingAverage()) {
                 // значит цена тейк профита не выходит за вернюю границу
                 return Optional.of(new TShareToBuy(lastCandle, currentPrice));
-            }
+            //}
         }
         return Optional.empty();
     }
@@ -470,10 +470,10 @@ public class AnalyzerService {
         }
         if (currentPrice > lastCandle.getBollingerUp()) {
             log.info("short candidate: " + lastCandle.getShare().getId() + " / " + lastCandle.getInstant() + " / " + lastCandle.getInterval() + " / " + currentPrice + " > " + lastCandle.getBollingerUp() + " check: " + (currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) + " / " + lastCandle.getSimpleMovingAverage());
-            if ((currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) >= lastCandle.getSimpleMovingAverage()) {
+            //if ((currentPrice - currentPrice * TUtils.TAKE_PROFIT_PERCENT) >= lastCandle.getSimpleMovingAverage()) {
                 // значит цена тейк профита не выходит за нижнюю границу
                 return Optional.of(new TShareToBuy(lastCandle, currentPrice));
-            }
+            //}
         }
         return Optional.empty();
     }
