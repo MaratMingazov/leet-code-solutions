@@ -16,6 +16,7 @@ import ru.tinkoff.piapi.contract.v1.OrderState;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,12 +97,17 @@ public class AnalyzerService {
             return;
         }
 
-        val candlesToBuyLong = checkSharesToBuyLong(accountId, portfolio, activeOrders);
-        if (candlesToBuyLong.size() > 0) {
-            buySharesLong(accountId, candlesToBuyLong);
-        } else {
-            checkSharesToBuyShort(accountId, portfolio, activeOrders);
+        val instant = Instant.now();
+        val minutes = instant.atZone(ZoneOffset.UTC).getMinute();
+        if (minutes > 10) {
+            val candlesToBuyLong = checkSharesToBuyLong(accountId, portfolio, activeOrders);
+            if (candlesToBuyLong.size() > 0) {
+                buySharesLong(accountId, candlesToBuyLong);
+            } else {
+                checkSharesToBuyShort(accountId, portfolio, activeOrders);
+            }
         }
+
     }
 
 //    //@Scheduled(cron = "3 0/1  * * * *") // every minute
