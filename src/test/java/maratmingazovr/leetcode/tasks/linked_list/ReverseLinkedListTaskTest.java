@@ -26,7 +26,7 @@ public class ReverseLinkedListTaskTest {
     void testReverseLinkedListIteratively(Node head, Node expectedReversedHead) {
         val actualReversedHead = reverseLinkedListTask.reverseLinkedListIteratively(head);
 
-        assertTrue(isEqual(expectedReversedHead, actualReversedHead));
+        assertTrue(Node.isEquals(expectedReversedHead, actualReversedHead));
     }
 
     @ParameterizedTest
@@ -34,7 +34,7 @@ public class ReverseLinkedListTaskTest {
     void testReverseLinkedListRecursively(Node head, Node expectedReversedHead) {
         val actualReversedHead = reverseLinkedListTask.reverseLinkedListRecursively(head);
 
-        assertTrue(isEqual(expectedReversedHead, actualReversedHead));
+        assertTrue(Node.isEquals(expectedReversedHead, actualReversedHead));
     }
 
     private static Stream<Arguments> provideInputsForTestReverseLinkedList() {
@@ -57,21 +57,5 @@ public class ReverseLinkedListTaskTest {
                         );
     }
 
-    private boolean isEqual(Node firstHead, Node secondHead) {
-        if (firstHead == null && secondHead == null) {
-            return true;
-        }
-        if (firstHead == null || secondHead == null) {
-            return false;
-        }
-        while(firstHead != null) {
-            if (!firstHead.equals(secondHead)) {
-                return false;
-            }
-            firstHead = firstHead.getNext();
-            secondHead = secondHead.getNext();
-        }
 
-        return secondHead == null;
-    }
 }

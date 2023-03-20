@@ -35,4 +35,22 @@ public class Node {
     public int hashCode() {
         return value;
     }
+
+    public static boolean isEquals(Node firstHead, Node secondHead) {
+        if (firstHead == null && secondHead == null) {
+            return true;
+        }
+        if (firstHead == null || secondHead == null) {
+            return false;
+        }
+        while(firstHead != null) {
+            if (!firstHead.equals(secondHead)) {
+                return false;
+            }
+            firstHead = firstHead.getNext();
+            secondHead = secondHead.getNext();
+        }
+
+        return secondHead == null;
+    }
 }
