@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @Import(AddTwoNumbersTask.class)
-public class AddTwoNumbersTaskTest {
+public class AddTwoNumbersTest {
 
     @Autowired
     AddTwoNumbersTask addTwoNumbersTask;

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @Import(ReverseLinkedListTask.class)
-public class ReverseLinkedListTaskTest {
+public class ReverseLinkedListTest {
 
     @Autowired
     ReverseLinkedListTask reverseLinkedListTask;

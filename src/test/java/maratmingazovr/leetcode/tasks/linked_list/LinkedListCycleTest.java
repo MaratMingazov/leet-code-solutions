@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @Import(LinkedListCycleTask.class)
-public class LinkedListCycleTaskTest {
+public class LinkedListCycleTest {
 
     @Autowired
     LinkedListCycleTask linkedListCycleTask;
