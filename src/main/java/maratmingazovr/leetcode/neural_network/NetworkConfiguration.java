@@ -3,10 +3,13 @@ package maratmingazovr.leetcode.neural_network;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.val;
+import maratmingazovr.leetcode.neural_network_matrix.NeuralNetworkMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 public class NetworkConfiguration {
@@ -42,6 +45,35 @@ public class NetworkConfiguration {
                 neuronWeights.add(neuron.getBiasWeight());
                 layersWeights.add(neuronWeights);
             }
+        }
+    }
+
+    public NetworkConfiguration(@NonNull NeuralNetworkMatrix network) {
+        layersStructure = Stream.of(network.getInputNodes(), network.getHiddenNodes(), network.getOutputNodes())
+                                .collect(Collectors.toList());
+        activationFunctions = Stream.of(network.getActivationFunctionHidden(), network.getActivationFunctionOutput())
+                                    .collect(Collectors.toList());
+        learningRate = network.getLearnRate();
+        layersWeights = new ArrayList<>();
+        RealMatrix wih = network.getWih();
+        RealMatrix bih = network.getBih();
+        for (int row = 0; row < wih.getRowDimension(); row++) {
+            List<Double> rowWeights = new ArrayList<>();
+            for (int col = 0; col < wih.getColumnDimension(); col++) {
+                rowWeights.add(wih.getEntry(row, col));
+            }
+            rowWeights.add(bih.getEntry(row, 0));
+            layersWeights.add(rowWeights);
+        }
+        RealMatrix who = network.getWho();
+        RealMatrix bho = network.getBho();
+        for (int row = 0; row < who.getRowDimension(); row++) {
+            List<Double> rowWeights = new ArrayList<>();
+            for (int col = 0; col < who.getColumnDimension(); col++) {
+                rowWeights.add(who.getEntry(row, col));
+            }
+            rowWeights.add(bho.getEntry(row, 0));
+            layersWeights.add(rowWeights);
         }
     }
 

@@ -243,4 +243,18 @@ public class Util {
         return new Pair<>(values.get(0),probabilities.get(0));
     }
 
+    public static void randomize(double[][] matrix) {
+        for (int i = 0; i < matrix.length; i++) {
+            for(int j = 0; j < matrix[i].length; j++) {
+                matrix[i][j] = Math.random();
+            }
+        }
+    }
+
+    public static void randomize(double[] vector) {
+        for (int i = 0; i < vector.length; i++) {
+            vector[i] = Math.random();
+        }
+    }
+
 }

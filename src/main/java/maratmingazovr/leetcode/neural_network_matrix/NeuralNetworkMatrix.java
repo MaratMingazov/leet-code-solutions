@@ -1,77 +1,102 @@
 package maratmingazovr.leetcode.neural_network_matrix;
 
+import lombok.Data;
+import maratmingazovr.leetcode.neural_network.ActivationFunction;
+import maratmingazovr.leetcode.neural_network.Util;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
-public class NeuralNetwork {
+import static maratmingazovr.leetcode.neural_network.Util.randomize;
 
+@Data
+public class NeuralNetworkMatrix {
+
+    int inputNodes, hiddenNodes, outputNodes;
     double learnRate;
-    RealMatrix wih;
-    RealMatrix who;
-    RealMatrix bih;
-    RealMatrix bho;
 
-    double totalError = 0;
+    ActivationFunction activationFunctionHidden;
+    ActivationFunction activationFunctionOutput;
+    RealMatrix wih, who;
+    RealMatrix bih, bho;
 
-    public NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes, double learnRate) {
+    double[][] totalErrors;
 
+    RealMatrix hInputs, hOutputs;
+    RealMatrix oInputs, oOutputs;
+    RealMatrix hErrors, oErrors;
+
+    public NeuralNetworkMatrix(int inputNodes, int hiddenNodes, int outputNodes, double learnRate,
+                               ActivationFunction activationFunctionHidden,
+                               ActivationFunction activationFunctionOutput,
+                               double[][] wih, double[] bih, double[][] who, double[] bho) {
+
+        init(inputNodes, hiddenNodes, outputNodes, learnRate,
+             activationFunctionHidden, activationFunctionOutput, wih, bih, who, bho);
+
+    }
+
+    private void init(int inputNodes, int hiddenNodes, int outputNodes, double learnRate,
+                 ActivationFunction activationFunctionHidden,
+                 ActivationFunction activationFunctionOutput,
+                 double[][] wih, double[] bih, double[][] who, double[] bho) {
+
+        this.inputNodes = inputNodes;
+        this.hiddenNodes = hiddenNodes;
+        this.outputNodes = outputNodes;
         this.learnRate = learnRate;
-        //wih = new double[hiddenNodes][inputNodes];
-        wih = new Array2DRowRealMatrix(
-                new double[][]{
-                        new double[]{0.37, 0.48, 0.51},
-                        new double[]{0.11, 0.83, 0.44},
-                        new double[]{0.55, 0.63, 0.27}
-                });
-//        who = new double[outputNodes][hiddenNodes];
-        who = new Array2DRowRealMatrix(
-                new double[][]{
-                        new double[]{0.37, 0.51, 0.14},
-                        new double[]{0.11, 0.91, 0.57},
-                        new double[]{0.07, 0.81, 0.36}
-                });
+        this.activationFunctionHidden = activationFunctionHidden;
+        this.activationFunctionOutput = activationFunctionOutput;
 
-//        this.hBiases = new double[hiddenNodes];
-//        this.oBiases = new double[outputNodes];
-        bih = new Array2DRowRealMatrix(
-                new double[][]{
-                        new double[]{0.31},
-                        new double[]{0.93},
-                        new double[]{0.47}
-                });
-        bho = new Array2DRowRealMatrix(
-                new double[][]{
-                        new double[]{0.11},
-                        new double[]{0.25},
-                        new double[]{0.36}
-                });
-//        randomize(this.wih);
-//        randomize(this.who);
-//        randomize(this.hBiases);
-//        randomize(this.oBiases);
+        this.wih = new Array2DRowRealMatrix(wih);
+        this.who = new Array2DRowRealMatrix(who);
+        this.bih = new Array2DRowRealMatrix(bih);
+        this.bho = new Array2DRowRealMatrix(bho);
+
+    }
+
+    public NeuralNetworkMatrix(int inputNodes, int hiddenNodes, int outputNodes, double learnRate,
+                               ActivationFunction activationFunctionHidden,
+                               ActivationFunction activationFunctionOutput) {
+
+        double[][] wih = new double[hiddenNodes][inputNodes];
+        double[][] who = new double[outputNodes][hiddenNodes];
+        double[] bih = new double[hiddenNodes];
+        double[] bho = new double[outputNodes];
+
+        randomize(wih); randomize(who);
+        randomize(bih); randomize(bho);
+
+        init(inputNodes, hiddenNodes, outputNodes, learnRate,
+             activationFunctionHidden, activationFunctionOutput, wih, bih, who, bho);
 
     }
 
 
 
-    void train(double[] inputs, double[] targets) {
+    void propogate(double[] inputs) {
 
         RealMatrix input = new Array2DRowRealMatrix(inputs);
-        RealMatrix target = new Array2DRowRealMatrix(targets);
 
         RealMatrix hInputs = wih.multiply(input).add(bih);
-        RealMatrix hOutputs = activateSigmoid(hInputs);
+        hOutputs = Util.getActivationFunctionMatrix(activationFunctionHidden).apply(hInputs);
         RealMatrix oInputs = who.multiply(hOutputs).add(bho);
-        RealMatrix oOutputs = activateSigmoid(oInputs);
-        RealMatrix oErrors = target.subtract(oOutputs);
-        RealMatrix hErrors = who.transpose().multiply(oErrors);
-        totalError = totalError(oErrors.getColumn(0));
+        oOutputs = Util.getActivationFunctionMatrix(activationFunctionHidden).apply(oInputs);
 
+    }
+
+    void calculateErrors(double[] targets) {
+        RealMatrix target = new Array2DRowRealMatrix(targets);
+        oErrors = target.subtract(oOutputs);
+        hErrors = who.transpose().multiply(oErrors);
+    }
+
+    void updateWeights(double[] inputs) {
+        RealMatrix input = new Array2DRowRealMatrix(inputs);
         double[] deltaho = oErrors.getColumnVector(0)
-                                    .ebeMultiply(oOutputs.getColumnVector(0))
-                                    .ebeMultiply(oOutputs.getColumnVector(0).mapMultiply(-1).mapAdd(1d))
-                                    .mapMultiply(learnRate)
-                                    .toArray();
+                                  .ebeMultiply(oOutputs.getColumnVector(0))
+                                  .ebeMultiply(oOutputs.getColumnVector(0).mapMultiply(-1).mapAdd(1d))
+                                  .mapMultiply(learnRate)
+                                  .toArray();
         who = who.add(new Array2DRowRealMatrix(deltaho).multiply(hOutputs.transpose()));
         bho = bho.add(new Array2DRowRealMatrix(deltaho));
 
@@ -84,27 +109,17 @@ public class NeuralNetwork {
         bih = bih.add(new Array2DRowRealMatrix(deltaih));
     }
 
-    void train(double[][] inputs, double[][] targets, int epoh) {
+    public void train(double[][] inputs, double[][] targets, int epoh) {
+        totalErrors = new double[epoh][inputs.length];
         for (int ep = 0; ep < epoh; ep++) {
             for (int i = 0; i < inputs.length; i++) {
-                train(inputs[i], targets[i]);
+                propogate(inputs[i]);
+                calculateErrors(targets[i]);
+                totalErrors[ep][i] = totalError(oErrors.getColumn(0));
+                updateWeights(inputs[i]);
             }
-            System.out.println("TotalError = " + this.totalError);
+            System.out.println("epoh=" + ep + " / totalError=" + Util.getMedian(totalErrors[ep]));
         }
-    }
-
-
-
-
-    RealMatrix activateSigmoid(RealMatrix matrix) {
-        RealMatrix result = matrix.copy();
-        for (int row = 0; row < matrix.getRowDimension(); row++) {
-            for (int column = 0; column < matrix.getColumnDimension(); column++) {
-                double value = matrix.getEntry(row, column);
-                result.setEntry(row, column, 1 / (1 + Math.exp(-1 * value)));
-            }
-        }
-        return result;
     }
 
 
@@ -115,38 +130,6 @@ public class NeuralNetwork {
             result += Math.pow(errors[i], 2);
         }
         return result/2;
-    }
-
-    double[] multi (double[] vector1, double[] vector2) {
-        double[] result = new double[vector1.length];
-        for (int i = 0; i < vector1.length; i++) {
-            result[i] = vector1[i] * vector2[i];
-        }
-        return result;
-    }
-
-    double[][] plus(double[][] matrix1, double[][] matrix2, double multiplicator)  {
-        double[][] result = new double[matrix1.length][matrix1[0].length];
-        for (int i = 0; i < matrix1.length; i++) {
-            for(int j = 0; j < matrix1[i].length; j++) {
-                result[i][j] = matrix1[i][j] + matrix2[i][j] * multiplicator;
-            }
-        }
-        return result;
-    }
-
-    void randomize(double[][] matrix) {
-        for (int i = 0; i < matrix.length; i++) {
-            for(int j = 0; j < matrix[i].length; j++) {
-                matrix[i][j] = Math.random();
-            }
-        }
-    }
-
-    void randomize(double[] vector) {
-        for (int i = 0; i < vector.length; i++) {
-            vector[i] = Math.random();
-        }
     }
 
 }
