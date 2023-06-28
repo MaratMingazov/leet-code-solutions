@@ -10,6 +10,7 @@ import maratmingazovr.leetcode.neural_network_matrix.NeuralNetworkMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,14 +22,10 @@ public abstract class AbstractClassificatorMatrix {
     protected final String datasetFileValidate;
     @NonNull
     protected final String configurationFile;
-//    @NonNull
-//    protected List<List<Double>> inputsTrain = new ArrayList<>();
-//    @NonNull
-//    protected List<List<Double>> expectsTrain = new ArrayList<>();
-//    @NonNull
-//    protected List<List<Double>> inputsValidate = new ArrayList<>();
-//    @NonNull
-//    protected List<List<Double>> expectsValidate = new ArrayList<>();
+
+    protected double[][] inputsTrain, targetsTrain;
+    protected double[][] inputsTest, targetsTest;
+
 
     @NonNull Logger log = LoggerFactory.getLogger(Network.class);
 
@@ -89,8 +86,8 @@ public abstract class AbstractClassificatorMatrix {
         return null;
     }
 
-    public void train(@NonNull Long epoh) {
-//        network.train(inputsTrain, expectsTrain, epoh);
+    public void train(int epoh) {
+        network.train(inputsTrain, targetsTrain, epoh);
     }
 
     @NonNull
@@ -98,11 +95,19 @@ public abstract class AbstractClassificatorMatrix {
                                                     @NonNull List<Double> output);
 
     public void loadData() {
-//        loadData(datasetFileTrain, inputsTrain, expectsTrain);
-//        loadData(datasetFileValidate, inputsValidate, expectsValidate);
+        List<List<Double>> inputsTrainList = new ArrayList<>();
+        List<List<Double>> targetsTrainList = new ArrayList<>();
+        List<List<Double>> inputsTestList = new ArrayList<>();
+        List<List<Double>> targetsTestList = new ArrayList<>();
+
+        loadData(datasetFileTrain, inputsTrainList, targetsTrainList);
+        loadData(datasetFileValidate, inputsTestList, targetsTestList);
+
+        inputsTrain = Util.convertToMatrix(inputsTrainList);
+        targetsTrain = Util.convertToMatrix(targetsTrainList);
+        inputsTest = Util.convertToMatrix(inputsTestList);
+        targetsTest = Util.convertToMatrix(targetsTestList);
     };
 
-    public abstract void loadData(@NonNull String datasetFile,
-                                  @NonNull List<List<Double>> inputs,
-                                  @NonNull List<List<Double>> expects);
+    public abstract void loadData(String datasetFile, List<List<Double>> inputs, List<List<Double>> targets);
 }
