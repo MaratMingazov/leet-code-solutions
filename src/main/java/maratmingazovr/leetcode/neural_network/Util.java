@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import lombok.NonNull;
 import lombok.val;
+import org.apache.commons.math3.linear.RealMatrix;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,11 +17,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class Util {
 
-    @NonNull
     public static double dotProduct(@NonNull List<Double> xs,
                                     @NonNull List<Double> ys) {
         double sum = 0.0;
@@ -30,15 +31,15 @@ public class Util {
         return sum;
     }
 
-    @NonNull
-    public static double getMedian(@NonNull List<Double> values) {
-        Collections.sort(values);
-        double median;
-        int size = values.size();
-        if (values.size() % 2 == 0) {
-            return (values.get(size/2) + values.get(size/2 -1))/2;
+
+    public static double getMedian(double[] values) {
+        double[] array = Arrays.copyOf(values, values.length);
+        Arrays.sort(array);
+        int size = array.length;
+        if (size % 2 == 0) {
+            return (array[size/2] + array[size/2-1])/2;
         } else {
-            return values.get(size/2);
+            return array[size/2];
         }
     }
 
@@ -47,6 +48,15 @@ public class Util {
         switch (activationFunction) {
             case SIGMOID: return Util::sigmoid;
             case RELU: return Util::relu;
+            default: throw new IllegalArgumentException();
+        }
+    }
+
+    @NonNull
+    public static UnaryOperator<RealMatrix> getActivationFunctionMatrix(@NonNull ActivationFunction activationFunction) {
+        switch (activationFunction) {
+            case SIGMOID: return Util::sigmoidMatrix;
+            case RELU: return Util::reluMatrix;
             default: throw new IllegalArgumentException();
         }
     }
@@ -65,6 +75,17 @@ public class Util {
         return 1.0 / (1.0 + Math.exp(-x));
     }
 
+    public static RealMatrix sigmoidMatrix(RealMatrix matrix) {
+        RealMatrix result = matrix.copy();
+        for (int row = 0; row < matrix.getRowDimension(); row++) {
+            for (int column = 0; column < matrix.getColumnDimension(); column++) {
+                double value = matrix.getEntry(row, column);
+                result.setEntry(row, column, 1 / (1 + Math.exp(-1 * value)));
+            }
+        }
+        return result;
+    }
+
     public static double sigmoidDerivative(double x) {
         double sig = sigmoid(x);
         return sig * (1.0 - sig);
@@ -72,6 +93,17 @@ public class Util {
 
     public static double relu(double x) {
         return Math.max(0.1, x);
+    }
+
+    public static RealMatrix reluMatrix(RealMatrix matrix) {
+        RealMatrix result = matrix.copy();
+        for (int row = 0; row < matrix.getRowDimension(); row++) {
+            for (int column = 0; column < matrix.getColumnDimension(); column++) {
+                double value = matrix.getEntry(row, column);
+                result.setEntry(row, column, Math.max(0.1, value));
+            }
+        }
+        return result;
     }
 
     public static double reluDerivative(double x) {
