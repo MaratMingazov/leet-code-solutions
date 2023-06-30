@@ -81,9 +81,8 @@ public abstract class AbstractClassificatorMatrix {
     }
 
     public ValidationResult validate() {
-//        network.validate(inputsTrain, expectsTrain, this::isExpectedEqualToOutput);
-//        return  network.validate(inputsValidate, expectsValidate, this::isExpectedEqualToOutput);
-        return null;
+        //network.validate(inputsTrain, targetsTrain, this::isExpectedEqualToOutput);
+        return  network.validate(inputsTest, targetsTest, this::isExpectedEqualToOutput);
     }
 
     public void train(int epoh) {
@@ -91,8 +90,8 @@ public abstract class AbstractClassificatorMatrix {
     }
 
     @NonNull
-    public abstract Boolean isExpectedEqualToOutput(@NonNull List<Double> expected,
-                                                    @NonNull List<Double> output);
+    public abstract Boolean isExpectedEqualToOutput(@NonNull double[] target,
+                                                    @NonNull double[] actual);
 
     public void loadData() {
         List<List<Double>> inputsTrainList = new ArrayList<>();

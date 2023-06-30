@@ -1,10 +1,19 @@
 package maratmingazovr.leetcode.neural_network_matrix;
 
 import lombok.Data;
+import lombok.NonNull;
+import lombok.val;
 import maratmingazovr.leetcode.neural_network.ActivationFunction;
+import maratmingazovr.leetcode.neural_network.Network;
 import maratmingazovr.leetcode.neural_network.Util;
+import maratmingazovr.leetcode.neural_network.ValidationResult;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.function.BiFunction;
 
 import static maratmingazovr.leetcode.neural_network.Util.randomize;
 
@@ -24,6 +33,8 @@ public class NeuralNetworkMatrix {
     RealMatrix hInputs, hOutputs;
     RealMatrix oInputs, oOutputs;
     RealMatrix hErrors, oErrors;
+
+    Logger log = LoggerFactory.getLogger(NeuralNetworkMatrix.class);
 
     public NeuralNetworkMatrix(int inputNodes, int hiddenNodes, int outputNodes, double learnRate,
                                ActivationFunction activationFunctionHidden,
@@ -73,7 +84,7 @@ public class NeuralNetworkMatrix {
 
 
 
-    void propogate(double[] inputs) {
+    double[] propogate(double[] inputs) {
 
         RealMatrix input = new Array2DRowRealMatrix(inputs);
 
@@ -82,6 +93,7 @@ public class NeuralNetworkMatrix {
         RealMatrix oInputs = who.multiply(hOutputs).add(bho);
         oOutputs = Util.getActivationFunctionMatrix(activationFunctionHidden).apply(oInputs);
 
+        return oOutputs.getColumn(0);
     }
 
     void calculateErrors(double[] targets) {
@@ -120,6 +132,25 @@ public class NeuralNetworkMatrix {
             }
             System.out.println("epoh=" + ep + " / totalError=" + Util.getMedian(totalErrors[ep]));
         }
+    }
+
+    public ValidationResult validate(double[][] inputs,
+                                     double[][] targets,
+                                     BiFunction<double[], double[], Boolean> interpret) {
+        int correct = 0;
+        for (int i = 0; i < inputs.length; i++) {
+            double[] input = inputs[i];
+            double[] actual = propogate(input);
+            double[] target = targets[i];
+            boolean isEqual = interpret.apply(target, actual);
+            if (isEqual) {
+                correct++;
+            }
+        }
+        double percentage = (double) correct / (double) inputs.length;
+        log.info(correct + " correct of " + inputs.length + " = " + percentage * 100 + "%");
+
+        return new ValidationResult(correct, inputs.length, percentage);
     }
 
 

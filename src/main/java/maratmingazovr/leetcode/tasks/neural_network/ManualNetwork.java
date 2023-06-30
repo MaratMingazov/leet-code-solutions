@@ -11,6 +11,8 @@ public class ManualNetwork extends AbstractClassificatorMatrix{
 
     public static void main(String[] args) {
         ManualNetwork manualNetwork = new ManualNetwork();
+        manualNetwork.createDefaultNetworkAndTrain();
+
     }
 
     public ManualNetwork() {
@@ -39,14 +41,29 @@ public class ManualNetwork extends AbstractClassificatorMatrix{
                                           ActivationFunction.SIGMOID, ActivationFunction.SIGMOID,
                                           wih, bih, who, bho);
 
-        train(10);
-        saveNetworkConfiguration();
+        loadNetwork();
+        loadData();
+        //train(100);
+        //saveNetworkConfiguration();
+        validate();
+
+
     }
 
     @Override
-    public @NonNull Boolean isExpectedEqualToOutput(@NonNull List<Double> expected,
-                                                    @NonNull List<Double> output) {
-        return null;
+    public @NonNull Boolean isExpectedEqualToOutput(@NonNull double[] target,
+                                                    @NonNull double[] actual) {
+
+        double delta = 0.01;
+        if (target.length != actual.length) {
+            return false;
+        }
+        for (int i = 0; i < target.length; i++) {
+            if(Math.abs(target[i] - actual[i]) > delta) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
