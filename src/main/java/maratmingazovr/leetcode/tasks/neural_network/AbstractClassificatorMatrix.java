@@ -2,6 +2,7 @@ package maratmingazovr.leetcode.tasks.neural_network;
 
 import lombok.Data;
 import lombok.NonNull;
+import maratmingazovr.leetcode.neural_network.MatrixUtil;
 import maratmingazovr.leetcode.neural_network.Network;
 import maratmingazovr.leetcode.neural_network.NetworkConfiguration;
 import maratmingazovr.leetcode.neural_network.Util;
@@ -81,7 +82,7 @@ public abstract class AbstractClassificatorMatrix {
     }
 
     public ValidationResult validate() {
-        //network.validate(inputsTrain, targetsTrain, this::isExpectedEqualToOutput);
+        network.validate(inputsTrain, targetsTrain, this::isExpectedEqualToOutput);
         return  network.validate(inputsTest, targetsTest, this::isExpectedEqualToOutput);
     }
 
@@ -102,10 +103,10 @@ public abstract class AbstractClassificatorMatrix {
         loadData(datasetFileTrain, inputsTrainList, targetsTrainList);
         loadData(datasetFileValidate, inputsTestList, targetsTestList);
 
-        inputsTrain = Util.convertToMatrix(inputsTrainList);
-        targetsTrain = Util.convertToMatrix(targetsTrainList);
-        inputsTest = Util.convertToMatrix(inputsTestList);
-        targetsTest = Util.convertToMatrix(targetsTestList);
+        inputsTrain = MatrixUtil.convertToMatrix(inputsTrainList);
+        targetsTrain = MatrixUtil.convertToMatrix(targetsTrainList);
+        inputsTest = MatrixUtil.convertToMatrix(inputsTestList);
+        targetsTest = MatrixUtil.convertToMatrix(targetsTestList);
     };
 
     public abstract void loadData(String datasetFile, List<List<Double>> inputs, List<List<Double>> targets);

@@ -1,6 +1,8 @@
 package maratmingazovr.leetcode.java_fx;
 
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -88,6 +90,28 @@ public class JavaFxUtils {
                 series.setName(descriptions[row]);
             }
             lineChart.getData().add(series);
+        }
+
+        return scene;
+    }
+
+    @NonNull
+    public static Scene getBarChart(double[][] xValues, double[][] yValues, String[] descriptions) {
+        final CategoryAxis xAxis = new CategoryAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        //xAxis.setLabel("Number of Month");
+
+        final BarChart<String,Number> barChart = new BarChart<>(xAxis, yAxis);
+        //lineChart.setTitle("Stock Monitoring, 2010");
+        Scene scene  = new Scene(barChart, 800, 600);
+
+        for (int row = 0; row < xValues.length; row++) {
+            XYChart.Series series = new XYChart.Series();
+            for (int col = 0; col < xValues[row].length; col++) {
+                series.getData().add(new XYChart.Data(String.valueOf(xValues[row][col]), yValues[row][col]));
+                series.setName(descriptions[row]);
+            }
+            barChart.getData().add(series);
         }
 
         return scene;
