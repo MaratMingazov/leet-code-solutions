@@ -4,6 +4,8 @@ import javafx.scene.paint.Color;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.val;
+import maratmingazovr.leetcode.generative_network.naive_bayes_generator.NaiveBayesImageGenerator;
+import maratmingazovr.leetcode.java_fx.ImageFx;
 import maratmingazovr.leetcode.neural_network.Util;
 
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import java.util.stream.Collectors;
 public class ZeroDigitGenerator {
     @NonNull
     private List<List<Integer>> inputs = new ArrayList<>();
+
+    NaiveBayesImageGenerator generator;
 
     public ZeroDigitGenerator() {
         val datasetFile = "src/main/java/maratmingazovr/leetcode/tasks/generative_network/naive_bayes_generator/data/mnist_train_100.csv";
@@ -31,6 +35,17 @@ public class ZeroDigitGenerator {
                                      .collect(Collectors.toList());
             inputs.add(input);
         }
+    }
+
+    public void train() {
+        List<List<Color>> imagesColors = getColors();
+        generator = new NaiveBayesImageGenerator(imagesColors.get(0).size());
+        imagesColors.forEach(generator::addInput);
+        generator.calculateProbabilities();
+    }
+
+    public ImageFx generateImage() {
+        return generator.generateImage();
     }
 
 

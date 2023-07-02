@@ -1,6 +1,9 @@
 package maratmingazovr.leetcode.java_fx;
 
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -66,5 +69,27 @@ public class JavaFxUtils {
         List<Color> colors = new ArrayList<>();
         result.forEach(row -> colors.addAll(row.stream().map(PixelFx::getColor).collect(Collectors.toList())));
         return new ImageFx(colors);
+    }
+
+    @NonNull
+    public static Scene getLineChart(double[][] xValues, double[][] yValues, String[] descriptions) {
+        final NumberAxis xAxis = new NumberAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        //xAxis.setLabel("Number of Month");
+
+        final LineChart<Number,Number> lineChart = new LineChart<>(xAxis, yAxis);
+        //lineChart.setTitle("Stock Monitoring, 2010");
+        Scene scene  = new Scene(lineChart, 800, 600);
+
+        for (int row = 0; row < xValues.length; row++) {
+            XYChart.Series series = new XYChart.Series();
+            for (int col = 0; col < xValues[row].length; col++) {
+                series.getData().add(new XYChart.Data(xValues[row][col], yValues[row][col]));
+                series.setName(descriptions[row]);
+            }
+            lineChart.getData().add(series);
+        }
+
+        return scene;
     }
 }
