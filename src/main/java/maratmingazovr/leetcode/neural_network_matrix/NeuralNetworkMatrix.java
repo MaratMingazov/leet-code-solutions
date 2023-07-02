@@ -88,9 +88,9 @@ public class NeuralNetworkMatrix {
 
         RealMatrix input = new Array2DRowRealMatrix(inputs);
 
-        RealMatrix hInputs = wih.multiply(input).add(bih);
+        hInputs = wih.multiply(input).add(bih);
         hOutputs = Util.getActivationFunctionMatrix(activationFunctionHidden).apply(hInputs);
-        RealMatrix oInputs = who.multiply(hOutputs).add(bho);
+        oInputs = who.multiply(hOutputs).add(bho);
         oOutputs = Util.getActivationFunctionMatrix(activationFunctionHidden).apply(oInputs);
 
         return oOutputs.getColumn(0);
@@ -130,7 +130,7 @@ public class NeuralNetworkMatrix {
                 totalErrors[ep][i] = totalError(oErrors.getColumn(0));
                 updateWeights(inputs[i]);
             }
-            System.out.println("epoh=" + ep + " / totalError=" + Util.getMedian(totalErrors[ep]));
+            System.out.println("epoh=" + ep + "totalError=" + totalErrors[ep][0] +  " / medianTotalError=" + Util.getMedian(totalErrors[ep]));
         }
     }
 

@@ -1,17 +1,22 @@
 package maratmingazovr.leetcode.tasks.neural_network.mnist_digits;
 
 import lombok.NonNull;
+import lombok.val;
 import maratmingazovr.leetcode.neural_network.ActivationFunction;
+import maratmingazovr.leetcode.neural_network.Util;
 import maratmingazovr.leetcode.neural_network_matrix.NeuralNetworkMatrix;
 import maratmingazovr.leetcode.tasks.neural_network.AbstractClassificatorMatrix;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DigitsClassificatorMatrix extends AbstractClassificatorMatrix {
 
     public static void main(String[] args) {
         DigitsClassificatorMatrix classificator = new DigitsClassificatorMatrix();
-        classificator.loadNetwork();
+        classificator.createDefaultNetworkAndTrain();
     }
 
     public DigitsClassificatorMatrix() {
@@ -22,46 +27,76 @@ public class DigitsClassificatorMatrix extends AbstractClassificatorMatrix {
     }
     @Override
     public void createDefaultNetworkAndTrain() {
+        network = new NeuralNetworkMatrix(784, 100, 10, 0.3, ActivationFunction.SIGMOID, ActivationFunction.SIGMOID);
+        //loadNetwork();
+        loadData();
+        train(100);
+        //saveNetworkConfiguration();
+        validate();
 
-        double[][] wih = new double[][]{
-                new double[]{0.37, 0.48, 0.51},
-                new double[]{0.11, 0.83, 0.44},
-                new double[]{0.55, 0.63, 0.27}
-        };
-        double[][] who = new double[][]{
-                new double[]{0.37, 0.51, 0.14},
-                new double[]{0.11, 0.91, 0.57},
-                new double[]{0.07, 0.81, 0.36}
-        };
-        double[] bih = new double[]{0.31, 0.93, 0.47};
-        double[] bho = new double[]{0.11, 0.25, 0.36};
-
-        network = new NeuralNetworkMatrix(3, 3, 3, 0.3,
-                                          ActivationFunction.SIGMOID, ActivationFunction.SIGMOID,
-                                          wih, bih, who, bho);
-
-        double[][] inputs = new double[][]{new double[]{0.25, 0.48, 0.86}};
-        double[][] targets = new double[][]{new double[]{0.86, 0.45, 0.74}};
-
-        network.train(inputs, targets, 10);
-        saveNetworkConfiguration();
-    }
-
-    public void loadNetworkAndTrain() {
-        loadNetwork();
-        int a = 3;
     }
 
     @Override
-    public @NonNull Boolean isExpectedEqualToOutput(@NonNull List<Double> expected,
-                                                    @NonNull List<Double> output) {
-        return null;
+    public @NonNull Boolean isExpectedEqualToOutput(double[] target,
+                                                    double[] actual) {
+        val targetMaxValueIndex = Util.getMaxValueIndex(target);
+        val actualMaxValueIndex = Util.getMaxValueIndex(actual);
+        return targetMaxValueIndex == actualMaxValueIndex;
     }
 
     @Override
     public void loadData(String datasetFile,
                          List<List<Double>> inputs,
                          List<List<Double>> targets) {
+
+        val dataset = Util.loadCSV(datasetFile);
+        //        Collections.shuffle(dataset);
+
+        for (List<String> data : dataset) {
+            List<Double> input = data.stream()
+                                     .skip(1)
+                                     .map(Double::parseDouble)
+                                     .map(v -> (v/255)*0.99 + 0.01)
+                                     .collect(Collectors.toList());
+            inputs.add(input);
+
+            val type = data.get(0);
+            switch (type) {
+                case "0":
+                    targets.add(new ArrayList<>(Arrays.asList(0.99, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
+                    break;
+                case "1":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.99, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
+                    break;
+                case "2":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.99, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
+                    break;
+                case "3":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.99, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)));
+                    break;
+                case "4":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.99, 0.01, 0.01, 0.01, 0.01, 0.01)));
+                    break;
+                case "5":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.99, 0.01, 0.01, 0.01, 0.01)));
+                    break;
+                case "6":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.99, 0.01, 0.01, 0.01)));
+                    break;
+                case "7":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.99, 0.01, 0.01)));
+                    break;
+                case "8":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.99, 0.01)));
+                    break;
+                case "9":
+                    targets.add(new ArrayList<>(Arrays.asList(0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.99)));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid type");
+            }
+        }
+        //        Util.normalizeByFeatureScaling(inputs);
 
     }
 }

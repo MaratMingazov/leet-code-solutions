@@ -188,6 +188,16 @@ public class Util {
         return numbers.indexOf(maxValue);
     }
 
+    public static int getMaxValueIndex(@NonNull double[] numbers) {
+        Double maxValue = Arrays.stream(numbers).max().orElse(Double.MIN_VALUE);
+        for (int i = 0; i < numbers.length; i++) {
+            if (maxValue.equals(numbers[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     @NonNull
     public static List<Double> getSoftMax(@NonNull List<Double> input) {
@@ -246,7 +256,7 @@ public class Util {
     public static void randomize(double[][] matrix) {
         for (int i = 0; i < matrix.length; i++) {
             for(int j = 0; j < matrix[i].length; j++) {
-                matrix[i][j] = Math.random();
+                matrix[i][j] = Math.random()/10;
             }
         }
     }
