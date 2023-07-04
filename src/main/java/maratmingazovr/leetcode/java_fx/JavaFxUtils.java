@@ -15,7 +15,10 @@ import lombok.NonNull;
 import lombok.val;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class JavaFxUtils {
@@ -113,7 +116,56 @@ public class JavaFxUtils {
             }
             barChart.getData().add(series);
         }
-
         return scene;
+    }
+
+    @NonNull
+    public static Scene getBarChart(double[] xValues, double[] yValues, String description) {
+        double[][] x = new double[1][xValues.length];
+        x[0] = xValues;
+        double[][] y = new double[1][yValues.length];
+        y[0] = yValues;
+        String[] descriptions = new String[] {description};
+        return getBarChart(x, y, descriptions);
+    }
+
+    /**
+     * Строит гистограмму распределения
+     * [1,5,1,2,2,6,2,2,1,2,1] ->
+     *      1 -> 4
+     *      2 -> 5
+     *      5 -> 1
+     *      6 -> 1
+     */
+    public static Scene getDistributionBarChart(double[] values) {
+
+        Map<Double, Integer> map = new TreeMap<>();
+        for (int i = 0; i < values.length; i++) {
+            double value = values[i];
+            if (map.containsKey(value)) {
+                map.put(value, map.get(value) + 1);
+            } else {
+                map.put(value, 1);
+            }
+        }
+
+        List<Double> xValuesList = new ArrayList<>();
+        List<Double> yValuesList = new ArrayList<>();
+
+        map.forEach((a,b) -> {
+            xValuesList.add(a);
+            yValuesList.add(Double.valueOf(b));
+        });
+
+        double[] xValues = new double[xValuesList.size()];
+        double[] yValues = new double[yValuesList.size()];
+
+        for (int i = 0; i < xValuesList.size(); i++) {
+            xValues[i] = xValuesList.get(i);
+            yValues[i] = yValuesList.get(i);
+        }
+
+        return JavaFxUtils.getBarChart(xValues, yValues, "");
+
     }
 }
