@@ -17,12 +17,7 @@ import maratmingazovr.leetcode.java_fx.ImageFx;
 import maratmingazovr.leetcode.java_fx.JavaFxUtils;
 import maratmingazovr.leetcode.neural_network.MathUtil;
 import maratmingazovr.leetcode.tasks.generative_network.naive_bayes_generator.ZeroDigitGenerator;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import maratmingazovr.leetcode.tasks.neural_network.function_approximator.FunctionApproximator;
 
 //@SpringBootApplication
 //@ConfigurationPropertiesScan("maratmingazovr.leetcode.config")
@@ -34,6 +29,10 @@ public class JavaFX extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+
+        FunctionApproximator functionApproximator = new FunctionApproximator();
+        functionApproximator.calculateValues();
+
         double[] values = new double[]{1,2,3,4,5};
         values = MathUtil.generateNormalDistribution(7, 3, 8000);
         values = MathUtil.convertToZValues(values);
